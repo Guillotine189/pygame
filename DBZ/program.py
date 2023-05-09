@@ -7,13 +7,13 @@ SCREEN_HEIGHT = 900
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pygame.display.set_caption("Test window")
-icon_right = pygame.image.load('./image/goku/baseright.png')
-icon_left = pygame.image.load("./image/goku/baseleft.png")
-icon_a = pygame.image.load('./image/goku/about.png')
-icon_b = pygame.image.load('./image/goku/evolving.png')
-icon_c = pygame.image.load('./image/goku/evolved.png')
+icon_right = pygame.image.load('./all_image/goku/baseright.png')
+icon_left = pygame.image.load("./all_image/goku/baseleft.png")
+icon_a = pygame.image.load('./all_image/goku/about.png')
+icon_b = pygame.image.load('./all_image/goku/evolving.png')
+icon_c = pygame.image.load('./all_image/goku/evolved.png')
 curr_image = icon_right
-background = pygame.image.load("./image/back.png")
+background = pygame.image.load("./all_image/back.png")
 
 pygame.display.set_icon(icon_right)
 
