@@ -1,27 +1,33 @@
 import pygame
-
+pygame.font.init()
 pygame.init()
+
 
 SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 800
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 player_image = pygame.image.load('./images/images.png')
 menu_bg = pygame.image.load('./images/manu_1400x800.png')
+
 upper_limit = SCREEN_HEIGHT - 154
 lower_limit = -50
+
+text = pygame.font.SysFont("monospace", 50)
+
 def player(x,y):
 
     screen.blit(player_image, (x, y))
 
 def main_menu():
-
     pygame.display.set_caption("MENU")
 
-
+    textbgd = text.render("MENU", 1, (255, 255, 255))
     while True:
 
         screen.fill("black")
         screen.blit(menu_bg, (0, 0))
+        screen.blit(textbgd, (900,100))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
