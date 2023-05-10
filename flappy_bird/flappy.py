@@ -14,8 +14,8 @@ p1 = pygame.image.load('./images/top.png')
 p2 = pygame.image.load('./images/down.png')
 
 
-upper_limit = SCREEN_HEIGHT - 154
-lower_limit = -50
+upper_limit = SCREEN_HEIGHT - 146  # meaning THE BOTTOM
+lower_limit = -50       # MEANING THE TOP
 
 text = pygame.font.SysFont("monospace", 50)
 
@@ -36,7 +36,7 @@ class Button:
         else:
             pygame.draw.rect(screen, 'light grey', button_rect, 0, 5)
 
-        screen.blit(button_text, (self.x + 15, self.y + 2))
+        screen.blit(button_text, (self.x + 15, self.y))
 
 
     def check_clicekd(self):
@@ -128,6 +128,52 @@ def controls():
                     main_menu()
 
         pygame.display.update()
+HIGH_SCORE = 0
+
+def third(x):
+    global HIGH_SCORE
+    print("LOOSE")
+    back = pygame.image.load("./images/flappy_1400x800.png")
+    image = pygame.image.load('./images/dead_final_60.png')
+
+
+    if x > HIGH_SCORE:
+        score = text.render("NEW HIGH SCORE : " + str(x), 1, (0, 0, 0))
+        HIGH_SCORE = x
+        y = 430
+        z = 200
+    else:
+        score = text.render("SCORE :  " + str(x), 1, (0, 0, 0))
+        y = 500
+        z = 200
+
+    while True:
+        screen.fill("black")
+        screen.blit(back, (0, 0))
+        screen.blit(score, (y, z))
+
+        screen.blit(image, (630, 350))
+
+        button1 = Button(200, 340, "Try again", 300, 50)
+        button2 = Button(880, 340, "Main menu", 300, 50)
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                print("EXITING..")
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if button1.check_clicekd():
+                    screen2()
+                if button2.check_clicekd():
+                    main_menu()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main_menu()
+
+
+        pygame.display.update()
 
 def screen2():
     print("Screen2")
@@ -136,18 +182,17 @@ def screen2():
     pygame.display.set_caption("FLAPPY BIRD")
     background = pygame.image.load("./images/flappy_1400x800.png")
 
-
+    count = 0
     playerX = 0
     playerY = 200
     playerX_ch = 0
     playerY_ch = 0
-
     while True:
 
         screen.fill("black")
         screen.blit(background, (0, 0))
         back = Button(SCREEN_WIDTH - 330, SCREEN_HEIGHT - 60, 'MAIN MENU', 300, 50)
-
+        score_text = text.render(str(count), 1, (0, 0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING..")
@@ -157,12 +202,14 @@ def screen2():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     playerY_ch -= up_speed
+                    count = count + 1
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     playerY_ch -= up_speed
+                    count = count + 1
                 if back.check_clicekd():
                     main_menu()
 
@@ -173,14 +220,19 @@ def screen2():
 
         if playerY >= upper_limit:
             playerY = upper_limit
-            playerY_ch -= gravity
+            # playerY_ch -= gravity
+            playerY_ch = 0
+            third(count)
 
         if playerY < lower_limit:
             playerY = lower_limit
-            playerY_ch += gravity
+            # playerY_ch += gravity
+            playerY_ch = 0
+            third(count)
 
 
         player(player_image, playerX, playerY)
+        screen.blit(score_text, (SCREEN_WIDTH - 60, 30))
         pygame.display.update()
 
 
