@@ -9,7 +9,7 @@ SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 800
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-player_image = pygame.image.load('./images/images.png')
+player_image = pygame.image.load('./images/base.png')
 p1 = pygame.image.load('./images/top.png')
 p2 = pygame.image.load('./images/down.png')
 
@@ -55,7 +55,7 @@ def player(z, x, y):
 def main_menu():
     print("MENU")
     pygame.display.set_caption("MENU")
-    menu_bg = pygame.image.load('./images/manu_1400x800.png')
+    menu_bg = pygame.image.load('./images/menu_1400x800.png')
     textbgd = text.render("MENU", 1, (255, 255, 255))
 
     while True:
@@ -104,7 +104,7 @@ def controls():
     control_text2 = text.render("LEFT CLICK OR PRESS SPACE BAR TO FLY", True, (0, 0, 0))
     control_text3 = text.render("PRESS ESCAPE TO GO BACK ", True, (0, 0, 0))
 
-    back = pygame.image.load('./images/manu_1400x800.png')
+    back = pygame.image.load('./images/menu_1400x800.png')
     while True:
 
         screen.fill("black")
@@ -133,7 +133,7 @@ HIGH_SCORE = 0
 def third(x):
     global HIGH_SCORE
     print("LOOSE")
-    back = pygame.image.load("./images/flappy_1400x800.png")
+    back = pygame.image.load("./images/main_1400x800.png")
     image = pygame.image.load('./images/dead_final_60.png')
 
 
@@ -180,7 +180,7 @@ def screen2():
     up_speed = 7
     gravity = 0.1
     pygame.display.set_caption("FLAPPY BIRD")
-    background = pygame.image.load("./images/flappy_1400x800.png")
+    background = pygame.image.load("./images/main_1400x800.png")
 
     count = 0
     playerX = 0

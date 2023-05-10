@@ -11,7 +11,7 @@ SET_WIDTH = 1400
 new_font = pygame.font.Font(None, 80)
 
 screen = pygame.display.set_mode((SET_WIDTH, SET_HEIGHT))
-background = pygame.image.load('./images/flappy_1400x800.png').convert_alpha()
+background = pygame.image.load('./images/main_1400x800.png').convert_alpha()
 image_up = pygame.image.load("./images/tube_up.png").convert_alpha()
 image_up_rect = image_up.get_rect(midtop=(800, 450))
 image_up_x = 500
@@ -21,7 +21,7 @@ image_down_rect = image_down.get_rect(topright=(1000, 0))
 image_down_x = 500
 image_down_y = -80
 pygame.display.set_caption("LEARN")
-player_image = pygame.image.load('./images/images.png').convert_alpha()
+player_image = pygame.image.load('./images/base.png').convert_alpha()
 player_rect = player_image.get_rect(bottomright=(image_down_x + 70, 520))
 
 text = new_font.render('Flappy bird', True, 'green')
