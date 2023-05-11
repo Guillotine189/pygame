@@ -208,6 +208,7 @@ def second():
 
 
         p1.draw()
+        pygame.draw.rect(screen, 'black', p1.player_rect, 2)
         pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
         pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
         pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
