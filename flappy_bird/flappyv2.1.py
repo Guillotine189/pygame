@@ -46,7 +46,7 @@ obs3_down_co = (1150, 0)
 obs4_down_co = (1450, 0)
 obs5_down_co = (1750, 0)
 
-
+# PIPE FACING DOWN CAN COME DOWN MAX = 215 FROM Y AXIS BEFORE IT ENDS
 
 # OBSTACLE IMAGES
 obs_down1 = pygame.image.load('./images/tube_down.png').convert_alpha()
@@ -79,7 +79,7 @@ class player:
     def __init__(self, player, player_rect):
         self.player = player
         self.player_rect = player_rect
-        self.hitbox = (player_rect.left + 60, player_rect.top + 50, 135, 95) # top left, top right, width, height
+        self.hitbox = pygame.Rect(player_rect.left + 60, player_rect.top + 50, 135, 95)# top left, top right, width, height
 
     def move(self, a):
         self.player_rect.top += a
@@ -92,7 +92,8 @@ class tube:
     def __init__(self, obstacle, obstacle_rect):
         self.obstacle = obstacle
         self.obstacle_rect = obstacle_rect
-        #self.hitbox
+        self.hitbox_up = pygame.Rect(obstacle_rect.left + 60, obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
+        self.hitbox_down = pygame.Rect(obstacle_rect.left + 60, obstacle_rect.top + 5, 110, 418)  # top left, top right, width, height
         screen.blit(self.obstacle, self.obstacle_rect)
 
     def move(self, obstacle_rect, speed):
@@ -112,11 +113,15 @@ gravity = 0
 
 
 def second():
+
     pygame.display.set_caption('FLAPPY BIRD')
     print("Main")
+
     global gravity
+
     gravity = 0
     tubespeed = -2
+
     obs_new_pos_up = 1600
     obs_new_pos_down = 1600
 
@@ -159,12 +164,12 @@ def second():
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -3.8
 
-        # if p1.player_rect.colliderect(OB1.obstacle_rect) or p1.player_rect.colliderect(OB2.obstacle_rect) or p1.player_rect.colliderect(OB3.obstacle_rect):
-        #     print("COLLIDE1")
-        # if p1.player_rect.colliderect(OB4.obstacle_rect) or p1.player_rect.colliderect(OB5.obstacle_rect) or p1.player_rect.colliderect(OB6.obstacle_rect):
-        #     print("COLLIDE2")
-        # if p1.player_rect.colliderect(OB7.obstacle_rect) or p1.player_rect.colliderect(OB8.obstacle_rect) or p1.player_rect.colliderect(OB8.obstacle_rect) or p1.player_rect.colliderect(OB10.obstacle_rect):
-        #     print("COLLIDE3")
+        if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
+            print("COLLIDE1")
+        if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
+            print("COLLIDE2")
+        if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
+            print("COLLIDE3")
 
         gravity += 0.08
         p1.move(gravity)
@@ -210,16 +215,16 @@ def second():
 
         p1.draw()
         pygame.draw.rect(screen, 'black', p1.hitbox, 2)
-        pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB4.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB5.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB6.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB7.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB8.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
-        pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
         pygame.display.update()
 
