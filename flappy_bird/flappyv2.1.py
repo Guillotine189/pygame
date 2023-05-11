@@ -25,7 +25,7 @@ player_gameplay_base = pygame.image.load('./images/base.png').convert_alpha()
 # PLAYER RECTANGLES
 player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
 player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
-player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 150))
+player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 300))
 
 
 # BACKGROUND IMAGES
@@ -34,17 +34,17 @@ background_play = pygame.image.load('./images/main_1400x800.png').convert_alpha(
 
 
 #3 OBSTACLE INITIAL POSITION
-obs1_up_co = (550, 700)
-obs2_up_co = (850, 750)
-obs3_up_co = (1150, 800)
-obs4_up_co = (1450, 720)
-obs5_up_co = (1750, 600)
+obs1_up_co = (1550, 700)
+obs2_up_co = (1850, 750)
+obs3_up_co = (2150, 800)
+obs4_up_co = (2450, 720)
+obs5_up_co = (2750, 600)
 
-obs1_down_co = (550, 0)
-obs2_down_co = (850, 0)
-obs3_down_co = (1150, 0)
-obs4_down_co = (1450, 0)
-obs5_down_co = (1750, 0)
+obs1_down_co = (1550, 0)
+obs2_down_co = (1850, 0)
+obs3_down_co = (2150, 0)
+obs4_down_co = (2450, 0)
+obs5_down_co = (2750, 0)
 
 # PIPE FACING DOWN CAN COME DOWN MAX = 215 FROM Y AXIS BEFORE IT ENDS
 
@@ -113,9 +113,24 @@ gravity = 0
 
 
 def second():
-
+    count = 0
     pygame.display.set_caption('FLAPPY BIRD')
     print("Main")
+
+    # INITIALIZE PLAYER IMAGE
+    player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 300))
+
+    # INITIALIZE POSITION FOR TUBES
+    obs_up1_rect = obs_up1.get_rect(midright=obs1_up_co)
+    obs_up2_rect = obs_up2.get_rect(midright=obs2_up_co)
+    obs_up3_rect = obs_up3.get_rect(midright=obs3_up_co)
+    obs_up4_rect = obs_up4.get_rect(midright=obs4_up_co)
+    obs_up5_rect = obs_up5.get_rect(midright=obs5_up_co)
+    obs_down1_rect = obs_down1.get_rect(midright=obs1_down_co)
+    obs_down2_rect = obs_down1.get_rect(midright=obs2_down_co)
+    obs_down3_rect = obs_down1.get_rect(midright=obs3_down_co)
+    obs_down4_rect = obs_down1.get_rect(midright=obs4_down_co)
+    obs_down5_rect = obs_down1.get_rect(midright=obs5_down_co)
 
     global gravity
 
@@ -157,19 +172,24 @@ def second():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     gravity = -3.8
+                    count += 1
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -3.8
+                    count += 1
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
+            third(count)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
+            third(count)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
+            third(count)
 
         gravity += 0.08
         p1.move(gravity)
@@ -229,9 +249,49 @@ def second():
         pygame.display.update()
 
 
+HIGH_SCORE = 0
+
+def third(x):
+    global HIGH_SCORE
+
+    print('LOOSE')
+    pygame.display.set_caption('BETTER LUCK NEXT TIME')
+    dead_image = pygame.image.load('./images/dead_final_60.png').convert_alpha()
+
+    if x > HIGH_SCORE:
+        score = font_menu.render("NEW HIGH SCORE : " + str(x), 1, (0, 0, 0))
+        HIGH_SCORE = x
+        y = 430
+        z = 200
+    else:
+        score = font_menu.render("SCORE :  " + str(x), 1, (0, 0, 0))
+        y = 500
+        z = 200
+
+    while True:
+
+        screen.fill('black')
+        screen.blit(background_play, (0, 0))
+        screen.blit(score, (y, z))
+        screen.blit(dead_image, (630, 350))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main_menu()
+
+        pygame.display.update()
+
 
 
 def main_menu():
+
+    player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
+    player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
+
     pygame.display.set_caption('MENU')
 
     print("MENU")
