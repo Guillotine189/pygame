@@ -21,6 +21,8 @@ bird_font_menu = pygame.font.SysFont('monospace', 30)
 player_base_image = pygame.image.load('./images/base.png').convert_alpha()
 player_base_image_flip = pygame.image.load('./images/base_flip.png').convert_alpha()
 player_gameplay_base = pygame.image.load('./images/base.png').convert_alpha()
+dead_image = pygame.image.load('./images/dead_final_60.png').convert_alpha()
+dead_image_up = pygame.image.load('./images/dead_final_60_up.png').convert_alpha()
 
 
 # BACKGROUND IMAGES
@@ -128,7 +130,6 @@ def second():
         screen.blit(background_play, (0, 0))
 
         # OBSTACLE
-
         OB1 = tube(obs_up1, obs_up1_rect)
         OB2 = tube(obs_up2, obs_up2_rect)
         OB3 = tube(obs_up3, obs_up3_rect)
@@ -165,13 +166,13 @@ def second():
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
-            third(count)
+            intermidiate(p1, count)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
-            third(count)
+            intermidiate(p1, count)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
-            third(count)
+            intermidiate(p1, count)
 
         gravity += 0.08
         p1.move(gravity)
@@ -233,12 +234,43 @@ def second():
 
 HIGH_SCORE = 0
 
+
+def intermidiate(p1, score):
+    g = 0
+    initial_height = p1.player_rect.top;
+    pygame.display.set_caption('BETTER LUCK NEXT TIME')
+    touch = 0
+
+    while True:
+        screen.fill('black')
+        screen.blit(background_play, (0, 0))
+        screen.blit(dead_image_up, (p1.player_rect.left + 60, p1.player_rect.top + 10))
+        new_height = p1.player_rect.top
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main_menu()
+
+        if touch == 0 and new_height == initial_height:
+            g = -2.8
+            touch = 1
+
+        p1.move(g)
+        g += 0.06
+
+        if new_height >= 900:
+            third(score)
+        pygame.display.update()
+
 def third(x):
     global HIGH_SCORE
 
     print('LOOSE')
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
-    dead_image = pygame.image.load('./images/dead_final_60.png').convert_alpha()
+
 
     if x > HIGH_SCORE:
         score = font_menu.render("NEW HIGH SCORE : " + str(x), 1, (0, 0, 0))
@@ -266,7 +298,6 @@ def third(x):
                     main_menu()
 
         pygame.display.update()
-
 
 
 def main_menu():
@@ -324,7 +355,6 @@ def main_menu():
                 screen.blit(help_text, flip_bird.player_rect.topleft)
             else:
                 screen.blit(leave_alone_text, flip_bird.player_rect.topleft)
-
 
         # MOVING BIRD L->R and R->L
         if direction == 'right' and bird.player_rect.left <= 750:
