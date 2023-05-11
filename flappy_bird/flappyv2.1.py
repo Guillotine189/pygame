@@ -14,6 +14,7 @@ screen = pygame.display.set_mode((SET_WIDTH, SET_HEIGHT))
 
 # SET FONTS
 font_menu = pygame.font.SysFont('monospace', 50)
+bird_font_menu = pygame.font.SysFont('monospace', 30)
 
 
 # IMAGES PLAYER
@@ -213,23 +214,26 @@ def main_menu():
     menu_text = font_menu.render('MENU', False, 'black')
     direction = 'right'
     while True:
-        #   FILL SCREEN
+        # FILL SCREEN
         screen.fill('black')
 
-        # SCREEN MENU + TEXT
+        # SCREEN MENU
         screen.blit(background_menu, (0, 0))
         screen.blit(menu_text, (950, 200))
-
-        go_away_text = font_menu.render('GO AWAY', 1, ('black'))
-
-        # mouse
-        m_pos = pygame.mouse.get_pos()
 
         # BIRD
         bird = player(player_base_image, player_base_image_rect)
         flip_bird = player(player_base_image_flip, player_base_image_flip_rect)
 
+        # TEXT AND THEIR RECTANGLES
+        leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
+        help_text = bird_font_menu.render('SOMEONE HELP ME !', True, 'black').convert_alpha()
+
+        # mouse
+        m_pos = pygame.mouse.get_pos()
+
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -242,6 +246,19 @@ def main_menu():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+
+        if bird.player_rect.collidepoint(m_pos) and direction == 'right':
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                screen.blit(help_text, bird.player_rect.topleft)
+            else:
+                screen.blit(leave_alone_text, bird.player_rect.topleft)
+
+        if flip_bird.player_rect.collidepoint(m_pos) and direction == 'left':
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                screen.blit(help_text, flip_bird.player_rect.topleft)
+            else:
+                screen.blit(leave_alone_text, flip_bird.player_rect.topleft)
+
 
         if direction == 'right' and bird.player_rect.left <= 750:
             bird.player_rect.left += 1
