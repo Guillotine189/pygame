@@ -77,7 +77,7 @@ class tube:
         self.obstacle = obstacle
         self.obstacle_rect = obstacle_rect
         self.hitbox_up = pygame.Rect(obstacle_rect.left + 60, obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
-        self.hitbox_down = pygame.Rect(obstacle_rect.left + 60, obstacle_rect.top + 5, 110, 418)  # top left, top right, width, height
+        self.hitbox_down = pygame.Rect(obstacle_rect.left + 60, obstacle_rect.top + 5, 110, 418)
         screen.blit(self.obstacle, self.obstacle_rect)
 
     def move(self, obstacle_rect, speed):
@@ -97,7 +97,9 @@ gravity = 0
 
 
 def second():
-    count = 0
+    score_rangex = 49
+    score_rangey = 51
+    score = 0
     pygame.display.set_caption('FLAPPY BIRD')
     print("Main")
 
@@ -155,24 +157,25 @@ def second():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     gravity = -3.8
-                    count += 1
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -3.8
-                    count += 1
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
-            intermidiate(p1, count)
+            intermidiate(p1, score)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
-            intermidiate(p1, count)
+            intermidiate(p1, score)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
-            intermidiate(p1, count)
+            intermidiate(p1, score)
+
+        if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
+            score += 1
 
         gravity += 0.08
         p1.move(gravity)
@@ -210,7 +213,6 @@ def second():
         if OB10.check(0):
             OB10.position(obs_new_pos_down)
 
-
         if p1.player_rect.top >= SET_HEIGHT - 130:
             p1.player_rect.bottom = SET_HEIGHT - 130
             intermidiate(p1, count)
@@ -218,20 +220,19 @@ def second():
             p1.player_rect.top = -50
             intermidiate(p1, count)
 
+        # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
+        # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
         p1.draw()
-        pygame.draw.rect(screen, 'black', p1.hitbox, 2)
-        pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
-
         pygame.display.update()
 
 
@@ -267,6 +268,7 @@ def intermidiate(p1, score):
         if new_height >= 900:
             third(score)
         pygame.display.update()
+
 
 def third(x):
     global HIGH_SCORE
@@ -315,6 +317,7 @@ def main_menu():
     menu_text = font_menu.render('MENU', False, 'black')
     direction = 'right'
     while True:
+
         # FILL SCREEN
         screen.fill('black')
 
@@ -322,11 +325,11 @@ def main_menu():
         screen.blit(background_menu, (0, 0))
         screen.blit(menu_text, (950, 200))
 
-        # BIRD
+        # INITIALIZE BIRD
         bird = player(player_base_image, player_base_image_rect)
         flip_bird = player(player_base_image_flip, player_base_image_flip_rect)
 
-        # TEXT AND THEIR RECTANGLES
+        # RENDERING TEXT
         leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
         help_text = bird_font_menu.render('SOMEONE HELP ME !', True, 'black').convert_alpha()
 
@@ -334,7 +337,6 @@ def main_menu():
         m_pos = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
