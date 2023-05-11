@@ -74,18 +74,20 @@ obs_down5_rect = obs_down1.get_rect(midright=obs5_down_co)
 
 
 class player:
-    def __init__(self, x,y):
-        self.x = x
-        self.y = y
+
+    def __init__(self, player, player_rect):
+        self.player = player
+        self.player_rect = player_rect
 
     def move(self, a):
-        player_gameplay_base_rect.top += a
+        self.player_rect.top += a
 
-    def draw(self, z):
-        screen.blit(z, player_gameplay_base_rect)
+    def draw(self):
+        screen.blit(self.player, self.player_rect)
 
 
 class tube:
+
     def __init__(self, obstacle, obstacle_rect):
         self.obstacle = obstacle
         self.obstacle_rect = obstacle_rect
@@ -97,8 +99,8 @@ class tube:
     def position(self, rect_midright_pos):
         self.obstacle_rect.right = rect_midright_pos
 
-    def check(self):
-        if self.obstacle_rect.right < 0:
+    def check(self, value):
+        if self.obstacle_rect.right < value:
             return 1
         else:
             return 0
@@ -134,10 +136,7 @@ def second():
         OB10 = tube(obs_down5, obs_down5_rect)
 
         # PLAYER
-
-        p1 = player(50, 150)
-
-
+        p1 = player(player_gameplay_base, player_gameplay_base_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -157,6 +156,8 @@ def second():
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -3.8
 
+
+
         gravity += 0.08
         p1.move(gravity)
 
@@ -171,26 +172,26 @@ def second():
         OB9.move(obs_down4_rect, tubespeed)
         OB10.move(obs_down5_rect, tubespeed)
 
-        if OB1.check():
+        if OB1.check(0):
             OB1.position(obs_new_pos_up)
-        if OB2.check():
+        if OB2.check(0):
             OB2.position(obs_new_pos_up)
-        if OB3.check():
+        if OB3.check(0):
             OB3.position(obs_new_pos_up)
-        if OB4.check():
+        if OB4.check(0):
             OB4.position(obs_new_pos_up)
-        if OB5.check():
+        if OB5.check(0):
             OB5.position(obs_new_pos_up)
 
-        if OB6.obstacle_rect.right < 0:
+        if OB6.check(0):
             OB6.position(obs_new_pos_down)
-        if OB7.obstacle_rect.right < 0:
+        if OB7.check(0):
             OB7.position(obs_new_pos_down)
-        if OB8.obstacle_rect.right < 0:
+        if OB8.check(0):
             OB8.position(obs_new_pos_down)
-        if OB9.obstacle_rect.right < 0:
+        if OB9.check(0):
             OB9.position(obs_new_pos_down)
-        if OB10.obstacle_rect.right < 0:
+        if OB10.check(0):
             OB10.position(obs_new_pos_down)
 
         if player_gameplay_base_rect.bottom >= SET_HEIGHT + 50:
@@ -199,7 +200,7 @@ def second():
             player_gameplay_base_rect.top = -50
 
 
-        p1.draw(player_gameplay_base)
+        p1.draw()
 
         pygame.display.update()
 
@@ -219,6 +220,14 @@ def main_menu():
         screen.blit(background_menu, (0, 0))
         screen.blit(menu_text, (950, 200))
 
+        go_away_text = font_menu.render('GO AWAY', 1, ('black'))
+
+        # mouse
+        m_pos = pygame.mouse.get_pos()
+
+        # BIRD
+        bird = player(player_base_image, player_base_image_rect)
+        flip_bird = player(player_base_image_flip, player_base_image_flip_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -234,21 +243,20 @@ def main_menu():
                     pygame.quit()
                     sys.exit()
 
-
-        if direction == 'right' and player_base_image_rect.right < 750:
-            player_base_image_rect.left += 1
-            screen.blit(player_base_image, player_base_image_rect)
-        if direction == 'right' and player_base_image_rect.right >= 750:
+        if direction == 'right' and bird.player_rect.left <= 750:
+            bird.player_rect.left += 1
+            bird.draw()
+        if direction == 'right' and bird.player_rect.right > 750:
             direction = 'left'
-            screen.blit(player_base_image_flip, player_base_image_flip_rect)
-            player_base_image_rect.left = 50
-        if direction == 'left' and player_base_image_flip_rect.left > 50:
-            player_base_image_flip_rect.left -= 1
-            screen.blit(player_base_image_flip, player_base_image_flip_rect)
-        if direction == 'left' and player_base_image_flip_rect.left <= 50:
+            flip_bird.draw()
+            bird.player_rect.left = 50
+        if direction == 'left' and flip_bird.player_rect.left > 50:
+            flip_bird.player_rect.left -= 1
+            flip_bird.draw()
+        if direction == 'left' and flip_bird.player_rect.left <= 50:
             direction = 'right'
-            screen.blit(player_base_image, player_base_image_rect)
-            player_base_image_flip_rect.right = 750
+            bird.draw()
+            flip_bird.player_rect.right = 750
 
         pygame.display.update()
 
