@@ -111,9 +111,10 @@ gravity = 0
 
 
 def second():
+    pygame.display.set_caption('FLAPPY BIRD')
     print("Main")
     global gravity
-
+    gravity = 0
     tubespeed = -2
     obs_new_pos_up = 1600
     obs_new_pos_down = 1600
@@ -157,7 +158,12 @@ def second():
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -3.8
 
-
+        # if p1.player_rect.colliderect(OB1.obstacle_rect) or p1.player_rect.colliderect(OB2.obstacle_rect) or p1.player_rect.colliderect(OB3.obstacle_rect):
+        #     print("COLLIDE1")
+        # if p1.player_rect.colliderect(OB4.obstacle_rect) or p1.player_rect.colliderect(OB5.obstacle_rect) or p1.player_rect.colliderect(OB6.obstacle_rect):
+        #     print("COLLIDE2")
+        # if p1.player_rect.colliderect(OB7.obstacle_rect) or p1.player_rect.colliderect(OB8.obstacle_rect) or p1.player_rect.colliderect(OB8.obstacle_rect) or p1.player_rect.colliderect(OB10.obstacle_rect):
+        #     print("COLLIDE3")
 
         gravity += 0.08
         p1.move(gravity)
@@ -202,6 +208,16 @@ def second():
 
 
         p1.draw()
+        pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB4.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB5.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB6.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB7.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB8.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
+        pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
 
         pygame.display.update()
 
@@ -209,7 +225,8 @@ def second():
 
 
 def main_menu():
-    global gravity
+    pygame.display.set_caption('MENU')
+
     print("MENU")
     menu_text = font_menu.render('MENU', False, 'black')
     direction = 'right'
