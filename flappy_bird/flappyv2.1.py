@@ -22,18 +22,13 @@ player_base_image = pygame.image.load('./images/base.png').convert_alpha()
 player_base_image_flip = pygame.image.load('./images/base_flip.png').convert_alpha()
 player_gameplay_base = pygame.image.load('./images/base.png').convert_alpha()
 
-# PLAYER RECTANGLES
-player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
-player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
-player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 300))
-
 
 # BACKGROUND IMAGES
 background_menu = pygame.image.load('./images/menu_1400x800.png').convert_alpha()
 background_play = pygame.image.load('./images/main_1400x800.png').convert_alpha()
 
 
-#3 OBSTACLE INITIAL POSITION
+# OBSTACLE INITIAL POSITION
 obs1_up_co = (1550, 700)
 obs2_up_co = (1850, 750)
 obs3_up_co = (2150, 800)
@@ -59,19 +54,6 @@ obs_down4 = pygame.image.load('./images/tube_down.png').convert_alpha()
 obs_up4 = pygame.image.load('./images/tube_up.png').convert_alpha()
 obs_down5 = pygame.image.load('./images/tube_down.png').convert_alpha()
 obs_up5 = pygame.image.load('./images/tube_up.png').convert_alpha()
-
-
-# OBSTACLE RECTANGLE
-obs_up1_rect = obs_up1.get_rect(midright=obs1_up_co)
-obs_up2_rect = obs_up2.get_rect(midright=obs2_up_co)
-obs_up3_rect = obs_up3.get_rect(midright=obs3_up_co)
-obs_up4_rect = obs_up4.get_rect(midright=obs4_up_co)
-obs_up5_rect = obs_up5.get_rect(midright=obs5_up_co)
-obs_down1_rect = obs_down1.get_rect(midright=obs1_down_co)
-obs_down2_rect = obs_down1.get_rect(midright=obs2_down_co)
-obs_down3_rect = obs_down1.get_rect(midright=obs3_down_co)
-obs_down4_rect = obs_down1.get_rect(midright=obs4_down_co)
-obs_down5_rect = obs_down1.get_rect(midright=obs5_down_co)
 
 
 class player:
@@ -117,10 +99,10 @@ def second():
     pygame.display.set_caption('FLAPPY BIRD')
     print("Main")
 
-    # INITIALIZE PLAYER IMAGE
+    # INITIALIZE PLAYER RECTANGLES
     player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 300))
 
-    # INITIALIZE POSITION FOR TUBES
+    # INITIALIZE OBSTACLE RECTANGLE
     obs_up1_rect = obs_up1.get_rect(midright=obs1_up_co)
     obs_up2_rect = obs_up2.get_rect(midright=obs2_up_co)
     obs_up3_rect = obs_up3.get_rect(midright=obs3_up_co)
@@ -289,6 +271,7 @@ def third(x):
 
 def main_menu():
 
+    # INITIALIZE PLAYER RECTANGLES
     player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
     player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
 
@@ -324,26 +307,26 @@ def main_menu():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    player_gameplay_base_rect.top = 150
-                    gravity = 0
                     second()
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
 
-        if bird.player_rect.collidepoint(m_pos) and direction == 'right':
+        # MOUSE ON BIRD
+        if bird.hitbox.collidepoint(m_pos) and direction == 'right':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 screen.blit(help_text, bird.player_rect.topleft)
             else:
                 screen.blit(leave_alone_text, bird.player_rect.topleft)
 
-        if flip_bird.player_rect.collidepoint(m_pos) and direction == 'left':
+        if flip_bird.hitbox.collidepoint(m_pos) and direction == 'left':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 screen.blit(help_text, flip_bird.player_rect.topleft)
             else:
                 screen.blit(leave_alone_text, flip_bird.player_rect.topleft)
 
 
+        # MOVING BIRD L->R and R->L
         if direction == 'right' and bird.player_rect.left <= 750:
             bird.player_rect.left += 1
             bird.draw()
