@@ -77,6 +77,139 @@ class tube:
             return 0
 
 
+
+
+class button:
+    def __init__(self, text, x, y, w, h):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+
+    def draw(self):
+        button_text = font_menu.render(self.text, True, 'black')
+        button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
+        if self.check_hover():
+            pygame.draw.rect(screen, 'dark grey', button_rect, 0, 5)
+        else:
+            pygame.draw.rect(screen, 'grey', button_rect, 0, 5)
+
+        screen.blit(button_text, (self.x + 15, self.y))
+
+
+    def check_click(self):
+        left_button = pygame.mouse.get_pressed()[0]
+        button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
+        mouse_pos = pygame.mouse.get_pos()
+        if left_button and button_rect.collidepoint(mouse_pos):
+            return 1
+        else:
+            return 0
+
+    def check_hover(self):
+        mouse_pos = pygame.mouse.get_pos()
+        button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
+        if button_rect.collidepoint(mouse_pos):
+            return 1
+        else:
+            return 0
+
+def main_menu():
+
+    # INITIALIZE PLAYER RECTANGLES
+    player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
+    player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
+
+    pygame.display.set_caption('MENU')
+
+    print("MENU")
+    menu_text = font_menu.render('MENU', False, (12, 130, 72))
+    direction = 'right'
+    while True:
+
+        # FILL SCREEN
+        screen.fill('black')
+
+        # SCREEN MENU
+        screen.blit(background_menu, (0, 0))
+        screen.blit(menu_text, (900, 300))
+        pygame.draw.line(screen, 'black', (900, 345), (1020, 345), 2)
+
+        # INITIALIZE BIRD
+        bird = player(player_base_image, player_base_image_rect)
+        flip_bird = player(player_base_image_flip, player_base_image_flip_rect)
+
+        # RENDERING TEXT
+        leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
+        help_text = bird_font_menu.render('SOMEONE HELP ME !', True, 'black').convert_alpha()
+
+        # INITIALIZE BUTTON
+        button1 = button('PLAY', 800, 400, 150, 50)
+        button2 = button('EXIT', 1000, 400, 150, 50)
+
+        # mouse
+        m_pos = pygame.mouse.get_pos()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print("EXITING")
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    second()
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if button1.check_click():
+                    second()
+                if button2.check_click():
+                    print("EXITING")
+                    pygame.quit()
+                    sys.exit()
+
+        # MOUSE ON BIRD
+        if bird.hitbox.collidepoint(m_pos) and direction == 'right':
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                screen.blit(help_text, bird.player_rect.topleft)
+            else:
+                screen.blit(leave_alone_text, bird.player_rect.topleft)
+
+        if flip_bird.hitbox.collidepoint(m_pos) and direction == 'left':
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                screen.blit(help_text, flip_bird.player_rect.topleft)
+            else:
+                screen.blit(leave_alone_text, flip_bird.player_rect.topleft)
+
+        # MOVING BIRD L->R and R->L
+        if direction == 'right' and bird.player_rect.left <= 750:
+            bird.player_rect.left += 1
+            bird.draw()
+        if direction == 'right' and bird.player_rect.right > 750:
+            direction = 'left'
+            flip_bird.draw()
+            bird.player_rect.left = 50
+        if direction == 'left' and flip_bird.player_rect.left > 50:
+            flip_bird.player_rect.left -= 1
+            flip_bird.draw()
+        if direction == 'left' and flip_bird.player_rect.left <= 50:
+            direction = 'right'
+            bird.draw()
+            flip_bird.player_rect.right = 750
+
+
+        button1.draw()
+        button2.draw()
+        pygame.display.update()
+
+
+
+
+
+
 gravity = 0
 
 
@@ -158,6 +291,7 @@ def second():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("EXITING")
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
@@ -226,10 +360,12 @@ def second():
 
         if p1.player_rect.top >= SET_HEIGHT - 130:
             p1.player_rect.bottom = SET_HEIGHT - 130
-            intermidiate(p1, count)
+            intermidiate(p1, score)
         if p1.player_rect.top <= -50:
             p1.player_rect.top = -50
-            intermidiate(p1, count)
+            intermidiate(p1, score)
+
+        score_text = font_menu.render(str(score), True, 'black')
 
         # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
         # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
@@ -244,6 +380,7 @@ def second():
         # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
         p1.draw()
+        screen.blit(score_text, (SET_WIDTH - 50, 15))
         pygame.display.update()
 
 
@@ -263,6 +400,7 @@ def intermidiate(p1, score):
         new_height = p1.player_rect.top
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("EXITING")
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
@@ -283,6 +421,10 @@ def intermidiate(p1, score):
 
 def third(x):
     global HIGH_SCORE
+
+    b1 = button('TRY AGAIN', 200, 340, 300, 50)
+    b2 = button('MAIN MENU', 880, 340, 300, 50)
+    b3 = button('EXIT', 620, 540, 150, 50)
 
     print('LOOSE')
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
@@ -307,87 +449,25 @@ def third(x):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("EXITING")
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
-
-        pygame.display.update()
-
-
-def main_menu():
-
-    # INITIALIZE PLAYER RECTANGLES
-    player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
-    player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
-
-    pygame.display.set_caption('MENU')
-
-    print("MENU")
-    menu_text = font_menu.render('MENU', False, 'black')
-    direction = 'right'
-    while True:
-
-        # FILL SCREEN
-        screen.fill('black')
-
-        # SCREEN MENU
-        screen.blit(background_menu, (0, 0))
-        screen.blit(menu_text, (950, 200))
-
-        # INITIALIZE BIRD
-        bird = player(player_base_image, player_base_image_rect)
-        flip_bird = player(player_base_image_flip, player_base_image_flip_rect)
-
-        # RENDERING TEXT
-        leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
-        help_text = bird_font_menu.render('SOMEONE HELP ME !', True, 'black').convert_alpha()
-
-        # mouse
-        m_pos = pygame.mouse.get_pos()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if b1.check_click():
                     second()
-                if event.key == pygame.K_ESCAPE:
+                if b2.check_click():
+                    main_menu()
+                if b3.check_click():
+                    print("EXITING")
                     pygame.quit()
                     sys.exit()
 
-        # MOUSE ON BIRD
-        if bird.hitbox.collidepoint(m_pos) and direction == 'right':
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                screen.blit(help_text, bird.player_rect.topleft)
-            else:
-                screen.blit(leave_alone_text, bird.player_rect.topleft)
-
-        if flip_bird.hitbox.collidepoint(m_pos) and direction == 'left':
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                screen.blit(help_text, flip_bird.player_rect.topleft)
-            else:
-                screen.blit(leave_alone_text, flip_bird.player_rect.topleft)
-
-        # MOVING BIRD L->R and R->L
-        if direction == 'right' and bird.player_rect.left <= 750:
-            bird.player_rect.left += 1
-            bird.draw()
-        if direction == 'right' and bird.player_rect.right > 750:
-            direction = 'left'
-            flip_bird.draw()
-            bird.player_rect.left = 50
-        if direction == 'left' and flip_bird.player_rect.left > 50:
-            flip_bird.player_rect.left -= 1
-            flip_bird.draw()
-        if direction == 'left' and flip_bird.player_rect.left <= 50:
-            direction = 'right'
-            bird.draw()
-            flip_bird.player_rect.right = 750
-
+        b1.draw()
+        b2.draw()
+        b3.draw()
         pygame.display.update()
 
 
