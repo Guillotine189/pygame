@@ -1,5 +1,5 @@
 import sys
-
+import random
 import pygame
 
 pygame.init()
@@ -28,22 +28,6 @@ dead_image_up = pygame.image.load('./images/dead_final_60_up.png').convert_alpha
 # BACKGROUND IMAGES
 background_menu = pygame.image.load('./images/menu_1400x800.png').convert_alpha()
 background_play = pygame.image.load('./images/main_1400x800.png').convert_alpha()
-
-
-# OBSTACLE INITIAL POSITION
-obs1_up_co = (1550, 700)
-obs2_up_co = (1850, 750)
-obs3_up_co = (2150, 800)
-obs4_up_co = (2450, 720)
-obs5_up_co = (2750, 600)
-
-obs1_down_co = (1550, 0)
-obs2_down_co = (1850, 0)
-obs3_down_co = (2150, 0)
-obs4_down_co = (2450, 0)
-obs5_down_co = (2750, 0)
-
-# PIPE FACING DOWN CAN COME DOWN MAX = 215 FROM Y AXIS BEFORE IT ENDS
 
 # OBSTACLE IMAGES
 obs_down1 = pygame.image.load('./images/tube_down.png').convert_alpha()
@@ -106,6 +90,34 @@ def second():
     # INITIALIZE PLAYER RECTANGLES
     player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 300))
 
+    # GET RANDOM COORDINATE FOR Y AXIS
+    rand1 = random.randint(0, 150)
+    rand2 = random.randint(0, 150)
+    rand3 = random.randint(0, 150)
+    rand4 = random.randint(0, 150)
+    rand5 = random.randint(0, 150)
+    rand6 = random.randint(0, 50)
+    rand7 = random.randint(0, 50)
+    rand8 = random.randint(0, 50)
+    rand9 = random.randint(0, 50)
+    rand10 = random.randint(0, 50)
+
+    # INITIALIZE OBSTACLE COORDINATE
+    # PIPE FACING DOWN CAN COME DOWN MAX = 215 FROM Y AXIS BEFORE IT ENDS
+    # PIPE FACING UP CAN COME UP MAX = 590 BELOW Y AXIS BEFORE IT ENDS
+
+    obs1_up_co = (1650, rand1 + 650 + rand6)
+    obs2_up_co = (2150, rand2 + 650 + rand7)
+    obs3_up_co = (2650, rand3 + 650 + rand8)
+    obs4_up_co = (3150, rand4 + 650 + rand9)
+    obs5_up_co = (3650, rand5 + 650 + rand10)
+
+    obs1_down_co = (1650, rand1)
+    obs2_down_co = (2150, rand2)
+    obs3_down_co = (2650, rand3)
+    obs4_down_co = (3150, rand4)
+    obs5_down_co = (3650, rand5)
+
     # INITIALIZE OBSTACLE RECTANGLE
     obs_up1_rect = obs_up1.get_rect(midright=obs1_up_co)
     obs_up2_rect = obs_up2.get_rect(midright=obs2_up_co)
@@ -123,8 +135,6 @@ def second():
     gravity = 0
     tubespeed = -2
 
-    obs_new_pos_up = 1600
-    obs_new_pos_down = 1600
 
     while True:
 
@@ -174,7 +184,8 @@ def second():
             print("COLLIDE3")
             intermidiate(p1, score)
 
-        if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
+        if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
+                or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
             score += 1
 
         gravity += 0.08
@@ -192,26 +203,26 @@ def second():
         OB10.move(obs_down5_rect, tubespeed)
 
         if OB1.check(0):
-            OB1.position(obs_new_pos_up)
+            OB1.position(OB5.obstacle_rect.right + 500)
         if OB2.check(0):
-            OB2.position(obs_new_pos_up)
+            OB2.position(OB1.obstacle_rect.right + 500)
         if OB3.check(0):
-            OB3.position(obs_new_pos_up)
+            OB3.position(OB2.obstacle_rect.right + 500)
         if OB4.check(0):
-            OB4.position(obs_new_pos_up)
+            OB4.position(OB3.obstacle_rect.right + 500)
         if OB5.check(0):
-            OB5.position(obs_new_pos_up)
+            OB5.position(OB4.obstacle_rect.right + 500)
 
         if OB6.check(0):
-            OB6.position(obs_new_pos_down)
+            OB6.position(OB5.obstacle_rect.right + 500)
         if OB7.check(0):
-            OB7.position(obs_new_pos_down)
+            OB7.position(OB6.obstacle_rect.right + 500)
         if OB8.check(0):
-            OB8.position(obs_new_pos_down)
+            OB8.position(OB7.obstacle_rect.right + 500)
         if OB9.check(0):
-            OB9.position(obs_new_pos_down)
+            OB9.position(OB8.obstacle_rect.right + 500)
         if OB10.check(0):
-            OB10.position(obs_new_pos_down)
+            OB10.position(OB9.obstacle_rect.right + 500)
 
         if p1.player_rect.top >= SET_HEIGHT - 130:
             p1.player_rect.bottom = SET_HEIGHT - 130
