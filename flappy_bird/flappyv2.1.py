@@ -97,8 +97,8 @@ class tube:
     def position(self, rect_midright_pos):
         self.obstacle_rect.right = rect_midright_pos
 
-    def check(self, obstacle_rect):
-        if obstacle_rect.right < 0:
+    def check(self):
+        if self.obstacle_rect.right < 0:
             return 1
         else:
             return 0
@@ -171,15 +171,15 @@ def second():
         OB9.move(obs_down4_rect, tubespeed)
         OB10.move(obs_down5_rect, tubespeed)
 
-        if OB1.obstacle_rect.right < 0:
+        if OB1.check():
             OB1.position(obs_new_pos_up)
-        if OB2.obstacle_rect.right < 0:
+        if OB2.check():
             OB2.position(obs_new_pos_up)
-        if OB3.obstacle_rect.right < 0:
+        if OB3.check():
             OB3.position(obs_new_pos_up)
-        if OB4.obstacle_rect.right < 0:
+        if OB4.check():
             OB4.position(obs_new_pos_up)
-        if OB5.obstacle_rect.right < 0:
+        if OB5.check():
             OB5.position(obs_new_pos_up)
 
         if OB6.obstacle_rect.right < 0:
@@ -202,11 +202,6 @@ def second():
         p1.draw(player_gameplay_base)
 
         pygame.display.update()
-
-
-
-
-
 
 
 
@@ -256,9 +251,6 @@ def main_menu():
             player_base_image_flip_rect.right = 750
 
         pygame.display.update()
-
-
-
 
 
 
