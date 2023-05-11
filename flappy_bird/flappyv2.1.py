@@ -210,10 +210,13 @@ def second():
         if OB10.check(0):
             OB10.position(obs_new_pos_down)
 
-        if player_gameplay_base_rect.bottom >= SET_HEIGHT + 50:
-            player_gameplay_base_rect.bottom = SET_HEIGHT + 50
-        if player_gameplay_base_rect.top <= -50:
-            player_gameplay_base_rect.top = -50
+
+        if p1.player_rect.top >= SET_HEIGHT - 130:
+            p1.player_rect.bottom = SET_HEIGHT - 130
+            intermidiate(p1, count)
+        if p1.player_rect.top <= -50:
+            p1.player_rect.top = -50
+            intermidiate(p1, count)
 
 
         p1.draw()
