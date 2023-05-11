@@ -79,6 +79,7 @@ class player:
     def __init__(self, player, player_rect):
         self.player = player
         self.player_rect = player_rect
+        self.hitbox = (player_rect.left + 60, player_rect.top + 50, 135, 95) # top left, top right, width, height
 
     def move(self, a):
         self.player_rect.top += a
@@ -86,12 +87,12 @@ class player:
     def draw(self):
         screen.blit(self.player, self.player_rect)
 
-
 class tube:
 
     def __init__(self, obstacle, obstacle_rect):
         self.obstacle = obstacle
         self.obstacle_rect = obstacle_rect
+        #self.hitbox
         screen.blit(self.obstacle, self.obstacle_rect)
 
     def move(self, obstacle_rect, speed):
@@ -208,7 +209,7 @@ def second():
 
 
         p1.draw()
-        pygame.draw.rect(screen, 'black', p1.player_rect, 2)
+        pygame.draw.rect(screen, 'black', p1.hitbox, 2)
         pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
         pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
         pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
