@@ -15,6 +15,7 @@ die = mixer.Sound('./sounds/diesound.wav')
 hit = mixer.Sound('./sounds/hit.wav')
 exit_screen_sound = mixer.Sound('./sounds/exit_screen.wav')
 button_sound = mixer.Sound('./sounds/button.wav')
+escape_sound = mixer.Sound('./sounds/escape_sound.ogg')
 
 # SET SCREEN
 SET_WIDTH = 1400
@@ -25,6 +26,7 @@ screen = pygame.display.set_mode((SET_WIDTH, SET_HEIGHT))
 # SET FONTS
 font_menu = pygame.font.SysFont('monospace', 50, 30)
 bird_font_menu = pygame.font.SysFont('monospace', 30, 20)
+pause_font = pygame.font.SysFont('monospace', 100, 20)
 
 
 # IMAGES PLAYER
@@ -230,8 +232,8 @@ def main_menu():
 
 gravity = 0
 
-
 def second():
+
     score_rangex = 49
     score_rangey = 51
     score = 0
@@ -316,17 +318,18 @@ def second():
                 print("EXITING")
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    game_music.stop()
-                    main_menu()
+
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     gravity = -3.8
                     flap.play()
                 if event.key == pygame.K_ESCAPE:
-                    main_menu()
+                    state = True
+                    while state:
+                        p1.draw()
+                        pause()
+                        state = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
@@ -336,15 +339,15 @@ def second():
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
             game_music.stop()
-            intermidiate(p1, score)
+            intermediate(p1, score)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
             game_music.stop()
-            intermidiate(p1, score)
+            intermediate(p1, score)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
             game_music.stop()
-            intermidiate(p1, score)
+            intermediate(p1, score)
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
                 or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
@@ -391,11 +394,11 @@ def second():
         if p1.player_rect.top >= SET_HEIGHT - 130:
             p1.player_rect.bottom = SET_HEIGHT - 130
             game_music.stop()
-            intermidiate(p1, score)
+            intermediate(p1, score)
         if p1.player_rect.top <= -50:
             p1.player_rect.top = -50
             game_music.stop()
-            intermidiate(p1, score)
+            intermediate(p1, score)
 
         score_text = font_menu.render(str(score), True, 'black')
 
@@ -416,10 +419,45 @@ def second():
         pygame.display.update()
 
 
+def pause():
+
+    escape_sound.play()
+    print('PAUSE')
+    run = True
+    largetext = pause_font.render('PAUSED', True, 'black')
+    screen.blit(largetext, (500, 200))
+
+    con_but = button('CONTINUE', 200, 540, 275, 50)
+    menu_but = button('MAIN MENU', 880, 540, 300, 50)
+
+    while run:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print("EXITING")
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if con_but.check_click():
+                    run = False
+                if menu_but.check_click():
+                    game_music.stop()
+                    main_menu()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run = False
+
+        con_but.draw()
+        menu_but.draw()
+        pygame.display.update()
+
+    print("Main")
+
 HIGH_SCORE = 0
 
 
-def intermidiate(p1, score):
+def intermediate(p1, score):
 
     g = 0
     initial_height = p1.player_rect.top
@@ -428,7 +466,7 @@ def intermidiate(p1, score):
     touch = 0
 
     while True:
-        screen.fill('black')
+
         screen.blit(background_play, (0, 0))
         screen.blit(dead_image_up, (p1.player_rect.left + 60, p1.player_rect.top + 10))
         new_height = p1.player_rect.top
