@@ -1,10 +1,20 @@
 import sys
 import random
 import pygame
+from pygame import mixer
 
 pygame.init()
 pygame.font.init()
+mixer.init()
 
+menu_sound = mixer.Sound('./sounds/main_menu.ogg')
+game_music = mixer.Sound('./sounds/gameplay_sound.ogg')
+flap = mixer.Sound('./sounds/flap.wav')
+score_s = mixer.Sound('./sounds/point.wav')
+die = mixer.Sound('./sounds/diesound.wav')
+hit = mixer.Sound('./sounds/hit.wav')
+exit_screen_sound = mixer.Sound('./sounds/exit_screen.wav')
+button_sound = mixer.Sound('./sounds/button.wav')
 
 # SET SCREEN
 SET_WIDTH = 1400
@@ -13,8 +23,8 @@ screen = pygame.display.set_mode((SET_WIDTH, SET_HEIGHT))
 
 
 # SET FONTS
-font_menu = pygame.font.SysFont('monospace', 50)
-bird_font_menu = pygame.font.SysFont('monospace', 30)
+font_menu = pygame.font.SysFont('monospace', 50, 30)
+bird_font_menu = pygame.font.SysFont('monospace', 30, 20)
 
 
 # IMAGES PLAYER
@@ -26,7 +36,7 @@ dead_image_up = pygame.image.load('./images/dead_final_60_up.png').convert_alpha
 
 
 # BACKGROUND IMAGES
-background_menu = pygame.image.load('./images/menu_1400x800.png').convert_alpha()
+background_menu = pygame.image.load('./images/background_menu_1400x800.png').convert_alpha()
 background_play = pygame.image.load('./images/main_1400x800.png').convert_alpha()
 
 # OBSTACLE IMAGES
@@ -47,7 +57,7 @@ class player:
     def __init__(self, player, player_rect):
         self.player = player
         self.player_rect = player_rect
-        self.hitbox = pygame.Rect(player_rect.left + 60, player_rect.top + 50, 135, 95)# top left, top right, width, height
+        self.hitbox = pygame.rect.Rect(player_rect.left + 60, player_rect.top + 50, 135, 95)# top left, top right, width, height
 
     def move(self, a):
         self.player_rect.top += a
@@ -60,8 +70,8 @@ class tube:
     def __init__(self, obstacle, obstacle_rect):
         self.obstacle = obstacle
         self.obstacle_rect = obstacle_rect
-        self.hitbox_up = pygame.Rect(obstacle_rect.left + 60, obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
-        self.hitbox_down = pygame.Rect(obstacle_rect.left + 60, obstacle_rect.top + 5, 110, 418)
+        self.hitbox_up = pygame.rect.Rect(obstacle_rect.left + 60, obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
+        self.hitbox_down = pygame.rect.Rect(obstacle_rect.left + 60, obstacle_rect.top + 5, 110, 418)
         screen.blit(self.obstacle, self.obstacle_rect)
 
     def move(self, obstacle_rect, speed):
@@ -103,6 +113,7 @@ class button:
         button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
         mouse_pos = pygame.mouse.get_pos()
         if left_button and button_rect.collidepoint(mouse_pos):
+            button_sound.play()
             return 1
         else:
             return 0
@@ -123,6 +134,9 @@ def main_menu():
 
     pygame.display.set_caption('MENU')
 
+    #PLAY SOUND
+    menu_sound.play()
+
     print("MENU")
     menu_text = font_menu.render('MENU', False, (12, 130, 72))
     direction = 'right'
@@ -134,7 +148,9 @@ def main_menu():
         # SCREEN MENU
         screen.blit(background_menu, (0, 0))
         screen.blit(menu_text, (900, 300))
-        pygame.draw.line(screen, 'black', (900, 345), (1020, 345), 2)
+        pygame.draw.rect(screen, 'black', (895, 305, 130, 40), 1)
+
+        # pygame.draw.line(screen, 'black', (900, 345), (1017, 345), 2)
 
         # INITIALIZE BIRD
         bird = player(player_base_image, player_base_image_rect)
@@ -159,12 +175,14 @@ def main_menu():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
+                    menu_sound.stop()
                     second()
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1.check_click():
+                    menu_sound.stop()
                     second()
                 if button2.check_click():
                     print("EXITING")
@@ -174,15 +192,15 @@ def main_menu():
         # MOUSE ON BIRD
         if bird.hitbox.collidepoint(m_pos) and direction == 'right':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                screen.blit(help_text, bird.player_rect.topleft)
+                screen.blit(help_text, (bird.player_rect.left + 10, bird.player_rect.top))
             else:
-                screen.blit(leave_alone_text, bird.player_rect.topleft)
+                screen.blit(leave_alone_text, (bird.player_rect.left + 10, bird.player_rect.top))
 
         if flip_bird.hitbox.collidepoint(m_pos) and direction == 'left':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                screen.blit(help_text, flip_bird.player_rect.topleft)
+                screen.blit(help_text, (flip_bird.player_rect.left + 10, flip_bird.player_rect.top))
             else:
-                screen.blit(leave_alone_text, flip_bird.player_rect.topleft)
+                screen.blit(leave_alone_text, (flip_bird.player_rect.left + 10, flip_bird.player_rect.top))
 
         # MOVING BIRD L->R and R->L
         if direction == 'right' and bird.player_rect.left <= 750:
@@ -220,6 +238,10 @@ def second():
     pygame.display.set_caption('FLAPPY BIRD')
     print("Main")
 
+    #GAME MUSIC
+    game_music.play(-1)
+
+
     # INITIALIZE PLAYER RECTANGLES
     player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 300))
 
@@ -229,21 +251,21 @@ def second():
     rand3 = random.randint(0, 150)
     rand4 = random.randint(0, 150)
     rand5 = random.randint(0, 150)
-    rand6 = random.randint(0, 50)
-    rand7 = random.randint(0, 50)
-    rand8 = random.randint(0, 50)
-    rand9 = random.randint(0, 50)
-    rand10 = random.randint(0, 50)
+    rand6 = random.randint(0, 30)
+    rand7 = random.randint(0, 30)
+    rand8 = random.randint(0, 30)
+    rand9 = random.randint(0, 30)
+    rand10 = random.randint(0, 30)
 
     # INITIALIZE OBSTACLE COORDINATE
     # PIPE FACING DOWN CAN COME DOWN MAX = 215 FROM Y AXIS BEFORE IT ENDS
     # PIPE FACING UP CAN COME UP MAX = 590 BELOW Y AXIS BEFORE IT ENDS
 
-    obs1_up_co = (1650, rand1 + 650 + rand6)
-    obs2_up_co = (2150, rand2 + 650 + rand7)
-    obs3_up_co = (2650, rand3 + 650 + rand8)
-    obs4_up_co = (3150, rand4 + 650 + rand9)
-    obs5_up_co = (3650, rand5 + 650 + rand10)
+    obs1_up_co = (1650, rand1 + 620 + rand6)
+    obs2_up_co = (2150, rand2 + 620 + rand7)
+    obs3_up_co = (2650, rand3 + 620 + rand8)
+    obs4_up_co = (3150, rand4 + 620 + rand9)
+    obs5_up_co = (3650, rand5 + 620 + rand10)
 
     obs1_down_co = (1650, rand1)
     obs2_down_co = (2150, rand2)
@@ -296,31 +318,39 @@ def second():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    game_music.stop()
                     main_menu()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     gravity = -3.8
+                    flap.play()
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -3.8
+                    flap.play()
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
+            game_music.stop()
             intermidiate(p1, score)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
+            game_music.stop()
             intermidiate(p1, score)
-        if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
+        if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
+            game_music.stop()
             intermidiate(p1, score)
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
                 or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
             score += 1
+            score_s.play()
+
 
         gravity += 0.08
         p1.move(gravity)
@@ -360,9 +390,11 @@ def second():
 
         if p1.player_rect.top >= SET_HEIGHT - 130:
             p1.player_rect.bottom = SET_HEIGHT - 130
+            game_music.stop()
             intermidiate(p1, score)
         if p1.player_rect.top <= -50:
             p1.player_rect.top = -50
+            game_music.stop()
             intermidiate(p1, score)
 
         score_text = font_menu.render(str(score), True, 'black')
@@ -388,8 +420,10 @@ HIGH_SCORE = 0
 
 
 def intermidiate(p1, score):
+
     g = 0
-    initial_height = p1.player_rect.top;
+    initial_height = p1.player_rect.top
+    initial_posx = p1.player_rect.left
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
     touch = 0
 
@@ -398,6 +432,9 @@ def intermidiate(p1, score):
         screen.blit(background_play, (0, 0))
         screen.blit(dead_image_up, (p1.player_rect.left + 60, p1.player_rect.top + 10))
         new_height = p1.player_rect.top
+
+
+        p1.player_rect.left += 2
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -408,13 +445,15 @@ def intermidiate(p1, score):
                     main_menu()
 
         if touch == 0 and new_height == initial_height:
+            hit.play()
+            die.play()
             g = -2.8
             touch = 1
 
         p1.move(g)
         g += 0.06
 
-        if new_height >= 900:
+        if new_height >= 1500:
             third(score)
         pygame.display.update()
 
@@ -422,12 +461,15 @@ def intermidiate(p1, score):
 def third(x):
     global HIGH_SCORE
 
+    exit_screen_sound.play(-1)
+
     b1 = button('TRY AGAIN', 200, 340, 300, 50)
     b2 = button('MAIN MENU', 880, 340, 300, 50)
     b3 = button('EXIT', 620, 540, 150, 50)
 
     print('LOOSE')
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
+
 
 
     if x > HIGH_SCORE:
@@ -454,11 +496,14 @@ def third(x):
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    exit_screen_sound.stop()
                     main_menu()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if b1.check_click():
+                    exit_screen_sound.stop()
                     second()
                 if b2.check_click():
+                    exit_screen_sound.stop()
                     main_menu()
                 if b3.check_click():
                     print("EXITING")
@@ -469,7 +514,6 @@ def third(x):
         b2.draw()
         b3.draw()
         pygame.display.update()
-
 
 
 main_menu()
