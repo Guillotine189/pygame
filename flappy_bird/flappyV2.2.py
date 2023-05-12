@@ -7,6 +7,7 @@ pygame.init()
 pygame.font.init()
 mixer.init()
 
+# GAME SOUNDS
 menu_sound = mixer.Sound('./sounds/main_menu.ogg')
 game_music = mixer.Sound('./sounds/gameplay_sound.ogg')
 flap = mixer.Sound('./sounds/flap.wav')
@@ -26,20 +27,49 @@ screen = pygame.display.set_mode((SET_WIDTH, SET_HEIGHT))
 # SET FONTS
 font_menu = pygame.font.SysFont('monospace', 50, 30)
 bird_font_menu = pygame.font.SysFont('monospace', 30, 20)
-pause_font = pygame.font.SysFont('monospace', 100, 20)
+pause_font = pygame.font.SysFont('arial.ttf', 120, 20)
 
 
 # IMAGES PLAYER
-player_base_image = pygame.image.load('./images/base.png').convert_alpha()
-player_base_image_flip = pygame.image.load('./images/base_flip.png').convert_alpha()
+player_base_image = pygame.image.load('./images/base_mid.png').convert_alpha()
+player_base_image_up = pygame.image.load('./images/base_up.png').convert_alpha()
+player_base_image_down = pygame.image.load('./images/base_down.png').convert_alpha()
+
 player_gameplay_base = pygame.image.load('./images/base.png').convert_alpha()
 dead_image = pygame.image.load('./images/dead_final_60.png').convert_alpha()
-dead_image_up = pygame.image.load('./images/dead_final_60_up.png').convert_alpha()
+dead_image_up = pygame.image.load('./images/bottom.png').convert_alpha()
+
+player_base_image_flip = pygame.image.load('./images/base_mid_flip.png').convert_alpha()
+player_base_image_flip_up = pygame.image.load('./images/base_up_flip.png').convert_alpha()
+player_base_image_flip_down = pygame.image.load('./images/base_down_flip.png').convert_alpha()
 
 
 # BACKGROUND IMAGES
 background_menu = pygame.image.load('./images/background_menu_1400x800.png').convert_alpha()
 background_play = pygame.image.load('./images/main_1400x800.png').convert_alpha()
+base_image = pygame.image.load('./images/base_.png').convert_alpha()
+game_over1 = pygame.image.load('./images/game_over1.png').convert_alpha()
+game_over2 = pygame.image.load('./images/game_over2.png').convert_alpha()
+
+
+# SCALING IMAGES
+X = 120
+Y = 80
+player_base_image_scaled = pygame.transform.scale(player_base_image, (X, Y))
+player_base_image_up_scaled = pygame.transform.scale(player_base_image_up, (X, Y))
+player_base_image_down_scaled = pygame.transform.scale(player_base_image_down, (X, Y))
+
+player_base_image_flip_scaled = pygame.transform.scale(player_base_image_flip, (X, Y))
+player_base_image_flip_up_scaled = pygame.transform.scale(player_base_image_flip_up, (X, Y))
+player_base_image_flip_down_scaled = pygame.transform.scale(player_base_image_flip_down, (X, Y))
+dead_image_up_scaled = pygame.transform.scale(dead_image_up, (120, 120))
+
+
+base_image_scaled = pygame.transform.scale(base_image, (1600, 100))
+game_over1_scaled = pygame.transform.scale2x(game_over1)
+game_over2_scaled = pygame.transform.scale2x(game_over2)
+
+
 
 # OBSTACLE IMAGES
 obs_down1 = pygame.image.load('./images/tube_down.png').convert_alpha()
@@ -54,18 +84,33 @@ obs_down5 = pygame.image.load('./images/tube_down.png').convert_alpha()
 obs_up5 = pygame.image.load('./images/tube_up.png').convert_alpha()
 
 
-class player:
+class player(pygame.sprite.Sprite):
 
-    def __init__(self, player, player_rect):
-        self.player = player
-        self.player_rect = player_rect
-        self.hitbox = pygame.rect.Rect(player_rect.left + 60, player_rect.top + 50, 135, 95)# top left, top right, width, height
+    def __init__(self, x, y, img):
+        super().__init__()
+        self.sprites = []
+        self.current_sprite = 0
+        self.append(img)
+        self.image = self.sprites[self.current_sprite]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.hitbox = self.rect
 
-    def move(self, a):
-        self.player_rect.top += a
 
-    def draw(self):
-        screen.blit(self.player, self.player_rect)
+    def update(self):
+        self.current_sprite += 1
+        if self.current_sprite >= len(self.sprites):
+            self.current_sprite = 0
+        self.image = self.sprites[self.current_sprite]
+
+    def movex(self, speed):
+        self.rect.left += speed
+
+    def movey(self, speed):
+        self.rect.top += speed
+
+    def append(self, image):
+        self.sprites.append(image)
 
 class tube:
 
@@ -128,6 +173,7 @@ class button:
         else:
             return 0
 
+
 def main_menu():
 
     # INITIALIZE PLAYER RECTANGLES
@@ -139,9 +185,41 @@ def main_menu():
     #PLAY SOUND
     menu_sound.play()
 
+    clock = pygame.time.Clock()
+
     print("MENU")
     menu_text = font_menu.render('MENU', False, (12, 130, 72))
     direction = 'right'
+
+    # RENDERING TEXT
+    leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
+    help_text = bird_font_menu.render('SOMEONE HELP ME !', True, 'black').convert_alpha()
+    high_score_text = font_menu.render('HIGH SCORE : ' + str(HIGH_SCORE), True, 'black').convert_alpha()
+
+    # INITIALIZE BIRD
+    bird = player(50, 300, player_base_image_scaled)
+    flip_bird = player(750, 300, player_base_image_flip_scaled)
+
+    # ADDING SPRITES
+    ### BIRD
+    bird.append(player_base_image_down_scaled)
+    bird.append(player_base_image_scaled)
+    bird.append(player_base_image_up_scaled)
+    ### FLIP BIRD
+    flip_bird.append(player_base_image_flip_down_scaled)
+    flip_bird.append(player_base_image_flip_scaled)
+    flip_bird.append(player_base_image_flip_up_scaled)
+
+    # MAKING SPRITE GROUP
+    animate_bird = pygame.sprite.Group()
+    animate_flip_bird = pygame.sprite.Group()
+
+    # ADDING PLAYER TO GROUP
+    animate_bird.add(bird)
+    animate_flip_bird.add(flip_bird)
+
+    can_control = True
+
     while True:
 
         # FILL SCREEN
@@ -150,17 +228,9 @@ def main_menu():
         # SCREEN MENU
         screen.blit(background_menu, (0, 0))
         screen.blit(menu_text, (900, 300))
-        pygame.draw.rect(screen, 'black', (895, 305, 130, 40), 1)
+        pygame.draw.rect(screen, 'black', (895, 305, 132, 40), 1)
 
         # pygame.draw.line(screen, 'black', (900, 345), (1017, 345), 2)
-
-        # INITIALIZE BIRD
-        bird = player(player_base_image, player_base_image_rect)
-        flip_bird = player(player_base_image_flip, player_base_image_flip_rect)
-
-        # RENDERING TEXT
-        leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
-        help_text = bird_font_menu.render('SOMEONE HELP ME !', True, 'black').convert_alpha()
 
         # INITIALIZE BUTTON
         button1 = button('PLAY', 800, 400, 150, 50)
@@ -168,6 +238,7 @@ def main_menu():
 
         # mouse
         m_pos = pygame.mouse.get_pos()
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -180,6 +251,7 @@ def main_menu():
                     menu_sound.stop()
                     second()
                 if event.key == pygame.K_ESCAPE:
+                    print("EXITING")
                     pygame.quit()
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -192,38 +264,66 @@ def main_menu():
                     sys.exit()
 
         # MOUSE ON BIRD
-        if bird.hitbox.collidepoint(m_pos) and direction == 'right':
+        if bird.rect.collidepoint(m_pos) and direction == 'right':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                screen.blit(help_text, (bird.player_rect.left + 10, bird.player_rect.top))
+                if can_control:
+                    bird.movey(-80)
+                screen.blit(help_text, (bird.rect.left - 30, bird.rect.top - 40))
             else:
-                screen.blit(leave_alone_text, (bird.player_rect.left + 10, bird.player_rect.top))
+                screen.blit(leave_alone_text, (bird.rect.left - 30, bird.rect.top - 40))
 
-        if flip_bird.hitbox.collidepoint(m_pos) and direction == 'left':
+        if flip_bird.rect.collidepoint(m_pos) and direction == 'left':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                screen.blit(help_text, (flip_bird.player_rect.left + 10, flip_bird.player_rect.top))
+                if can_control:
+                    flip_bird.movey(80)
+                screen.blit(help_text, (flip_bird.rect.left - 30, flip_bird.rect.top - 40))
             else:
-                screen.blit(leave_alone_text, (flip_bird.player_rect.left + 10, flip_bird.player_rect.top))
+                screen.blit(leave_alone_text, (flip_bird.rect.left - 30, flip_bird.rect.top - 40))
 
         # MOVING BIRD L->R and R->L
-        if direction == 'right' and bird.player_rect.left <= 750:
-            bird.player_rect.left += 1
-            bird.draw()
-        if direction == 'right' and bird.player_rect.right > 750:
+        if direction == 'right' and bird.rect.left <= 750:
+            bird.movex(6)
+            animate_bird.draw(screen)
+            animate_bird.update()
+        if direction == 'right' and bird.rect.right > 750:
             direction = 'left'
-            flip_bird.draw()
-            bird.player_rect.left = 50
-        if direction == 'left' and flip_bird.player_rect.left > 50:
-            flip_bird.player_rect.left -= 1
-            flip_bird.draw()
-        if direction == 'left' and flip_bird.player_rect.left <= 50:
+            flip_bird.rect.top = bird.rect.top
+            flip_bird.rect.right = 750
+            animate_flip_bird.draw(screen)
+            animate_flip_bird.update()
+        if direction == 'left' and flip_bird.rect.left > 50:
+            flip_bird.movex(-6)
+            animate_flip_bird.draw(screen)
+            animate_flip_bird.update()
+        if direction == 'left' and flip_bird.rect.left <= 50:
             direction = 'right'
-            bird.draw()
-            flip_bird.player_rect.right = 750
+            bird.rect.top = flip_bird.rect.top
+            bird.rect.left = 50
+            animate_bird.draw(screen)
+            animate_bird.update()
+
+
+        if bird.rect.bottom >= 495 or bird.rect.top <= 110:
+            can_control = False
+        if flip_bird.rect.bottom >= 495 or flip_bird.rect.top <= 110:
+            can_control = False
+
+        if bird.rect.top < 300 and can_control == False: # top < 110
+            bird.rect.top += 8
+            if bird.rect.top >= 300:
+                can_control = True
+
+        if flip_bird.rect.bottom > 300 and can_control == False: # bottom > 495
+            flip_bird.rect.top -= 8
+            if flip_bird.rect.top <= 300:
+                can_control = True
 
 
         button1.draw()
         button2.draw()
+        screen.blit(high_score_text, (900, 50))
         pygame.display.update()
+        clock.tick(30)
 
 
 
@@ -233,7 +333,7 @@ def main_menu():
 gravity = 0
 
 def second():
-
+    clock = pygame.time.Clock()
     score_rangex = 49
     score_rangey = 51
     score = 0
@@ -244,36 +344,33 @@ def second():
     game_music.play(-1)
 
 
-    # INITIALIZE PLAYER RECTANGLES
-    player_gameplay_base_rect = player_gameplay_base.get_rect(midleft=(50, 300))
-
     # GET RANDOM COORDINATE FOR Y AXIS
-    rand1 = random.randint(0, 150)
-    rand2 = random.randint(0, 150)
-    rand3 = random.randint(0, 150)
-    rand4 = random.randint(0, 150)
-    rand5 = random.randint(0, 150)
-    rand6 = random.randint(0, 30)
-    rand7 = random.randint(0, 30)
-    rand8 = random.randint(0, 30)
-    rand9 = random.randint(0, 30)
-    rand10 = random.randint(0, 30)
+    rand1 = random.randint(100, 200)
+    rand2 = random.randint(100, 200)
+    rand3 = random.randint(100, 200)
+    rand4 = random.randint(100, 200)
+    rand5 = random.randint(100, 200)
+    rand6 = random.randint(0, 100)
+    rand7 = random.randint(0, 100)
+    rand8 = random.randint(0, 100)
+    rand9 = random.randint(0, 100)
+    rand10 = random.randint(0, 100)
 
     # INITIALIZE OBSTACLE COORDINATE
     # PIPE FACING DOWN CAN COME DOWN MAX = 215 FROM Y AXIS BEFORE IT ENDS
     # PIPE FACING UP CAN COME UP MAX = 590 BELOW Y AXIS BEFORE IT ENDS
 
-    obs1_up_co = (1650, rand1 + 620 + rand6)
-    obs2_up_co = (2150, rand2 + 620 + rand7)
-    obs3_up_co = (2650, rand3 + 620 + rand8)
-    obs4_up_co = (3150, rand4 + 620 + rand9)
-    obs5_up_co = (3650, rand5 + 620 + rand10)
+    obs1_up_co = (1650, rand1 + 550)
+    obs2_up_co = (2150, rand2 + 550)
+    obs3_up_co = (2650, rand3 + 550)
+    obs4_up_co = (3150,  rand4 + 550)
+    obs5_up_co = (3650, rand5 + 550)
 
-    obs1_down_co = (1650, rand1)
-    obs2_down_co = (2150, rand2)
-    obs3_down_co = (2650, rand3)
-    obs4_down_co = (3150, rand4)
-    obs5_down_co = (3650, rand5)
+    obs1_down_co = (1650, rand1 - 1.5*rand6)
+    obs2_down_co = (2150, rand2 - 1.5*rand7)
+    obs3_down_co = (2650, rand3 - 1.5*rand8)
+    obs4_down_co = (3150, rand4 - 1.5*rand9)
+    obs5_down_co = (3650, rand5 - 1.5*rand10)
 
     # INITIALIZE OBSTACLE RECTANGLE
     obs_up1_rect = obs_up1.get_rect(midright=obs1_up_co)
@@ -291,6 +388,20 @@ def second():
 
     gravity = 0
     tubespeed = -2
+
+    # PLAYER
+    p1 = player(50, 300, player_base_image_scaled)
+
+    # ADDING SPRITE TO GROUP
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_scaled)
+    p1.append(player_base_image_up_scaled)
+
+    # MAKING SPRITE GROUP
+    animate_player = pygame.sprite.Group()
+
+    # ADDING PLAYER TO SPRITE GROUP
+    animate_player.add(p1)
 
 
     while True:
@@ -310,8 +421,7 @@ def second():
         OB9 = tube(obs_down4, obs_down4_rect)
         OB10 = tube(obs_down5, obs_down5_rect)
 
-        # PLAYER
-        p1 = player(player_gameplay_base, player_gameplay_base_rect)
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -322,18 +432,18 @@ def second():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    gravity = -3.8
+                    gravity = -2.8
                     flap.play()
                 if event.key == pygame.K_ESCAPE:
                     state = True
                     while state:
-                        p1.draw()
-                        pause()
+                        animate_player.draw(screen)
+                        pause(score)
                         state = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
-                    gravity = -3.8
+                    gravity = -2.8
                     flap.play()
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
@@ -356,7 +466,7 @@ def second():
 
 
         gravity += 0.08
-        p1.move(gravity)
+        p1.movey(gravity)
 
         OB1.move(obs_up1_rect, tubespeed)
         OB2.move(obs_up2_rect, tubespeed)
@@ -391,16 +501,19 @@ def second():
         if OB10.check(0):
             OB10.position(OB9.obstacle_rect.right + 500)
 
-        if p1.player_rect.top >= SET_HEIGHT - 130:
-            p1.player_rect.bottom = SET_HEIGHT - 130
+        if p1.rect.top >= SET_HEIGHT - 130:
+            p1.rect.bottom = SET_HEIGHT - 130
             game_music.stop()
             intermediate(p1, score)
-        if p1.player_rect.top <= -50:
-            p1.player_rect.top = -50
+        if p1.rect.top <= -50:
+            p1.rect.top = -50
             game_music.stop()
             intermediate(p1, score)
 
         score_text = font_menu.render(str(score), True, 'black')
+        score_text_rect = score_text.get_rect()
+        score_text_rect.right = SET_WIDTH-50
+        score_text_rect.top = 15
 
         # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
         # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
@@ -414,19 +527,21 @@ def second():
         # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
         # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
-        p1.draw()
-        screen.blit(score_text, (SET_WIDTH - 50, 15))
+        animate_player.draw(screen)
+        animate_player.update()
+        screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
+        screen.blit(base_image_scaled, (0, 750))
         pygame.display.update()
+        clock.tick(150)
 
-
-def pause():
+def pause(score):
 
     escape_sound.play()
     print('PAUSE')
     run = True
     largetext = pause_font.render('PAUSED', True, 'black')
     screen.blit(largetext, (500, 200))
-
+    score_text = font_menu.render('SCORE : ' + str(score), True, 'black')
     con_but = button('CONTINUE', 200, 540, 275, 50)
     menu_but = button('MAIN MENU', 880, 540, 300, 50)
 
@@ -446,13 +561,17 @@ def pause():
                     main_menu()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    escape_sound.play()
                     run = False
 
         con_but.draw()
         menu_but.draw()
+        screen.blit(base_image_scaled, (0, 750))
+        screen.blit(score_text, (550, 330))
         pygame.display.update()
 
     print("Main")
+
 
 HIGH_SCORE = 0
 
@@ -460,19 +579,20 @@ HIGH_SCORE = 0
 def intermediate(p1, score):
 
     g = 0
-    initial_height = p1.player_rect.top
-    initial_posx = p1.player_rect.left
+    initial_height = p1.rect.top
+    initial_posx = p1.rect.left
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
     touch = 0
 
     while True:
 
         screen.blit(background_play, (0, 0))
-        screen.blit(dead_image_up, (p1.player_rect.left + 60, p1.player_rect.top + 10))
-        new_height = p1.player_rect.top
+        screen.blit(base_image_scaled, (0, 750))
+        screen.blit(dead_image_up_scaled, (p1.rect.left + 60, p1.rect.top + 10))
+        new_height = p1.rect.top
 
 
-        p1.player_rect.left += 2
+        p1.rect.left += 2
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -488,7 +608,7 @@ def intermediate(p1, score):
             g = -2.8
             touch = 1
 
-        p1.move(g)
+        p1.movey(g)
         g += 0.06
 
         if new_height >= 1500:
@@ -509,16 +629,15 @@ def third(x):
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
 
 
-
     if x > HIGH_SCORE:
         score = font_menu.render("NEW HIGH SCORE : " + str(x), 1, (0, 0, 0))
         HIGH_SCORE = x
         y = 430
-        z = 200
+        z = 250
     else:
         score = font_menu.render("SCORE :  " + str(x), 1, (0, 0, 0))
-        y = 500
-        z = 200
+        y = 550
+        z = 250
 
     while True:
 
@@ -526,6 +645,8 @@ def third(x):
         screen.blit(background_play, (0, 0))
         screen.blit(score, (y, z))
         screen.blit(dead_image, (630, 350))
+        screen.blit(game_over1_scaled, (380, -150))
+        screen.blit(game_over2_scaled, (400, -150))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -551,6 +672,7 @@ def third(x):
         b1.draw()
         b2.draw()
         b3.draw()
+        screen.blit(base_image_scaled, (0, 750))
         pygame.display.update()
 
 
