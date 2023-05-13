@@ -14,7 +14,7 @@ flap = mixer.Sound('./sounds/flap.wav')
 score_s = mixer.Sound('./sounds/point.wav')
 die = mixer.Sound('./sounds/diesound.wav')
 hit = mixer.Sound('./sounds/hit.wav')
-exit_screen_sound = mixer.Sound('./sounds/exit_screen.wav')
+exit_screen_sound = mixer.Sound('./sounds/exit_sound.ogg')
 button_sound = mixer.Sound('./sounds/button.wav')
 escape_sound = mixer.Sound('./sounds/escape_sound.ogg')
 
@@ -50,6 +50,10 @@ background_play = pygame.image.load('./images/main_1400x800.png').convert_alpha(
 base_image = pygame.image.load('./images/base_.png').convert_alpha()
 game_over1 = pygame.image.load('./images/game_over1.png').convert_alpha()
 game_over2 = pygame.image.load('./images/game_over2.png').convert_alpha()
+rip = pygame.image.load('./images/rip.png').convert_alpha()
+logo = pygame.image.load('./images/LOGO.png').convert_alpha()
+
+logo_scaled = pygame.transform.scale(logo, (450, 150))
 
 
 # SCALING IMAGES
@@ -134,8 +138,6 @@ class tube:
             return 0
 
 
-
-
 class button:
     def __init__(self, text, x, y, w, h):
         self.text = text
@@ -146,13 +148,17 @@ class button:
 
     def draw(self):
         button_text = font_menu.render(self.text, True, 'black')
-        button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
+        pygame.draw.rect(screen, 'white', ((self.x, self.y), (self.w, self.h)))
+        pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x + self.w, self.y), 4)
+        pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x, self.y + self.h), 4)
+        pygame.draw.line(screen, (200, 190, 140), (self.x + self.w, self.y), (self.x + self.w, self.y + self.h), 4)
+        pygame.draw.line(screen, (200, 190, 140), (self.x, self.y + self.h), (self.x + self.w, self.y + self.h), 4)
         if self.check_hover():
-            pygame.draw.rect(screen, 'dark grey', button_rect, 0, 5)
+            pygame.draw.rect(screen, 'dark orange', ((self.x + 8, self.y + 5), (self.w - 14, self.h - 8)), 0, 5)
         else:
-            pygame.draw.rect(screen, 'grey', button_rect, 0, 5)
-
+            pygame.draw.rect(screen, 'orange', ((self.x + 8, self.y + 5), (self.w - 14, self.h - 8)), 0, 5)
         screen.blit(button_text, (self.x + 15, self.y))
+
 
 
     def check_click(self):
@@ -188,13 +194,15 @@ def main_menu():
     clock = pygame.time.Clock()
 
     print("MENU")
-    menu_text = font_menu.render('MENU', False, (12, 130, 72))
+    menu_text = font_menu.render('MENU', False, 'brown').convert_alpha()
     direction = 'right'
 
     # RENDERING TEXT
     leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
-    help_text = bird_font_menu.render('SOMEONE HELP ME !', True, 'black').convert_alpha()
+    help_text = bird_font_menu.render('SOMEONE HELP ME!', True, 'black').convert_alpha()
     high_score_text = font_menu.render('HIGH SCORE : ' + str(HIGH_SCORE), True, 'black').convert_alpha()
+    high_score_text_rect = high_score_text.get_rect()
+
 
     # INITIALIZE BIRD
     bird = player(50, 300, player_base_image_scaled)
@@ -218,8 +226,6 @@ def main_menu():
     animate_bird.add(bird)
     animate_flip_bird.add(flip_bird)
 
-    can_control = True
-
     while True:
 
         # FILL SCREEN
@@ -228,7 +234,8 @@ def main_menu():
         # SCREEN MENU
         screen.blit(background_menu, (0, 0))
         screen.blit(menu_text, (900, 300))
-        pygame.draw.rect(screen, 'black', (895, 305, 132, 40), 1)
+        pygame.draw.rect(screen, 'black', (895, 305, 132, 40), 1)  # rectangle around menu
+        screen.blit(logo_scaled, (750, 100))
 
         # pygame.draw.line(screen, 'black', (900, 345), (1017, 345), 2)
 
@@ -249,7 +256,7 @@ def main_menu():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     menu_sound.stop()
-                    second()
+                    gameplay_screne()
                 if event.key == pygame.K_ESCAPE:
                     print("EXITING")
                     pygame.quit()
@@ -257,7 +264,7 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1.check_click():
                     menu_sound.stop()
-                    second()
+                    gameplay_screne()
                 if button2.check_click():
                     print("EXITING")
                     pygame.quit()
@@ -266,29 +273,27 @@ def main_menu():
         # MOUSE ON BIRD
         if bird.rect.collidepoint(m_pos) and direction == 'right':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if can_control:
-                    bird.movey(-80)
-                screen.blit(help_text, (bird.rect.left - 30, bird.rect.top - 40))
+                bird.movey(-80)
+                screen.blit(help_text, (bird.rect.left - 40, bird.rect.top - 40))
             else:
-                screen.blit(leave_alone_text, (bird.rect.left - 30, bird.rect.top - 40))
+                screen.blit(leave_alone_text, (bird.rect.left - 40, bird.rect.top - 40))
 
         if flip_bird.rect.collidepoint(m_pos) and direction == 'left':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if can_control:
-                    flip_bird.movey(80)
-                screen.blit(help_text, (flip_bird.rect.left - 30, flip_bird.rect.top - 40))
+                flip_bird.movey(80)
+                screen.blit(help_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
             else:
-                screen.blit(leave_alone_text, (flip_bird.rect.left - 30, flip_bird.rect.top - 40))
+                screen.blit(leave_alone_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
 
         # MOVING BIRD L->R and R->L
-        if direction == 'right' and bird.rect.left <= 750:
+        if direction == 'right' and bird.rect.left <= 600:
             bird.movex(6)
             animate_bird.draw(screen)
             animate_bird.update()
-        if direction == 'right' and bird.rect.right > 750:
+        if direction == 'right' and bird.rect.right > 600:
             direction = 'left'
             flip_bird.rect.top = bird.rect.top
-            flip_bird.rect.right = 750
+            flip_bird.rect.right = 600
             animate_flip_bird.draw(screen)
             animate_flip_bird.update()
         if direction == 'left' and flip_bird.rect.left > 50:
@@ -303,36 +308,23 @@ def main_menu():
             animate_bird.update()
 
 
-        if bird.rect.bottom >= 495 or bird.rect.top <= 110:
-            can_control = False
-        if flip_bird.rect.bottom >= 495 or flip_bird.rect.top <= 110:
-            can_control = False
+        bird.rect.bottom = 300
+        flip_bird.rect = bird.rect
 
-        if bird.rect.top < 300 and can_control == False: # top < 110
-            bird.rect.top += 8
-            if bird.rect.top >= 300:
-                can_control = True
-
-        if flip_bird.rect.bottom > 300 and can_control == False: # bottom > 495
-            flip_bird.rect.top -= 8
-            if flip_bird.rect.top <= 300:
-                can_control = True
 
 
         button1.draw()
         button2.draw()
-        screen.blit(high_score_text, (900, 50))
+        high_score_text_rect.right = 1200
+        high_score_text_rect.bottom = 570
+        screen.blit(high_score_text, high_score_text_rect)
         pygame.display.update()
         clock.tick(30)
 
 
-
-
-
-
 gravity = 0
 
-def second():
+def gameplay_screne():
     clock = pygame.time.Clock()
     score_rangex = 49
     score_rangey = 51
@@ -403,6 +395,8 @@ def second():
     # ADDING PLAYER TO SPRITE GROUP
     animate_player.add(p1)
 
+    # BUTTONS
+    pause_button = button('PAUSE', 50, 50, 180, 50)
 
     while True:
 
@@ -445,6 +439,12 @@ def second():
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -2.8
                     flap.play()
+                if pause_button.check_click():
+                    animate_player.draw(screen)
+                    run = True
+                    while run:
+                        pause(score)
+                        run = False
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
@@ -505,8 +505,8 @@ def second():
             p1.rect.bottom = SET_HEIGHT - 130
             game_music.stop()
             intermediate(p1, score)
-        if p1.rect.top <= -50:
-            p1.rect.top = -50
+        if p1.rect.top <= 0:
+            p1.rect.top = 0
             game_music.stop()
             intermediate(p1, score)
 
@@ -531,6 +531,7 @@ def second():
         animate_player.update()
         screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
         screen.blit(base_image_scaled, (0, 750))
+        pause_button.draw()
         pygame.display.update()
         clock.tick(150)
 
@@ -542,6 +543,8 @@ def pause(score):
     largetext = pause_font.render('PAUSED', True, 'black')
     screen.blit(largetext, (500, 200))
     score_text = font_menu.render('SCORE : ' + str(score), True, 'black')
+    score_text_rect = score_text.get_rect()
+    score_text_rect.center = (670, 350)
     con_but = button('CONTINUE', 200, 540, 275, 50)
     menu_but = button('MAIN MENU', 880, 540, 300, 50)
 
@@ -567,7 +570,7 @@ def pause(score):
         con_but.draw()
         menu_but.draw()
         screen.blit(base_image_scaled, (0, 750))
-        screen.blit(score_text, (550, 330))
+        screen.blit(score_text, score_text_rect)
         pygame.display.update()
 
     print("Main")
@@ -580,7 +583,6 @@ def intermediate(p1, score):
 
     g = 0
     initial_height = p1.rect.top
-    initial_posx = p1.rect.left
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
     touch = 0
 
@@ -612,18 +614,18 @@ def intermediate(p1, score):
         g += 0.06
 
         if new_height >= 1500:
-            third(score)
+            exit_screen(score)
         pygame.display.update()
 
 
-def third(x):
+def exit_screen(x):
     global HIGH_SCORE
 
     exit_screen_sound.play(-1)
 
     b1 = button('TRY AGAIN', 200, 340, 300, 50)
     b2 = button('MAIN MENU', 880, 340, 300, 50)
-    b3 = button('EXIT', 620, 540, 150, 50)
+    b3 = button('EXIT', 1220, 700, 150, 50)
 
     print('LOOSE')
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
@@ -632,21 +634,19 @@ def third(x):
     if x > HIGH_SCORE:
         score = font_menu.render("NEW HIGH SCORE : " + str(x), 1, (0, 0, 0))
         HIGH_SCORE = x
-        y = 430
-        z = 250
     else:
         score = font_menu.render("SCORE :  " + str(x), 1, (0, 0, 0))
-        y = 550
-        z = 250
 
     while True:
 
         screen.fill('black')
         screen.blit(background_play, (0, 0))
-        screen.blit(score, (y, z))
-        screen.blit(dead_image, (630, 350))
-        screen.blit(game_over1_scaled, (380, -150))
-        screen.blit(game_over2_scaled, (400, -150))
+        score_rect = score.get_rect()
+        score_rect.center = (700, 250)
+        screen.blit(score, score_rect)
+        screen.blit(rip, (500, 420))
+        screen.blit(game_over1_scaled, (380, -190))
+        screen.blit(game_over2_scaled, (400, -190))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -660,7 +660,7 @@ def third(x):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if b1.check_click():
                     exit_screen_sound.stop()
-                    second()
+                    gameplay_screne()
                 if b2.check_click():
                     exit_screen_sound.stop()
                     main_menu()
@@ -668,11 +668,10 @@ def third(x):
                     print("EXITING")
                     pygame.quit()
                     sys.exit()
-
+        screen.blit(base_image_scaled, (0, 750))
         b1.draw()
         b2.draw()
         b3.draw()
-        screen.blit(base_image_scaled, (0, 750))
         pygame.display.update()
 
 

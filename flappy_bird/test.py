@@ -4,68 +4,43 @@ import sys
 import pygame
 
 pygame.init()
+pygame.font.init()
+
+temp_font = pygame.font.SysFont('monospace', 50)
 
 S_X = 1400
 S_Y = 800
 screen = pygame.display.set_mode((S_X, S_Y))
 pygame.display.set_caption('I HATE THIS')
 
-player_base_image = pygame.image.load('./images/base_mid.png')
-player_base_image_up = pygame.image.load('./images/base_up.png')
-player_base_image_down = pygame.image.load('./images/base_down.png')
 
-player_base_image_rect = player_base_image.get_rect()
-player_base_image_up_rect = player_base_image_up.get_rect()
-player_base_image_down_rect = player_base_image_down.get_rect()
+class button:
+    def __init__(self, text, x, y, w, h):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
 
-class player(pygame.sprite.Sprite):
-
-    def __init__(self, x, y):
-        super().__init__()
-        self.sprites = []
-        self.sprites.append(player_base_image)
-        self.sprites.append(player_base_image_down)
-        self.sprites.append(player_base_image)
-        self.sprites.append(player_base_image_up)
-        self.current_sprite = 0
-        self.image = self.sprites[self.current_sprite]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+    def draw(self):
+        button_text = temp_font.render(self.text, True, 'black')
+        pygame.draw.rect(screen, 'white', ((self.x, self.y), (self.w, self.h)))
+        pygame.draw.line(screen, 'brown', (self.x, self.y,), (self.x + self.w, self.y), 4)
+        pygame.draw.line(screen, 'brown', (self.x, self.y,), (self.x, self.y + self.h), 4)
+        pygame.draw.line(screen, 'brown', (self.x + self.w, self.y), (self.x + self.w, self.y + self.h), 4)
+        pygame.draw.line(screen, 'brown', (self.x, self.y + self.h), (self.x + self.w, self.y + self.h), 4)
+        pygame.draw.rect(screen,'orange', ((self.x + 8, self.y + 5), (self.w - 14, self.h - 8)))
+        screen.blit(button_text, (self.x + 15, self.y))
 
 
-    def update(self):
-        self.current_sprite += 1
-        if self.current_sprite >= len(self.sprites):
-            self.current_sprite = 0
-        self.image = self.sprites[self.current_sprite]
 
-    def move(self, speed):
-        self.rect.left += speed
 
-clock = pygame.time.Clock()
-
-run = True
-moving_player = pygame.sprite.Group()
-p1 = player(player_base_image_rect.right, player_base_image_rect.bottom)
-moving_player.add(p1)
-
-# INITIALIZE BIRD
-bird = player(50, 300)
-flip_bird = player(750, 300)
-
-# MAKING SPRITE GROUP
-animate_bird = pygame.sprite.Group()
-animate_flip_bird = pygame.sprite.Group()
-
-# ADDING PLAYER TO GROUP
-animate_bird.add(bird)
-animate_flip_bird.add(flip_bird)
 
 run = True
 while run:
-    screen.fill('black')
+    screen.fill('blue')
 
-
+    B1 = button('HELLO', 300, 200, 170, 50)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -75,11 +50,6 @@ while run:
                 pygame.quit()
                 sys.exit()
 
-    bird.move(4)
-    animate_bird.draw(screen)
-    animate_bird.update()
-    flip_bird.move(-1)
-    animate_flip_bird.draw(screen)
-    animate_flip_bird.update()
+
+    B1.draw()
     pygame.display.update()
-    clock.tick(40)

@@ -130,7 +130,7 @@ def controls():
         pygame.display.update()
 HIGH_SCORE = 0
 
-def third(x):
+def exit_screen(x):
     global HIGH_SCORE
     print("LOOSE")
     back = pygame.image.load("./images/main_1400x800.png")
@@ -222,13 +222,13 @@ def screen2():
             playerY = upper_limit
             # playerY_ch -= gravity
             playerY_ch = 0
-            third(count)
+            exit_screen(count)
 
         if playerY < lower_limit:
             playerY = lower_limit
             # playerY_ch += gravity
             playerY_ch = 0
-            third(count)
+            exit_screen(count)
 
 
         player(player_image, playerX, playerY)

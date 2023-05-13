@@ -176,14 +176,14 @@ def main_menu():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     menu_sound.stop()
-                    second()
+                    gameplay_screne()
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1.check_click():
                     menu_sound.stop()
-                    second()
+                    gameplay_screne()
                 if button2.check_click():
                     print("EXITING")
                     pygame.quit()
@@ -231,7 +231,7 @@ def main_menu():
 gravity = 0
 
 
-def second():
+def gameplay_screne():
     score_rangex = 49
     score_rangey = 51
     score = 0
@@ -454,11 +454,11 @@ def intermidiate(p1, score):
         g += 0.06
 
         if new_height >= 1500:
-            third(score)
+            exit_screen(score)
         pygame.display.update()
 
 
-def third(x):
+def exit_screen(x):
     global HIGH_SCORE
 
     exit_screen_sound.play(-1)
@@ -501,7 +501,7 @@ def third(x):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if b1.check_click():
                     exit_screen_sound.stop()
-                    second()
+                    gameplay_screne()
                 if b2.check_click():
                     exit_screen_sound.stop()
                     main_menu()
