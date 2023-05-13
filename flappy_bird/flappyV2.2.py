@@ -8,7 +8,8 @@ pygame.font.init()
 mixer.init()
 
 # GAME SOUNDS
-menu_sound = mixer.Sound('./sounds/main_menu.ogg')
+pygame.mixer.music.load('./sounds/main_menu.ogg')
+
 game_music = mixer.Sound('./sounds/gameplay_sound.ogg')
 flap = mixer.Sound('./sounds/flap.wav')
 score_s = mixer.Sound('./sounds/point.wav')
@@ -180,7 +181,7 @@ class button:
             return 0
 
 
-def main_menu():
+def main_menu(x):
 
     # INITIALIZE PLAYER RECTANGLES
     player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
@@ -188,8 +189,9 @@ def main_menu():
 
     pygame.display.set_caption('MENU')
 
-    #PLAY SOUND
-    menu_sound.play()
+    # PLAY SOUND
+    if x:
+        pygame.mixer.music.play()
 
     clock = pygame.time.Clock()
 
@@ -242,6 +244,7 @@ def main_menu():
         # INITIALIZE BUTTON
         button1 = button('PLAY', 800, 400, 150, 50)
         button2 = button('EXIT', 1000, 400, 150, 50)
+        button3 = button("CONTROLS", 840, 500, 275, 50)
 
         # mouse
         m_pos = pygame.mouse.get_pos()
@@ -255,7 +258,7 @@ def main_menu():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    menu_sound.stop()
+                    pygame.mixer.music.stop()
                     gameplay_screne()
                 if event.key == pygame.K_ESCAPE:
                     print("EXITING")
@@ -263,12 +266,15 @@ def main_menu():
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1.check_click():
-                    menu_sound.stop()
+                    pygame.mixer.music.stop()
                     gameplay_screne()
                 if button2.check_click():
                     print("EXITING")
                     pygame.quit()
                     sys.exit()
+                if button3.check_click():
+                    pygame.mixer.music.pause()
+                    controls()
 
         # MOUSE ON BIRD
         if bird.rect.collidepoint(m_pos) and direction == 'right':
@@ -315,14 +321,57 @@ def main_menu():
 
         button1.draw()
         button2.draw()
+        button3.draw()
         high_score_text_rect.right = 1200
-        high_score_text_rect.bottom = 570
+        high_score_text_rect.bottom = 630
         screen.blit(high_score_text, high_score_text_rect)
         pygame.display.update()
         clock.tick(30)
 
 
 gravity = 0
+
+
+def controls():
+    print('CONTROLS')
+    pygame.mixer.music.unpause()
+    screen.fill('black')
+    screen.blit(background_menu, (0, 0))
+    text1 = font_menu.render("CONTROLS", True, (0, 0, 0))
+    text2 = font_menu.render("LEFT CLICK OR PRESS SPACE BAR TO FLY", True, (0, 0, 0))
+    text3 = font_menu.render("PRESS ESCAPE TO GO BACK ", True, (0, 0, 0))
+
+    B1 = button("GO BACK", 595, 450, 250, 50)
+
+    while True:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print('EXITING')
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.mixer.pause()
+                    main_menu(0)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if B1.check_click():
+                    main_menu(0)
+
+
+        screen.blit(text1, (580, 230))
+        screen.blit(text2, (150, 300))
+        screen.blit(text3, (360, 370))
+
+        B1.draw()
+        pygame.display.update()
+
+
+
+
+
+
+
 
 def gameplay_screne():
     clock = pygame.time.Clock()
@@ -561,7 +610,7 @@ def pause(score):
                     run = False
                 if menu_but.check_click():
                     game_music.stop()
-                    main_menu()
+                    main_menu(1)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     escape_sound.play()
@@ -602,7 +651,7 @@ def intermediate(p1, score):
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    main_menu()
+                    main_menu(1)
 
         if touch == 0 and new_height == initial_height:
             hit.play()
@@ -656,14 +705,14 @@ def exit_screen(x):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     exit_screen_sound.stop()
-                    main_menu()
+                    main_menu(1)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if b1.check_click():
                     exit_screen_sound.stop()
                     gameplay_screne()
                 if b2.check_click():
                     exit_screen_sound.stop()
-                    main_menu()
+                    main_menu(1)
                 if b3.check_click():
                     print("EXITING")
                     pygame.quit()
@@ -675,4 +724,4 @@ def exit_screen(x):
         pygame.display.update()
 
 
-main_menu()
+main_menu(1)
