@@ -100,13 +100,19 @@ class player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.hitbox = self.rect
-
+        self.is_animating = False
+        self.times = 0
 
     def update(self):
-        self.current_sprite += 1
-        if self.current_sprite >= len(self.sprites):
-            self.current_sprite = 0
-        self.image = self.sprites[self.current_sprite]
+        if self.is_animating:
+            self.current_sprite += 1
+            if self.current_sprite == len(self.sprites):
+                self.current_sprite = 0
+                self.times += 1
+                if self.times == 4:
+                    self.is_animating = False
+                    self.times = 0
+            self.image = self.sprites[self.current_sprite]
 
     def movex(self, speed):
         self.rect.left += speed
@@ -116,6 +122,10 @@ class player(pygame.sprite.Sprite):
 
     def append(self, image):
         self.sprites.append(image)
+
+    def animate(self):
+        self.is_animating = True
+
 
 class tube:
 
@@ -476,6 +486,7 @@ def gameplay_screne():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     gravity = -2.8
+                    p1.animate()
                     flap.play()
                 if event.key == pygame.K_ESCAPE:
                     state = True
@@ -487,6 +498,7 @@ def gameplay_screne():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -2.8
+                    p1.animate()
                     flap.play()
                 if pause_button.check_click():
                     animate_player.draw(screen)
