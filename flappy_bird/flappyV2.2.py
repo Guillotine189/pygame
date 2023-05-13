@@ -101,19 +101,28 @@ class player(pygame.sprite.Sprite):
         self.rect.topleft = (x, y)
         self.hitbox = self.rect
         self.is_animating = False
-        self.times = 0
+    #
+    # def update_once(self):
+    #     if self.is_animating:
+    #         self.current_sprite += 0.8
+    #         if self.current_sprite == len(self.sprites):
+    #             self.current_sprite = 0
+    #             self.is_animating = False
+    #         self.image = self.sprites[int(self.current_sprite)]
 
-    def update(self):
-        if self.is_animating:
-            self.current_sprite += 1
-            if self.current_sprite == len(self.sprites):
+    def update(self, input):
+        if input:
+            self.current_sprite += 0.6
+            if self.current_sprite >= len(self.sprites):
                 self.current_sprite = 0
-                self.times += 1
-                if self.times == 4:
+            self.image = self.sprites[int(self.current_sprite)]
+        else:
+            if self.is_animating:
+                self.current_sprite += 0.4
+                if self.current_sprite >= len(self.sprites):
+                    self.current_sprite = 0
                     self.is_animating = False
-                    self.times = 0
-            self.image = self.sprites[self.current_sprite]
-
+                self.image = self.sprites[int(self.current_sprite)]
     def movex(self, speed):
         self.rect.left += speed
 
@@ -212,6 +221,9 @@ def main_menu(x):
     # RENDERING TEXT
     leave_alone_text = bird_font_menu.render('LEAVE ME ALONE', True, 'black').convert_alpha()
     help_text = bird_font_menu.render('SOMEONE HELP ME!', True, 'black').convert_alpha()
+    aggh_text = bird_font_menu.render('AGGHH!!', True, 'black').convert_alpha()
+    curse_text = bird_font_menu.render('#@$%@#!', True, 'black').convert_alpha()
+    play_game_text = bird_font_menu.render('JUST PLAY THE GAME', True, 'black').convert_alpha()
     high_score_text = font_menu.render('HIGH SCORE : ' + str(HIGH_SCORE), True, 'black').convert_alpha()
     high_score_text_rect = high_score_text.get_rect()
 
@@ -237,6 +249,11 @@ def main_menu(x):
     # ADDING PLAYER TO GROUP
     animate_bird.add(bird)
     animate_flip_bird.add(flip_bird)
+
+    time = 0
+    pressed_bird = 0
+    timer_for_just_play_text = 0
+
 
     while True:
 
@@ -288,40 +305,62 @@ def main_menu(x):
 
         # MOUSE ON BIRD
         if bird.rect.collidepoint(m_pos) and direction == 'right':
+            time += 0.04
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 bird.movey(-80)
+                pressed_bird += 1
                 screen.blit(help_text, (bird.rect.left - 40, bird.rect.top - 40))
             else:
-                screen.blit(leave_alone_text, (bird.rect.left - 40, bird.rect.top - 40))
-
-        if flip_bird.rect.collidepoint(m_pos) and direction == 'left':
+                if time < 3:
+                    screen.blit(leave_alone_text, (bird.rect.left - 40, bird.rect.top - 40))
+                elif time > 3 and time < 6:
+                    screen.blit(aggh_text, (bird.rect.left + 15, bird.rect.top - 40))
+                else:
+                    screen.blit(curse_text, (bird.rect.left + 15, bird.rect.top - 40))
+        elif flip_bird.rect.collidepoint(m_pos) and direction == 'left':
+            time += 0.04
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 flip_bird.movey(80)
                 screen.blit(help_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
             else:
-                screen.blit(leave_alone_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
+                if time < 3:
+                    screen.blit(leave_alone_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
+                elif time >3 and time < 6:
+                    screen.blit(aggh_text, (flip_bird.rect.left + 15, flip_bird.rect.top - 40))
+                else:
+                    screen.blit(curse_text, (flip_bird.rect.left + 15, flip_bird.rect.top - 40))
+        else:
+            time = 0
+
+        if pressed_bird > 6:
+            screen.blit(play_game_text, (150, 50))
+            timer_for_just_play_text += 0.1
+            if timer_for_just_play_text >= 5:
+                pressed_bird = 0
+                timer_for_just_play_text = 0
+
 
         # MOVING BIRD L->R and R->L
         if direction == 'right' and bird.rect.left <= 600:
             bird.movex(6)
             animate_bird.draw(screen)
-            animate_bird.update()
+            animate_bird.update(1)
         if direction == 'right' and bird.rect.right > 600:
             direction = 'left'
             flip_bird.rect.top = bird.rect.top
             flip_bird.rect.right = 600
             animate_flip_bird.draw(screen)
-            animate_flip_bird.update()
+            animate_flip_bird.update(1)
         if direction == 'left' and flip_bird.rect.left > 50:
             flip_bird.movex(-6)
             animate_flip_bird.draw(screen)
-            animate_flip_bird.update()
+            animate_flip_bird.update(1)
         if direction == 'left' and flip_bird.rect.left <= 50:
             direction = 'right'
             bird.rect.top = flip_bird.rect.top
             bird.rect.left = 50
             animate_bird.draw(screen)
-            animate_bird.update()
+            animate_bird.update(1)
 
 
         bird.rect.bottom = 300
@@ -445,7 +484,13 @@ def gameplay_screne():
 
     # ADDING SPRITE TO GROUP
     p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
     p1.append(player_base_image_scaled)
+    p1.append(player_base_image_up_scaled)
+    p1.append(player_base_image_up_scaled)
     p1.append(player_base_image_up_scaled)
 
     # MAKING SPRITE GROUP
@@ -589,7 +634,7 @@ def gameplay_screne():
         # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
         animate_player.draw(screen)
-        animate_player.update()
+        animate_player.update(0)
         screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
         screen.blit(base_image_scaled, (0, 750))
         pause_button.draw()
