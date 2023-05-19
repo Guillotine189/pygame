@@ -210,7 +210,7 @@ def main_menu(x):
 
     # PLAY SOUND
     if x:
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
 
     clock = pygame.time.Clock()
 
