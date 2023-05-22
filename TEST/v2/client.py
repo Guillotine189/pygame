@@ -40,13 +40,14 @@ class Network:
         try:
             self.client.connect((self.host, self.port))
             message = self.client.recv(1024).decode(self.format)
-            if message == '0':
-                pass
-            else:
+            if message != '0':
                 self.status = True
                 return message
+            else:
+                return 0
         except:
             print("ERROR IN INITIAL CONNECTION")
+            return 0
 
 
     def close(self):
@@ -92,12 +93,29 @@ def read_msg(msg):
 
 
 
+def server_down():
+    while True:
+        screen.fill('black')
+        screen.blit(font_.render('SERVER DOWN', True, 'white'), (WIDTH/2 - 200, HEIGHT/2))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    start()
+
+        pygame.display.update()
 
 
 def second():
     Player = Network()
     connection_status = Player.first_message
     print(connection_status)
+
+    if connection_status == 0 :
+        server_down()
 
     while Player.status:
         screen.fill('black')
@@ -122,7 +140,9 @@ def second():
                     Player.close_all()
 
         pygame.display.update()
-        
+
+
+
 
 def start():
 
@@ -144,6 +164,7 @@ def start():
                 if to_connect_text_rec.collidepoint(mpos):
                     try:
                         second()
+                        break
                     except:
                         print("COULD NOT CONNECT..")
 
