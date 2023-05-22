@@ -39,8 +39,12 @@ class Network:
     def connect(self):
         try:
             self.client.connect((self.host, self.port))
-            self.status = True
-            return self.client.recv(1024).decode(self.format)
+            message = self.client.recv(1024).decode(self.format)
+            if message == '0':
+                pass
+            else:
+                self.status = True
+                return message
         except:
             print("ERROR IN INITIAL CONNECTION")
 
@@ -118,7 +122,7 @@ def second():
                     Player.close_all()
 
         pygame.display.update()
-
+        
 
 def start():
 

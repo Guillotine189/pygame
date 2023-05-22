@@ -61,10 +61,11 @@ while running:
     print("LISTENING...")
     client, addr = server.accept()
     print(running)
+    print(f"connected to {addr}")
     if not running:
         print("TURNING OFF SERVER..")
+        client.send('0'.encode(FORMAT))
         break
-    print(f"connected to {addr}")
     clients.append(client)
     client.send('200 status - CONNECTED'.encode(FORMAT))
 
