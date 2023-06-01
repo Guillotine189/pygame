@@ -95,7 +95,7 @@ class Network:
 
     def __init__(self):
         self.host = '127.0.0.1'
-        self.port = 9901
+        self.port = 9900
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
@@ -609,13 +609,10 @@ def gameplay_screne():
         OB10 = tube(obs_down5, obs_down5_rect)
 
 
-        print("ASKING POS")
         position = Player.send('POSITION?')
         my_pos = p1.rect.center
         pp = Player.send(make(my_pos))
         pos = read_obs_co(pp)
-        print(pos)
-        print()
         p2.rect.center = int(pos[0]), int(pos[1])
         # p2.animate()
 
@@ -653,18 +650,15 @@ def gameplay_screne():
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
             game_music.stop()
-            Player.client.send('!D'.encode(Player.format))
-            intermediate(p1, score)
+            intermediate(p1, score, Player)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
             game_music.stop()
-            Player.client.send('!D'.encode(Player.format))
-            intermediate(p1, score)
+            intermediate(p1, score, Player)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
             game_music.stop()
-            Player.client.send('!D'.encode(Player.format))
-            intermediate(p1, score)
+            intermediate(p1, score, Player)
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
                 or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
@@ -808,13 +802,11 @@ def gameplay_screne():
         if p1.rect.top >= SET_HEIGHT - 130:
             p1.rect.bottom = SET_HEIGHT - 130
             game_music.stop()
-            Player.client.send('!D'.encode(Player.format))
-            intermediate(p1, score)
+            intermediate(p1, score, Player)
         if p1.rect.top <= 0:
             p1.rect.top = 0
             game_music.stop()
-            Player.client.send('!D'.encode(Player.format))
-            intermediate(p1, score)
+            intermediate(p1, score, Player)
 
         score_text = font_menu.render(str(score), True, 'black')
         score_text_rect = score_text.get_rect()
@@ -901,7 +893,7 @@ def pause(score):
 HIGH_SCORE = 0
 
 
-def intermediate(p1, score):
+def intermediate(p1, score, Player):
 
     g = 0
     initial_height = p1.rect.top
@@ -936,6 +928,7 @@ def intermediate(p1, score):
         g += 0.06
 
         if new_height >= 1500:
+            Player.client.send('!D'.encode(Player.format))
             exit_screen(score)
         pygame.display.update()
 
