@@ -8,31 +8,34 @@ height = 800
 screen = pygame.display.set_mode((width, height))
 
 arr = []
-total_stars = 450
+total_stars = 350
 
 
 class Stars:
 
     def __init__(self):
         self.x = random.randint(0, width)
-        self.y = random.randint(0, height/2)
+        self.r = (self.x - width/2)
+        self.r = abs(self.r - width/2)
+        self.y = random.randint(0, int(height/3))
         self.z = random.uniform(0.1, 1)
         self.dx = self.x
         self.dy = self.y
 
     def move(self):
-        self.z -= 0.002    # SPEED
+        self.z -= 0.003    # SPEED
         if self.z <= 0 or self.x < 0 or self.x > width or self.y > height:
             self.x = random.randint(0, width)
-            self.y = random.randint(0, height/2)
+            self.y = random.randint(0, int(height/2))
             self.z = random.uniform(0.1, 1)
 
     def update(self):
         if self.x <= width/2:
+            pass
             self.dx = width/2 - self.x / self.z
             self.dy = self.y / self.z
         else:
-            self.dx = self.x/self.z
+            self.dx = self.r / self.z + width/2
             self.dy = self.y / self.z
 
     def draw(self):
