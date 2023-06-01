@@ -29,7 +29,7 @@ class Network:
 
     def __init__(self):
         self.host = '127.0.0.1'
-        self.port = 9900
+        self.port = 9901
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
@@ -114,7 +114,7 @@ def second():
     connection_status = Player.first_message
     print(connection_status)
 
-    if connection_status == 0 :
+    if connection_status == 0:
         server_down()
 
     while Player.status:

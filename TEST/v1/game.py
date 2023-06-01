@@ -80,7 +80,7 @@ class player:
 class Network:
     def __init__(self):
         self.HOST = '127.0.0.1'
-        self.PORT = 9900
+        self.PORT = 9901
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.FORMAT = 'utf-8'
         self.pos_start = self.connect()
@@ -177,6 +177,7 @@ def start():
         to_connect_text_rec.center = (WIDTH/2, HEIGHT/2)
         screen.blit(to_connect_text, to_connect_text_rec)
         pygame.draw.rect(screen, 'white', to_connect_text_rec, 2)
+        print(to_connect_text_rec)
 
         mpos = pygame.mouse.get_pos()
 
