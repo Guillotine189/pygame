@@ -154,12 +154,14 @@ class player(pygame.sprite.Sprite):
 
     def __init__(self, x, y, img):
         super().__init__()
+        self.x = x
+        self.y = y
         self.sprites = []
         self.current_sprite = 0
         self.append(img)
         self.image = self.sprites[self.current_sprite]
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+        self.rect.topleft = (self.x, self.y)
         self.hitbox = self.rect
         self.is_animating = False
     #
@@ -487,8 +489,9 @@ def read_obs_co(msg):
     message = msg.split(',')
     return float(message[0]), float(message[1])
 
-
-
+def make(tup):
+    message = str(tup[0]) + ',' + str(tup[1])
+    return  message
 
 
 def gameplay_screne():
@@ -501,6 +504,9 @@ def gameplay_screne():
 
     else:
         print(Player.first_message)
+        print("SENDING INIT POS")
+        tp = Player.send('INIT_POS')
+        tp = Player.send('50,300')
 
 
 
@@ -551,6 +557,7 @@ def gameplay_screne():
 
         # PLAYER
         p1 = player(50, 300, player_base_image_scaled)
+        p2 = player(50, 300, player_base_image_scaled)
 
         # ADDING SPRITE TO GROUP
         p1.append(player_base_image_down_scaled)
@@ -563,11 +570,23 @@ def gameplay_screne():
         p1.append(player_base_image_up_scaled)
         p1.append(player_base_image_up_scaled)
 
+        # p2.append(player_base_image_down_scaled)
+        # p2.append(player_base_image_down_scaled)
+        # p2.append(player_base_image_down_scaled)
+        # p2.append(player_base_image_down_scaled)
+        # p2.append(player_base_image_down_scaled)
+        # p2.append(player_base_image_scaled)
+        # p2.append(player_base_image_up_scaled)
+        # p2.append(player_base_image_up_scaled)
+        # p2.append(player_base_image_up_scaled)
+
         # MAKING SPRITE GROUP
         animate_player = pygame.sprite.Group()
+        # animate_player_2 = pygame.sprite.Group()
 
         # ADDING PLAYER TO SPRITE GROUP
         animate_player.add(p1)
+        # animate_player_2.add(p2)
 
         # BUTTONS
         pause_button = button('PAUSE', 50, 50, 180, 50)
@@ -589,6 +608,16 @@ def gameplay_screne():
         OB9 = tube(obs_down4, obs_down4_rect)
         OB10 = tube(obs_down5, obs_down5_rect)
 
+
+        print("ASKING POS")
+        position = Player.send('POSITION?')
+        my_pos = p1.rect.center
+        pp = Player.send(make(my_pos))
+        pos = read_obs_co(pp)
+        print(pos)
+        print()
+        p2.rect.center = int(pos[0]), int(pos[1])
+        # p2.animate()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -816,8 +845,12 @@ def gameplay_screne():
         # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
         # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
 
+
+        screen.blit(p2.image, p2.rect.center)
         animate_player.draw(screen)
+        # animate_player_2.draw(screen)
         animate_player.update(0)
+        # animate_player_2.update(1)
         screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
         screen.blit(base_image_scaled, (0, 750))
         pause_button.draw()

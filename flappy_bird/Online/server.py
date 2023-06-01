@@ -88,12 +88,15 @@ class tube:
         return gap
 
 
+def read_obs_co(msg):
+    message = msg.split(',')
+    return float(message[0]), float(message[1])
 #
 # def read_obs_co(msg):
 #     message = msg.split(',')
 #     return int(message[0]), int(message[1])
 
-
+position = [(0, 0),(0, 0)]
 
 
 def make(tup):
@@ -106,13 +109,14 @@ def DISCONNECT(client, addr):
 
 
 
-def receive(client, addr):
-    global running
+def receive(client, addr, pl_no):
+    global running, position
     obs = tube()
     while True:
         try:
             message = client.recv(1024).decode(FORMAT)
-
+            
+            
             if message == "!D":
                 print(message)
                 DISCONNECT(client, addr)
@@ -153,6 +157,28 @@ def receive(client, addr):
                 print(req)
                 client.send(f'{req+500}'.encode(FORMAT))
                 print(f"OBS CO SENT - {req+ 500}")
+            
+            
+            elif message == 'INIT_POS':
+                print("GIT REQUEST FOR INIT POS")
+                client.send('?'.encode(FORMAT))
+                INITIAL_POS = client.recv(1024).decode(FORMAT)
+                INITIAL_POS = read_obs_co(INITIAL_POS)
+                client.send("OK".encode(FORMAT))
+                if pl_no == 0:
+                    position[0] = INITIAL_POS
+                else:
+                    position[1] = INITIAL_POS
+
+            elif message == 'POSITION?':
+                client.send('YOURS?'.encode(FORMAT))
+                NEW_POS = client.recv(1024).decode(FORMAT)
+                if pl_no == 0:
+                    client.send(make(position[1]).encode(FORMAT))
+                    position[0] = read_obs_co(NEW_POS)
+                else:
+                    client.send(make(position[0]).encode(FORMAT))
+                    position[1] = read_obs_co(NEW_POS)
 
 
             elif message == "!SD":
@@ -176,6 +202,8 @@ def receive(client, addr):
 #     print(coord)
 
 
+player_no = 0
+
 
 while running:
     print("LISTENING...")
@@ -189,5 +217,6 @@ while running:
     clients.append(client)
     client.send('200 status - CONNECTED'.encode(FORMAT))
 
-    client_thread = threading.Thread(target=receive, args=(client, addr))
+    client_thread = threading.Thread(target=receive, args=(client, addr, player_no))
     client_thread.start()
+    player_no += 1
