@@ -72,6 +72,20 @@ class tube:
 
         return obs_co
 
+    def get_one_co(self):
+        gap = []
+
+        rand5 = random.randint(50, 200)
+        rand6 = random.randint(50, 100)
+        up_co = 140 + rand5
+        down_co = 650 - 3*rand6
+
+
+        # top = random.randint(100, 215)
+        # bottom = random.randint(590, 700)
+        gap.append(up_co)
+        gap.append(down_co)
+        return gap
 
 
 #
@@ -112,8 +126,25 @@ def receive(client, addr):
                     client.send(coord.encode(FORMAT))
                     temp = client.recv(1024).decode(FORMAT)
                     print(f"MSG SENT - {coord}")
-                print("MSG SENT")
 
+            elif message == 'OBS_1':
+                print("MSG FOR ONE OBS RECV")
+                coordinate = obs.get_one_co()
+                coord = str(coordinate[0])
+                print(coord)
+                client.send(coord.encode(FORMAT))
+                client.recv(1024).decode(FORMAT)
+                print(coord)
+                coord = str(coordinate[1])
+                client.send(coord.encode(FORMAT))
+            #
+            # elif message == 'OBS_2':
+            #     print("MSG FOR ONE OBS RECV")
+            #     coordinate = obs.get_one_co()
+            #     print(coordinate)
+            #     coord = make(coordinate[1])
+            #     client.send(coord.encode(FORMAT))
+            #     print(f"MSG SENT 2 {coord}")
 
             elif message == 'OP':
                 client.send('?'.encode(FORMAT))
@@ -121,7 +152,7 @@ def receive(client, addr):
                 req = int(req)
                 print(req)
                 client.send(f'{req+500}'.encode(FORMAT))
-                print(f"OBS CO SENT - {req+ random.randint(300, 500)}")
+                print(f"OBS CO SENT - {req+ 500}")
 
 
             elif message == "!SD":

@@ -202,8 +202,11 @@ class tube:
     def __init__(self, obstacle, obstacle_rect):
         self.obstacle = obstacle
         self.obstacle_rect = obstacle_rect
-        self.hitbox_up = pygame.rect.Rect(obstacle_rect.left + 60, obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
-        self.hitbox_down = pygame.rect.Rect(obstacle_rect.left + 60, obstacle_rect.top + 5, 110, 418)
+        self.hitbox_up = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
+        self.hitbox_down = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 5, 110, 418)
+        self.draw()
+
+    def draw(self):
         screen.blit(self.obstacle, self.obstacle_rect)
 
     def move(self, obstacle_rect, speed):
@@ -526,10 +529,6 @@ def gameplay_screne():
             OBS_CO.append(read_obs_co(temp))
 
 
-
-
-
-
         # INITIALIZE OBSTACLE RECTANGLE
         obs_up1_rect = obs_up1.get_rect(midright=OBS_CO[0])
         obs_up2_rect = obs_up2.get_rect(midright=OBS_CO[1])
@@ -541,6 +540,9 @@ def gameplay_screne():
         obs_down3_rect = obs_down1.get_rect(midright=OBS_CO[7])
         obs_down4_rect = obs_down1.get_rect(midright=OBS_CO[8])
         obs_down5_rect = obs_down1.get_rect(midright=OBS_CO[9])
+
+
+
 
         global gravity
 
@@ -588,7 +590,6 @@ def gameplay_screne():
         OB10 = tube(obs_down5, obs_down5_rect)
 
 
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -623,14 +624,17 @@ def gameplay_screne():
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
             game_music.stop()
+            Player.client.send('!D'.encode(Player.format))
             intermediate(p1, score)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
             game_music.stop()
+            Player.client.send('!D'.encode(Player.format))
             intermediate(p1, score)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
             game_music.stop()
+            Player.client.send('!D'.encode(Player.format))
             intermediate(p1, score)
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
@@ -653,57 +657,121 @@ def gameplay_screne():
         OB10.move(obs_down5_rect, tubespeed)
 
 
+        #
+        # OB1.hitbox_up.right = OB1.hitbox_up.right - tubespeed
+        # OB2.hitbox_up.right = OB2.hitbox_up.right - tubespeed
+        # OB3.hitbox_up.right = OB3.hitbox_up.right - tubespeed
+        # OB4.hitbox_up.right = OB4.hitbox_up.right - tubespeed
+        # OB5.hitbox_up.right = OB5.hitbox_up.right - tubespeed
+        # OB6.hitbox_down.right = OB6.hitbox_down.right - tubespeed
+        # OB7.hitbox_down.right = OB7.hitbox_down.right - tubespeed
+        # OB8.hitbox_down.right = OB8.hitbox_down.right - tubespeed
+        # OB9.hitbox_down.right = OB9.hitbox_down.right - tubespeed
+        # OB10.hitbox_down.right = OB10.hitbox_down.right - tubespeed
+
         if OB1.check(0):
+            req2 = Player.send('OBS_1')
+            print(f"UP CO REC {req2}")
+            obs_down1_rect.bottom = int(req2)
+            req3 = Player.send('OBS_2')
+            print(f"DOWN CO REC {req3}")
+            obs_up1_rect.top = int(req3)
             req = Player.send('OP')
             pos = Player.send(f'{OB5.obstacle_rect.right}')
             print(f"OBS POS REC - {int(pos)}")
             OB1.position(int(pos))
+            OB6.position(int(pos))
+
+
         if OB2.check(0):
+            req2 = Player.send('OBS_1')
+            print(f"UP CO REC {req2}")
+            obs_down2_rect.bottom = int(req2)
+            req2 = Player.send('OBS_2')
+            obs_up2_rect.top = int(req2)
+            print(f"DOWN CO REC {req2}")
             req = Player.send('OP')
             pos = Player.send(f'{OB1.obstacle_rect.right}')
             OB2.position(int(pos))
+            OB7.position(int(pos))
             print(f"OBS POS REC - {int(pos)}")
+
         if OB3.check(0):
+            req2 = Player.send('OBS_1')
+            print(f"UP CO REC {req2}")
+            obs_down3_rect.bottom = int(req2)
+            req2 = Player.send('OBS_2')
+            print(f"DOwn CO REC {req2}")
+            obs_up3_rect.top = int(req2)
             req = Player.send('OP')
             pos = Player.send(f'{OB2.obstacle_rect.right}')
             OB3.position(int(pos))
+            OB8.position(int(pos))
             print(f"OBS POS REC - {int(pos)}")
+
         if OB4.check(0):
+            req2 = Player.send('OBS_1')
+            print(f"UP CO REC {req2}")
+            obs_down4_rect.bottom = int(req2)
+            req2 = Player.send('OBS_2')
+            print(f"down CO REC {req2}")
+            obs_up4_rect.top = int(req2)
             req = Player.send('OP')
             pos = Player.send(f'{OB3.obstacle_rect.right}')
             OB4.position(int(pos))
+            OB9.position(int(pos))
             print(f"OBS POS REC - {int(pos)}")
+
         if OB5.check(0):
+            req2 = Player.send('OBS_1')
+            print(f"UP CO REC {req2}")
+            obs_down5_rect.bottom = int(req2)
+            req2 = Player.send('OBS_2')
+            print(f"down CO REC {req2}")
+            obs_up5_rect.top = int(req2)
             req = Player.send('OP')
             pos = Player.send(f'{OB4.obstacle_rect.right}')
             OB5.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-
-        if OB6.check(0):
-            req = Player.send('OP')
-            pos = Player.send(f'{OB5.obstacle_rect.right}')
-            OB6.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-        if OB7.check(0):
-            req = Player.send('OP')
-            pos = Player.send(f'{OB6.obstacle_rect.right}')
-            OB7.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-        if OB8.check(0):
-            req = Player.send('OP')
-            pos = Player.send(f'{OB7.obstacle_rect.right}')
-            OB8.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-        if OB9.check(0):
-            req = Player.send('OP')
-            pos = Player.send(f'{OB8.obstacle_rect.right}')
-            OB9.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-        if OB10.check(0):
-            req = Player.send('OP')
-            pos = Player.send(f'{OB9.obstacle_rect.right}')
             OB10.position(int(pos))
             print(f"OBS POS REC - {int(pos)}")
+
+
+
+        # if OB6.check(0):
+        #     # req = Player.send('OP')
+        #     # pos = Player.send(f'{OB5.obstacle_rect.right}')
+        #     # OB6.position(int(pos))
+        #     # print(f"OBS POS REC - {int(pos)}")
+        #     req2 = Player.send('OBS_2')
+        #     obs_down1_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
+        # if OB7.check(0):
+        #     # req = Player.send('OP')
+        #     # pos = Player.send(f'{OB6.obstacle_rect.right}')
+        #     # OB7.position(int(pos))
+        #     # print(f"OBS POS REC - {int(pos)}")
+        #     req2 = Player.send('OBS_2')
+        #     obs_down2_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
+        # if OB8.check(0):
+        #     # req = Player.send('OP')
+        #     # pos = Player.send(f'{OB7.obstacle_rect.right}')
+        #     # OB8.position(int(pos))
+        #     # print(f"OBS POS REC - {int(pos)}")
+        #     req2 = Player.send('OBS_2')
+        #     obs_down3_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
+        # if OB9.check(0):
+        #     # req = Player.send('OP')
+        #     # pos = Player.send(f'{OB8.obstacle_rect.right}')
+        #     # OB9.position(int(pos))
+        #     # print(f"OBS POS REC - {int(pos)}")
+        #     req2 = Player.send('OBS_2')
+        #     obs_down4_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
+        # if OB10.check(0):
+        #     # req = Player.send('OP')
+        #     # pos = Player.send(f'{OB9.obstacle_rect.right}')
+        #     # OB10.position(int(pos))
+        #     # print(f"OBS POS REC - {int(pos)}")
+        #     req2 = Player.send('OBS_2')
+        #     obs_down5_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
 
 
 
@@ -711,10 +779,12 @@ def gameplay_screne():
         if p1.rect.top >= SET_HEIGHT - 130:
             p1.rect.bottom = SET_HEIGHT - 130
             game_music.stop()
+            Player.client.send('!D'.encode(Player.format))
             intermediate(p1, score)
         if p1.rect.top <= 0:
             p1.rect.top = 0
             game_music.stop()
+            Player.client.send('!D'.encode(Player.format))
             intermediate(p1, score)
 
         score_text = font_menu.render(str(score), True, 'black')
@@ -733,6 +803,18 @@ def gameplay_screne():
         pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
         pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
         pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
+        #
+        # pygame.draw.rect(screen, 'black', p1.rect, 2)
+        # pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB4.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB5.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB6.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB7.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB8.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
+        # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
 
         animate_player.draw(screen)
         animate_player.update(0)
