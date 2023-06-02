@@ -3,7 +3,7 @@ import threading
 import random
 
 HOST = '10.0.0.238'
-PORT = 9900
+PORT = 9901
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))

@@ -133,7 +133,7 @@ class Network:
 
     def __init__(self):
         self.host = '10.0.0.238'
-        self.port = 9900
+        self.port = 9901
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
@@ -611,6 +611,8 @@ def make(tup):
     return  message
 
 
+online_score = 0
+
 def gameplay_screne(Player):
     alive = 1
     won = 0
@@ -667,8 +669,9 @@ def gameplay_screne(Player):
 
 
 
-        global gravity
+        global gravity, online_score
 
+        online_score = 0
         gravity = 0
         tubespeed = -2
 
@@ -766,7 +769,7 @@ def gameplay_screne(Player):
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
                 or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
-            score += 1
+            online_score += 1
             score_s.play()
 
         gravity += 0.08
@@ -914,7 +917,7 @@ def gameplay_screne(Player):
 
         if not int(alive):
             Player.client.send('!D'.encode(Player.format))
-            exit_online_screne()
+            exit_online_screne(online_score)
 
         else:
             won = Player.send('winner?')
@@ -922,7 +925,7 @@ def gameplay_screne(Player):
                 Player.client.send('RESET'.encode(Player.format))
                 Player.client.send('!D'.encode(Player.format))
                 game_music.stop()
-                winning_screne()
+                winning_screne(online_score)
 
 
 
@@ -966,9 +969,11 @@ def gameplay_screne(Player):
         clock.tick(150)
 
 
-def exit_online_screne():
+def exit_online_screne(online_score):
     exit_screen_sound.play(-1)
-    main_menu_button =  button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    score_text = pause_font.render(f'SCORE: {online_score}', True, 'black')
+    score_text_rect = score_text.get_rect()
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
@@ -981,15 +986,18 @@ def exit_online_screne():
                 if main_menu_button.check_click():
                     exit_screen_sound.stop()
                     main_menu(1)
-
+        score_text_rect.center = SET_WIDTH/2, 200
+        screen.blit(score_text, score_text_rect)
         screen.blit(pause_font.render('YOU LOOSE', True, 'black'), (SET_WIDTH/2 - 250, SET_HEIGHT/2 - 100))
         main_menu_button.draw()
         pygame.display.update()
 
 
-def winning_screne():
+def winning_screne(online_score):
     exit_screen_sound.play(-1)
     main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    score_text = pause_font.render(f'SCORE: {online_score}', True, 'black')
+    score_text_rect = score_text.get_rect()
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
@@ -1003,6 +1011,8 @@ def winning_screne():
                     exit_screen_sound.stop()
                     main_menu(1)
 
+        score_text_rect.center = SET_WIDTH/2, 200
+        screen.blit(score_text, score_text_rect)
         screen.blit(pause_font.render('YOU WON', True, 'black'), (SET_WIDTH / 2 - 200, SET_HEIGHT / 2 - 100))
         main_menu_button.draw()
         pygame.display.update()
@@ -1275,7 +1285,7 @@ def pause(score):
 
 
 def intermediate(p1, score):
-
+    clock = pygame.time.Clock()
     g = 0
     initial_height = p1.rect.top
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
@@ -1289,7 +1299,7 @@ def intermediate(p1, score):
         new_height = p1.rect.top
 
 
-        p1.rect.left += 2
+        p1.rect.left += 4
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -1302,15 +1312,16 @@ def intermediate(p1, score):
         if touch == 0 and new_height == initial_height:
             hit.play()
             die.play()
-            g = -2.8
+            g = -1.5
             touch = 1
 
         p1.movey(g)
-        g += 0.06
+        g += 0.1
 
         if new_height >= 1500:
             exit_screen(score)
         pygame.display.update()
+        clock.tick(150)
 
 
 def exit_screen(x):
