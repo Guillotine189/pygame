@@ -494,7 +494,7 @@ def choosing_screne():
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
 
-        pygame.draw.line(screen, (0, 0, 0), (0, 0), (SET_WIDTH, SET_HEIGHT), 3)
+        pygame.draw.line(screen, (100, 100, 40), (0, 0), (SET_WIDTH, SET_HEIGHT), 4)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -685,23 +685,23 @@ def gameplay_screne(Player):
         p1.append(player_base_image_up_scaled)
         p1.append(player_base_image_up_scaled)
 
-        # p2.append(player_base_image_down_scaled)
-        # p2.append(player_base_image_down_scaled)
-        # p2.append(player_base_image_down_scaled)
-        # p2.append(player_base_image_down_scaled)
-        # p2.append(player_base_image_down_scaled)
-        # p2.append(player_base_image_scaled)
-        # p2.append(player_base_image_up_scaled)
-        # p2.append(player_base_image_up_scaled)
-        # p2.append(player_base_image_up_scaled)
+        p2.append(player_base_image_down_scaled)
+        p2.append(player_base_image_down_scaled)
+        p2.append(player_base_image_down_scaled)
+        p2.append(player_base_image_down_scaled)
+        p2.append(player_base_image_down_scaled)
+        p2.append(player_base_image_scaled)
+        p2.append(player_base_image_up_scaled)
+        p2.append(player_base_image_up_scaled)
+        p2.append(player_base_image_up_scaled)
 
         # MAKING SPRITE GROUP
         animate_player = pygame.sprite.Group()
-        # animate_player_2 = pygame.sprite.Group()
+        animate_player_2 = pygame.sprite.Group()
 
         # ADDING PLAYER TO SPRITE GROUP
         animate_player.add(p1)
-        # animate_player_2.add(p2)
+        animate_player_2.add(p2)
 
 
     while Player.status:
@@ -727,7 +727,7 @@ def gameplay_screne(Player):
         pp = Player.send(make(my_pos))
         pos = read_obs_co(pp)
         p2.rect.center = int(pos[0]), int(pos[1])
-        # p2.animate()
+        p2.animate()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -768,7 +768,7 @@ def gameplay_screne(Player):
             score_s.play()
 
         gravity += 0.08
-        p1.movey(0)
+        p1.movey(gravity)
 
         OB1.move(obs_up1_rect, tubespeed)
         OB2.move(obs_up2_rect, tubespeed)
@@ -953,11 +953,11 @@ def gameplay_screne(Player):
         # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
         # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
 
-        screen.blit(p2.image, p2.rect.center)
+        # screen.blit(p2.image, p2.rect.center)
         animate_player.draw(screen)
-        # animate_player_2.draw(screen)
+        animate_player_2.draw(screen)
         animate_player.update(0)
-        # animate_player_2.update(1)
+        animate_player_2.update(1)
         screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
         screen.blit(base_image_scaled, (0, 750))
         pygame.display.update()
