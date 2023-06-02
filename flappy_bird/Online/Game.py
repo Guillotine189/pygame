@@ -92,12 +92,8 @@ logo_scaled = pygame.transform.scale(logo, (450, 150))
 X = 120
 Y = 80
 player_base_image_scaled = pygame.transform.scale(player_base_image, (X, Y))
-
 player_base_image_up_scaled = pygame.transform.scale(player_base_image_up, (X, Y))
-
 player_base_image_down_scaled = pygame.transform.scale(player_base_image_down, (X, Y))
-
-
 
 player_base_image_flip_scaled = pygame.transform.scale(player_base_image_flip, (X, Y))
 player_base_image_flip_up_scaled = pygame.transform.scale(player_base_image_flip_up, (X, Y))
@@ -392,16 +388,13 @@ def main_menu(x):
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    pygame.mixer.music.stop()
-                    waiting_screne()
                 if event.key == pygame.K_ESCAPE:
                     print("EXITING")
                     pygame.quit()
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1.check_click():
-                    waiting_screne()
+                    choosing_screne()
                 if button2.check_click():
                     print("EXITING")
                     pygame.quit()
@@ -486,6 +479,48 @@ def main_menu(x):
 
 
 gravity = 0
+
+
+
+def choosing_screne():
+    print("CHOOSING SCRENE")
+
+    online_button = button("ONLINE", 300, SET_HEIGHT/2 + 50, 210, 50)
+    offline_button = button("OFFLINE", 840, SET_HEIGHT/2 - 100, 250, 50)
+    menu_button = button('MAIN MENU', SET_WIDTH - 310, 20, 300, 50)
+    while True:
+        screen.fill('black')
+        screen.blit(background_menu, (0, 0))
+
+        pygame.draw.line(screen, (0, 0, 0), (0, 0), (SET_WIDTH, SET_HEIGHT), 3)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main_menu(0)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if menu_button.check_click():
+                    main_menu(0)
+                if online_button.check_click():
+                    waiting_screne()
+                if offline_button.check_click():
+                    pygame.mixer.music.stop()
+                    gameplay_offline_screne()
+
+        screen.blit(player_base_image_up_scaled, (60, 220))
+        screen.blit(player_base_image_flip_scaled, (640, 570))
+        screen.blit(player_base_image_down_scaled, (700, 180))
+        menu_button.draw()
+        online_button.draw()
+        offline_button.draw()
+        pygame.display.update()
+
+
+
+
 
 
 def controls():
@@ -966,7 +1001,270 @@ def winning_screne():
 HIGH_SCORE = 0
 
 
-def intermediate(p1, score, Player):
+
+def gameplay_offline_screne():
+    clock = pygame.time.Clock()
+    score_rangex = 49
+    score_rangey = 51
+    score = 0
+    pygame.display.set_caption('FLAPPY BIRD')
+    print("Main")
+
+    #GAME MUSIC
+    game_music.play(-1)
+
+
+    # GET RANDOM COORDINATE FOR Y AXIS
+    rand1 = random.randint(100, 200)
+    rand2 = random.randint(100, 200)
+    rand3 = random.randint(100, 200)
+    rand4 = random.randint(100, 200)
+    rand5 = random.randint(100, 200)
+    rand6 = random.randint(0, 100)
+    rand7 = random.randint(0, 100)
+    rand8 = random.randint(0, 100)
+    rand9 = random.randint(0, 100)
+    rand10 = random.randint(0, 100)
+
+    # INITIALIZE OBSTACLE COORDINATE
+    # PIPE FACING DOWN CAN COME DOWN MAX = 215 FROM Y AXIS BEFORE IT ENDS
+    # PIPE FACING UP CAN COME UP MAX = 590 BELOW Y AXIS BEFORE IT ENDS
+
+    obs1_up_co = (1650, rand1 + 550)
+    obs2_up_co = (2150, rand2 + 550)
+    obs3_up_co = (2650, rand3 + 550)
+    obs4_up_co = (3150,  rand4 + 550)
+    obs5_up_co = (3650, rand5 + 550)
+
+    obs1_down_co = (1650, rand1 - 1.5*rand6)
+    obs2_down_co = (2150, rand2 - 1.5*rand7)
+    obs3_down_co = (2650, rand3 - 1.5*rand8)
+    obs4_down_co = (3150, rand4 - 1.5*rand9)
+    obs5_down_co = (3650, rand5 - 1.5*rand10)
+
+    # INITIALIZE OBSTACLE RECTANGLE
+    obs_up1_rect = obs_up1.get_rect(midright=obs1_up_co)
+    obs_up2_rect = obs_up2.get_rect(midright=obs2_up_co)
+    obs_up3_rect = obs_up3.get_rect(midright=obs3_up_co)
+    obs_up4_rect = obs_up4.get_rect(midright=obs4_up_co)
+    obs_up5_rect = obs_up5.get_rect(midright=obs5_up_co)
+    obs_down1_rect = obs_down1.get_rect(midright=obs1_down_co)
+    obs_down2_rect = obs_down1.get_rect(midright=obs2_down_co)
+    obs_down3_rect = obs_down1.get_rect(midright=obs3_down_co)
+    obs_down4_rect = obs_down1.get_rect(midright=obs4_down_co)
+    obs_down5_rect = obs_down1.get_rect(midright=obs5_down_co)
+
+    global gravity
+
+    gravity = 0
+    tubespeed = -2
+
+    # PLAYER
+    p1 = player(50, 300, player_base_image_scaled)
+
+    # ADDING SPRITE TO GROUP
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_down_scaled)
+    p1.append(player_base_image_scaled)
+    p1.append(player_base_image_up_scaled)
+    p1.append(player_base_image_up_scaled)
+    p1.append(player_base_image_up_scaled)
+
+    # MAKING SPRITE GROUP
+    animate_player = pygame.sprite.Group()
+
+    # ADDING PLAYER TO SPRITE GROUP
+    animate_player.add(p1)
+
+    # BUTTONS
+    pause_button = button('PAUSE', 50, 50, 180, 50)
+
+    while True:
+
+        screen.fill('black')
+        screen.blit(background_play, (0, 0))
+
+        # OBSTACLE
+        OB1 = tube(obs_up1, obs_up1_rect)
+        OB2 = tube(obs_up2, obs_up2_rect)
+        OB3 = tube(obs_up3, obs_up3_rect)
+        OB4 = tube(obs_up4, obs_up4_rect)
+        OB5 = tube(obs_up5, obs_up5_rect)
+        OB6 = tube(obs_down1, obs_down1_rect)
+        OB7 = tube(obs_down2, obs_down2_rect)
+        OB8 = tube(obs_down3, obs_down3_rect)
+        OB9 = tube(obs_down4, obs_down4_rect)
+        OB10 = tube(obs_down5, obs_down5_rect)
+
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print("EXITING")
+                pygame.quit()
+                sys.exit()
+
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    gravity = -2.8
+                    p1.animate()
+                    flap.play()
+                if event.key == pygame.K_ESCAPE:
+                    state = True
+                    while state:
+                        animate_player.draw(screen)
+                        pause(score)
+                        state = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
+                    gravity = -2.8
+                    p1.animate()
+                    flap.play()
+                if pause_button.check_click():
+                    animate_player.draw(screen)
+                    run = True
+                    while run:
+                        pause(score)
+                        run = False
+
+        if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
+            print("COLLIDE1")
+            game_music.stop()
+            intermediate(p1, score)
+        if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
+            print("COLLIDE2")
+            game_music.stop()
+            intermediate(p1, score)
+        if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
+            print("COLLIDE3")
+            game_music.stop()
+            intermediate(p1, score)
+
+        if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
+                or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
+            score += 1
+            score_s.play()
+
+
+        gravity += 0.08
+        p1.movey(gravity)
+
+        OB1.move(obs_up1_rect, tubespeed)
+        OB2.move(obs_up2_rect, tubespeed)
+        OB3.move(obs_up3_rect, tubespeed)
+        OB4.move(obs_up4_rect, tubespeed)
+        OB5.move(obs_up5_rect, tubespeed)
+        OB6.move(obs_down1_rect, tubespeed)
+        OB7.move(obs_down2_rect, tubespeed)
+        OB8.move(obs_down3_rect, tubespeed)
+        OB9.move(obs_down4_rect, tubespeed)
+        OB10.move(obs_down5_rect, tubespeed)
+
+        if OB1.check(0):
+            OB1.position(OB5.obstacle_rect.right + 500)
+        if OB2.check(0):
+            OB2.position(OB1.obstacle_rect.right + 500)
+        if OB3.check(0):
+            OB3.position(OB2.obstacle_rect.right + 500)
+        if OB4.check(0):
+            OB4.position(OB3.obstacle_rect.right + 500)
+        if OB5.check(0):
+            OB5.position(OB4.obstacle_rect.right + 500)
+
+        if OB6.check(0):
+            OB6.position(OB5.obstacle_rect.right + 500)
+        if OB7.check(0):
+            OB7.position(OB6.obstacle_rect.right + 500)
+        if OB8.check(0):
+            OB8.position(OB7.obstacle_rect.right + 500)
+        if OB9.check(0):
+            OB9.position(OB8.obstacle_rect.right + 500)
+        if OB10.check(0):
+            OB10.position(OB9.obstacle_rect.right + 500)
+
+        if p1.rect.top >= SET_HEIGHT - 130:
+            p1.rect.bottom = SET_HEIGHT - 130
+            game_music.stop()
+            intermediate(p1, score)
+        if p1.rect.top <= 0:
+            p1.rect.top = 0
+            game_music.stop()
+            intermediate(p1, score)
+
+        score_text = font_menu.render(str(score), True, 'black')
+        score_text_rect = score_text.get_rect()
+        score_text_rect.right = SET_WIDTH-50
+        score_text_rect.top = 15
+
+        # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
+        # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
+
+        animate_player.draw(screen)
+        animate_player.update(0)
+        screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
+        screen.blit(base_image_scaled, (0, 750))
+        pause_button.draw()
+        pygame.display.update()
+        clock.tick(150)
+
+
+def pause(score):
+
+    escape_sound.play()
+    print('PAUSE')
+    run = True
+    largetext = pause_font.render('PAUSED', True, 'black')
+    screen.blit(largetext, (500, 200))
+    score_text = font_menu.render('SCORE : ' + str(score), True, 'black')
+    score_text_rect = score_text.get_rect()
+    score_text_rect.center = (670, 350)
+    con_but = button('CONTINUE', 200, 540, 275, 50)
+    menu_but = button('MAIN MENU', 880, 540, 300, 50)
+
+    while run:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print("EXITING")
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if con_but.check_click():
+                    run = False
+                if menu_but.check_click():
+                    game_music.stop()
+                    main_menu(1)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    escape_sound.play()
+                    run = False
+
+        con_but.draw()
+        menu_but.draw()
+        screen.blit(base_image_scaled, (0, 750))
+        screen.blit(score_text, score_text_rect)
+        pygame.display.update()
+
+    print("Main")
+
+
+
+def intermediate(p1, score):
 
     g = 0
     initial_height = p1.rect.top
@@ -1001,7 +1299,6 @@ def intermediate(p1, score, Player):
         g += 0.06
 
         if new_height >= 1500:
-            Player.client.send('!D'.encode(Player.format))
             exit_screen(score)
         pygame.display.update()
 
@@ -1048,7 +1345,7 @@ def exit_screen(x):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if b1.check_click():
                     exit_screen_sound.stop()
-                    gameplay_screne()
+                    gameplay_offline_screne()
                 if b2.check_click():
                     exit_screen_sound.stop()
                     main_menu(1)
