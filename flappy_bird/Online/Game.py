@@ -11,21 +11,29 @@ pygame.font.init()
 mixer.init()
 
 path = os.getcwd()
-path = os.path.join(path, '..')
-path = os.path.join(path, 'sounds/main_menu.ogg')
-
-
+fpath = path
 # GAME SOUNDS
-pygame.mixer.music.load(path)
+pygame.mixer.music.load(os.path.join(path, '../sounds/main_menu.ogg'))
 
-game_music = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/gameplay_sound.ogg')
-flap = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/flap.wav')
-score_s = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/point.wav')
-die = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/diesound.wav')
-hit = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/hit.wav')
-exit_screen_sound = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/exit_sound.ogg')
-button_sound = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/button.wav')
-escape_sound = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/escape_sound.ogg')
+# os.path.join(path, '../sounds/
+ 
+game_music = mixer.Sound(os.path.join(path, '../sounds/gameplay_sound.ogg'))
+path = fpath
+flap = mixer.Sound(os.path.join(path, '../sounds/flap.wav'))
+path = fpath
+score_s = mixer.Sound(os.path.join(path, '../sounds/point.wav'))
+path = fpath
+die = mixer.Sound(os.path.join(path, '../sounds/diesound.wav'))
+path = fpath
+hit = mixer.Sound(os.path.join(path, '../sounds/hit.wav'))
+path = fpath
+exit_screen_sound = mixer.Sound(os.path.join(path, '../sounds/exit_sound.ogg'))
+path = fpath
+button_sound = mixer.Sound(os.path.join(path, '../sounds/button.wav'))
+path = fpath
+escape_sound = mixer.Sound(os.path.join(path, '../sounds/escape_sound.ogg'))
+path = fpath
+
 
 # SET SCREEN
 SET_WIDTH = 1400
@@ -40,28 +48,43 @@ pause_font = pygame.font.SysFont('arial.ttf', 120, 20)
 
 
 # IMAGES PLAYER
-player_base_image = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base_mid.png').convert_alpha()
-player_base_image_up = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base_up.png').convert_alpha()
-player_base_image_down = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base_down.png').convert_alpha()
 
-player_gameplay_base = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base.png').convert_alpha()
-dead_image = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/dead_final_60.png').convert_alpha()
-dead_image_up = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/bottom.png').convert_alpha()
+# os.path.join(path, '../images/
 
-player_base_image_flip = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base_mid_flip.png').convert_alpha()
-player_base_image_flip_up = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base_up_flip.png').convert_alpha()
-player_base_image_flip_down = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base_down_flip.png').convert_alpha()
-
+player_base_image = pygame.image.load(os.path.join(path, '../images/base_mid.png')).convert_alpha()
+path = fpath
+player_base_image_up = pygame.image.load(os.path.join(path, '../images/base_up.png')).convert_alpha()
+path = fpath
+player_base_image_down = pygame.image.load(os.path.join(path, '../images/base_down.png')).convert_alpha()
+path = fpath
+player_gameplay_base = pygame.image.load(os.path.join(path, '../images/base.png')).convert_alpha()
+path = fpath
+dead_image = pygame.image.load(os.path.join(path, '../images/dead_final_60.png')).convert_alpha()
+path = fpath
+dead_image_up = pygame.image.load(os.path.join(path, '../images/bottom.png')).convert_alpha()
+path = fpath
+player_base_image_flip = pygame.image.load(os.path.join(path, '../images/base_mid_flip.png')).convert_alpha()
+path = fpath
+player_base_image_flip_up = pygame.image.load(os.path.join(path, '../images/base_up_flip.png')).convert_alpha()
+path = fpath
+player_base_image_flip_down = pygame.image.load(os.path.join(path, '../images/base_down_flip.png')).convert_alpha()
+path = fpath
 
 # BACKGROUND IMAGES
-background_menu = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/background_menu_1400x800.png').convert_alpha()
-background_play = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/main_1400x800.png').convert_alpha()
-base_image = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/base_.png').convert_alpha()
-game_over1 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/game_over1.png').convert_alpha()
-game_over2 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/game_over2.png').convert_alpha()
-rip = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/rip.png').convert_alpha()
-logo = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/LOGO.png').convert_alpha()
-
+background_menu = pygame.image.load(os.path.join(path, '../images/background_menu_1400x800.png')).convert_alpha()
+path = fpath
+background_play = pygame.image.load(os.path.join(path, '../images/main_1400x800.png')).convert_alpha()
+path = fpath
+base_image = pygame.image.load(os.path.join(path, '../images/base_.png')).convert_alpha()
+path = fpath
+game_over1 = pygame.image.load(os.path.join(path, '../images/game_over1.png')).convert_alpha()
+path = fpath
+game_over2 = pygame.image.load(os.path.join(path, '../images/game_over2.png')).convert_alpha()
+path = fpath
+rip = pygame.image.load(os.path.join(path, '../images/rip.png')).convert_alpha()
+path = fpath
+logo = pygame.image.load(os.path.join(path, '../images/LOGO.png')).convert_alpha()
+path = fpath
 logo_scaled = pygame.transform.scale(logo, (450, 150))
 
 
@@ -69,14 +92,17 @@ logo_scaled = pygame.transform.scale(logo, (450, 150))
 X = 120
 Y = 80
 player_base_image_scaled = pygame.transform.scale(player_base_image, (X, Y))
+
 player_base_image_up_scaled = pygame.transform.scale(player_base_image_up, (X, Y))
+
 player_base_image_down_scaled = pygame.transform.scale(player_base_image_down, (X, Y))
+
+
 
 player_base_image_flip_scaled = pygame.transform.scale(player_base_image_flip, (X, Y))
 player_base_image_flip_up_scaled = pygame.transform.scale(player_base_image_flip_up, (X, Y))
 player_base_image_flip_down_scaled = pygame.transform.scale(player_base_image_flip_down, (X, Y))
 dead_image_up_scaled = pygame.transform.scale(dead_image_up, (120, 120))
-
 
 base_image_scaled = pygame.transform.scale(base_image, (1600, 100))
 game_over1_scaled = pygame.transform.scale2x(game_over1)
@@ -85,24 +111,33 @@ game_over2_scaled = pygame.transform.scale2x(game_over2)
 
 
 # OBSTACLE IMAGES
-obs_down1 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_down.png').convert_alpha()
-obs_up1 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_up.png').convert_alpha()
-obs_down2 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_down.png').convert_alpha()
-obs_up2 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_up.png').convert_alpha()
-obs_down3 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_down.png').convert_alpha()
-obs_up3 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_up.png').convert_alpha()
-obs_down4 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_down.png').convert_alpha()
-obs_up4 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_up.png').convert_alpha()
-obs_down5 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_down.png').convert_alpha()
-obs_up5 = pygame.image.load('/home/sarthak/pygame/flappy_bird/images/tube_up.png').convert_alpha()
-
+obs_down1 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
+path = fpath
+obs_up1 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
+path = fpath
+obs_down2 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
+path = fpath
+obs_up2 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
+path = fpath
+obs_down3 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
+path = fpath
+obs_up3 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
+path = fpath
+obs_down4 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
+path = fpath
+obs_up4 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
+path = fpath
+obs_down5 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
+path = fpath
+obs_up5 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
+path = fpath
 
 
 class Network:
 
     def __init__(self):
         self.host = '127.0.0.1'
-        self.port = 9901
+        self.port = 9900
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
@@ -841,6 +876,7 @@ def gameplay_screne(Player):
             if int(won):
                 Player.client.send('RESET'.encode(Player.format))
                 Player.client.send('!D'.encode(Player.format))
+                game_music.stop()
                 winning_screne()
 
 
@@ -886,8 +922,8 @@ def gameplay_screne(Player):
 
 
 def exit_online_screne():
-
-    main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    exit_screen_sound.play(-1)
+    main_menu_button =  button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
@@ -898,6 +934,7 @@ def exit_online_screne():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if main_menu_button.check_click():
+                    exit_screen_sound.stop()
                     main_menu(1)
 
         screen.blit(pause_font.render('YOU LOOSE', True, 'black'), (SET_WIDTH/2 - 250, SET_HEIGHT/2 - 100))
@@ -906,7 +943,7 @@ def exit_online_screne():
 
 
 def winning_screne():
-
+    exit_screen_sound.play(-1)
     main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
     while True:
         screen.fill('black')
@@ -918,6 +955,7 @@ def winning_screne():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if main_menu_button.check_click():
+                    exit_screen_sound.stop()
                     main_menu(1)
 
         screen.blit(pause_font.render('YOU WON', True, 'black'), (SET_WIDTH / 2 - 200, SET_HEIGHT / 2 - 100))

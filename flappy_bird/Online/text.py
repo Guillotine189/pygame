@@ -22,4 +22,6 @@ import os
 path = os.getcwd()
 path = os.path.join(path, '..')
 path = os.path.join(path, 'sounds/main_menu.ogg')
+path = os.path.join(path, 'sounds/main_menu.ogg')
+
 print(path)
