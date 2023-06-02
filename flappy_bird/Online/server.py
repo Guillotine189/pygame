@@ -100,6 +100,15 @@ position = [(-100, -100),(-100, -100)]
 status = [0, 0]
 winner = [0, 0]
 
+SEND_COUNT = 0
+SEND_COUNT_INITIAL = 0
+
+coordinates = []
+temporary_coord = []
+
+coordinate = []
+temp_coord = []
+
 def make(tup):
     return str(tup[0]) + "," + str(tup[1])
 
@@ -112,7 +121,7 @@ def DISCONNECT(client, addr):
 
 def receive(client, addr, pl_no):
     count = 1
-    global running, position, player_no, status, winner
+    global running, position, player_no, status, winner, SEND_COUNT, SEND_COUNT_INITIAL, coordinates, temporary_coord, coordinate, temp_coord
     obs = tube()
     while True:
         try:
@@ -125,26 +134,47 @@ def receive(client, addr, pl_no):
                 position = [(-100, -100), (-100, -100)]
                 status = [0, 0]
                 winner = [0, 0]
+                SEND_COUNT = 0
+                SEND_COUNT_INITIAL = 0
 
             if message == "!D":
                 DISCONNECT(client, addr)
                 break
 
             elif message == "OBS_INIT":
-                coordinates = obs.get_co()
+                if SEND_COUNT_INITIAL == 0:
+                    coordinates = obs.get_co()
+                    temporary_coord = coordinates
+
                 for i in range(0, 10):
-                    coord = make(coordinates[i])
+                    coord = make(temporary_coord[i])
                     client.send(coord.encode(FORMAT))
                     temp = client.recv(1024).decode(FORMAT)
                     print(f"MSG SENT - {coord}")
+                SEND_COUNT_INITIAL += 1
+
+                if SEND_COUNT_INITIAL >= 2:
+                    SEND_COUNT_INITIAL = 0
+
 
             elif message == 'OBS_1':
-                coordinate = obs.get_one_co()
-                coord = str(coordinate[0])
+                print(SEND_COUNT, 'send count')
+                if SEND_COUNT == 0:
+                    coordinate = obs.get_one_co()
+                    temp_coord = coordinate
+
+                coord = str(temp_coord[0])
                 client.send(coord.encode(FORMAT))
                 client.recv(1024).decode(FORMAT)
-                coord = str(coordinate[1])
+                coord = str(temp_coord[1])
                 client.send(coord.encode(FORMAT))
+
+                SEND_COUNT += 1
+
+                if SEND_COUNT >= 2:
+                    SEND_COUNT = 0
+
+
             #
             # elif message == 'OBS_2':
             #     print("MSG FOR ONE OBS RECV")
@@ -158,9 +188,7 @@ def receive(client, addr, pl_no):
                 client.send('?'.encode(FORMAT))
                 req = client.recv(1024).decode(FORMAT)
                 req = int(req)
-                print(req)
                 client.send(f'{req+500}'.encode(FORMAT))
-                print(f"OBS CO SENT - {req+ 500}")
             
             
             elif message == 'INIT_POS':
@@ -217,6 +245,8 @@ def receive(client, addr, pl_no):
                 position = [(-100, -100), (-100, -100)]
                 status = [0, 0]
                 winner = [0, 0]
+                SEND_COUNT = 0
+                SEND_COUNT_INITIAL = 0
 
             elif message == "!SD":
                 print(message)

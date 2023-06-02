@@ -590,6 +590,7 @@ def waiting_screne():
         if int(status):
             pygame.mixer.music.stop()
             gameplay_screne(Player)
+
         menu_button.draw()
         pygame.display.update()
 
@@ -767,7 +768,7 @@ def gameplay_screne(Player):
             score_s.play()
 
         gravity += 0.08
-        p1.movey(gravity)
+        p1.movey(0)
 
         OB1.move(obs_up1_rect, tubespeed)
         OB2.move(obs_up2_rect, tubespeed)
