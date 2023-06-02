@@ -2,7 +2,7 @@ import socket
 import threading
 import random
 
-HOST = '127.0.0.1'
+HOST = '10.0.0.238'
 PORT = 9900
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

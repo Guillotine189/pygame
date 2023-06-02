@@ -132,7 +132,7 @@ path = fpath
 class Network:
 
     def __init__(self):
-        self.host = '127.0.0.1'
+        self.host = '10.0.0.238'
         self.port = 9900
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -408,6 +408,7 @@ def main_menu(x):
             time += 0.04
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 bird.movey(-80)
+                bird.movex(2)
                 pressed_bird += 1
                 screen.blit(help_text, (bird.rect.left - 40, bird.rect.top - 40))
             else:
@@ -421,6 +422,7 @@ def main_menu(x):
             time += 0.04
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 flip_bird.movey(80)
+                bird.movex(-2)
                 screen.blit(help_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
             else:
                 if time < 3:
