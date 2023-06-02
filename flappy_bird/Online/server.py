@@ -118,7 +118,14 @@ def receive(client, addr, pl_no):
         try:
             message = client.recv(1024).decode(FORMAT)
             
-            
+
+
+            if message == '!D' and player_no == 1:
+                player_no = 0
+                position = [(-100, -100), (-100, -100)]
+                status = [0, 0]
+                winner = [0, 0]
+
             if message == "!D":
                 DISCONNECT(client, addr)
                 break
@@ -238,7 +245,6 @@ player_no = 0
 while running:
     print("LISTENING...")
     client, addr = server.accept()
-    print(running)
     print(f"connected to {addr}")
     if not running:
         print("TURNING OFF SERVER..")

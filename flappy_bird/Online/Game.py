@@ -487,7 +487,7 @@ def choosing_screne():
 
     online_button = button("ONLINE", 300, SET_HEIGHT/2 + 50, 210, 50)
     offline_button = button("OFFLINE", 840, SET_HEIGHT/2 - 100, 250, 50)
-    menu_button = button('MAIN MENU', SET_WIDTH - 310, 20, 300, 50)
+    menu_button = button('MAIN MENU', SET_WIDTH - 320, 20, 300, 50)
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
@@ -564,6 +564,7 @@ def waiting_screne():
     print("WAITING SCRENE")
 
     Player = Network()
+    menu_button = button('MAIN MENU', SET_WIDTH - 320, 20, 300, 50)
 
     while Player.status:
 
@@ -575,6 +576,10 @@ def waiting_screne():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if menu_button.check_click():
+                    Player.client.send("!D".encode(Player.format))
+                    main_menu(0)
 
         tex = font_menu.render('WAITING FOR PLAYER..', True, 'black').convert_alpha()
 
@@ -583,7 +588,7 @@ def waiting_screne():
         if int(status):
             pygame.mixer.music.stop()
             gameplay_screne(Player)
-
+        menu_button.draw()
         pygame.display.update()
 
 
