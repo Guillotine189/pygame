@@ -495,6 +495,8 @@ def choosing_screne():
         screen.blit(background_menu, (0, 0))
 
         pygame.draw.line(screen, (100, 100, 40), (0, 0), (SET_WIDTH, SET_HEIGHT), 4)
+        pygame.draw.polygon(screen, (164, 120, 123), ((0, 0), (0, SET_HEIGHT), (SET_WIDTH, SET_HEIGHT)), 1)
+        pygame.draw.polygon(screen, (56, 135, 198), ((0, 0), (0, SET_HEIGHT), (SET_WIDTH, SET_HEIGHT)), 1)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

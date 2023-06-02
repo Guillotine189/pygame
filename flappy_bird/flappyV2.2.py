@@ -686,7 +686,7 @@ HIGH_SCORE = 0
 
 
 def intermediate(p1, score):
-
+    clock = pygame.time.Clock()
     g = 0
     initial_height = p1.rect.top
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
@@ -700,7 +700,7 @@ def intermediate(p1, score):
         new_height = p1.rect.top
 
 
-        p1.rect.left += 2
+        p1.rect.left += 4
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -713,16 +713,16 @@ def intermediate(p1, score):
         if touch == 0 and new_height == initial_height:
             hit.play()
             die.play()
-            g = -2.8
+            g = -1.5
             touch = 1
 
         p1.movey(g)
-        g += 0.06
+        g += 0.1
 
         if new_height >= 1500:
             exit_screen(score)
         pygame.display.update()
-
+        clock.tick(150)
 
 def exit_screen(x):
     global HIGH_SCORE
