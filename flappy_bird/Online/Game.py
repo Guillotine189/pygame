@@ -144,6 +144,14 @@ obs_up5 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert
 path = fpath
 
 
+
+
+gravity = 0
+HIGH_SCORE = 0
+online_score = 0
+
+
+
 class Network:
 
     def __init__(self):
@@ -495,7 +503,7 @@ def main_menu(x):
         clock.tick(30)
 
 
-gravity = 0
+
 
 
 
@@ -627,10 +635,11 @@ def controls():
 
 
 def waiting_screne():
-    pygame.display.set_caption('WAITING..')
     print("WAITING SCRENE")
 
     Player = Network()
+    if Player.status:
+        pygame.display.set_caption('WAITING..')
     menu_button = button('MAIN MENU', SET_WIDTH - 320, 20, 300, 50)
 
     while Player.status:
@@ -674,7 +683,7 @@ def make(tup):
     return  message
 
 
-online_score = 0
+0
 
 def gameplay_screne(Player):
     alive = 1
@@ -1022,9 +1031,18 @@ def gameplay_screne(Player):
 
 
 def exit_online_screne(online_score):
+
+    global HIGH_SCORE
+
+    if online_score > HIGH_SCORE:
+        score_text = font_menu.render("NEW HIGH SCORE : " + str(online_score), 1, (0, 0, 0))
+        HIGH_SCORE = online_score
+    else:
+        score_text = font_menu.render("SCORE :  " + str(online_score), 1, (0, 0, 0))
+
+
     exit_screen_sound.play(-1)
     main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
-    score_text = pause_font.render(f'SCORE: {online_score}', True, 'black')
     score_text_rect = score_text.get_rect()
     while True:
         screen.fill('black')
@@ -1046,9 +1064,17 @@ def exit_online_screne(online_score):
 
 
 def winning_screne(online_score):
+
+    global HIGH_SCORE
     exit_screen_sound.play(-1)
+
+    if online_score > HIGH_SCORE:
+        score_text = font_menu.render("NEW HIGH SCORE : " + str(online_score), 1, (0, 0, 0))
+        HIGH_SCORE = online_score
+    else:
+        score_text = font_menu.render("SCORE :  " + str(online_score), 1, (0, 0, 0))
+
     main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
-    score_text = pause_font.render(f'SCORE: {online_score}', True, 'black')
     score_text_rect = score_text.get_rect()
     while True:
         screen.fill('black')
@@ -1070,7 +1096,7 @@ def winning_screne(online_score):
         pygame.display.update()
 
 
-HIGH_SCORE = 0
+
 
 
 

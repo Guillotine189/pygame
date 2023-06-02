@@ -29,6 +29,7 @@ text = new_font.render('Flappy bird', True, 'green')
 # print(image_up_rect)
 
 gravity = 0
+clock = pygame.time.Clock()
 
 while True:
 
@@ -63,3 +64,4 @@ while True:
     if player_rect.top <= -52:
         player_rect.top = -52
     pygame.display.update()
+    clock.tick(150)

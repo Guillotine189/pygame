@@ -187,6 +187,8 @@ def screen2():
     playerY = 200
     playerX_ch = 0
     playerY_ch = 0
+    clock = pygame.time.Clock()
+
     while True:
 
         screen.fill("black")
@@ -234,7 +236,7 @@ def screen2():
         player(player_image, playerX, playerY)
         screen.blit(score_text, (SCREEN_WIDTH - 60, 30))
         pygame.display.update()
-
+        clock.tick(150)
 
 
 

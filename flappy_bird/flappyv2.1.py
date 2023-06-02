@@ -128,6 +128,8 @@ class button:
 
 def main_menu():
 
+    clock = pygame.time.Clock()
+
     # INITIALIZE PLAYER RECTANGLES
     player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
     player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
@@ -222,6 +224,7 @@ def main_menu():
         button1.draw()
         button2.draw()
         pygame.display.update()
+        clock.tick(150)
 
 
 
@@ -232,6 +235,8 @@ gravity = 0
 
 
 def gameplay_screne():
+
+    clock = pygame.time.Clock()
     score_rangex = 49
     score_rangey = 51
     score = 0
@@ -414,6 +419,7 @@ def gameplay_screne():
         p1.draw()
         screen.blit(score_text, (SET_WIDTH - 50, 15))
         pygame.display.update()
+        clock.tick(150)
 
 
 HIGH_SCORE = 0
@@ -421,6 +427,8 @@ HIGH_SCORE = 0
 
 def intermidiate(p1, score):
 
+
+    clock = pygame.time.Clock()
     g = 0
     initial_height = p1.player_rect.top
     initial_posx = p1.player_rect.left
@@ -451,12 +459,12 @@ def intermidiate(p1, score):
             touch = 1
 
         p1.move(g)
-        g += 0.06
+        g += 0.15
 
         if new_height >= 1500:
             exit_screen(score)
         pygame.display.update()
-
+        clock.tick(150)
 
 def exit_screen(x):
     global HIGH_SCORE
