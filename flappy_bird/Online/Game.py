@@ -70,6 +70,16 @@ path = fpath
 player_base_image_flip_down = pygame.image.load(os.path.join(path, '../images/base_down_flip.png')).convert_alpha()
 path = fpath
 
+
+
+p2_up = pygame.image.load(os.path.join(path, '../images/bluebird-upflap.png')).convert_alpha()
+path = fpath
+p2_mid = pygame.image.load(os.path.join(path, '../images/bluebird-midflap.png')).convert_alpha()
+path = fpath
+p2_down = pygame.image.load(os.path.join(path, '../images/bluebird-downflap.png')).convert_alpha()
+path = fpath
+
+
 # BACKGROUND IMAGES
 background_menu = pygame.image.load(os.path.join(path, '../images/background_menu_1400x800.png')).convert_alpha()
 path = fpath
@@ -99,6 +109,11 @@ player_base_image_flip_scaled = pygame.transform.scale(player_base_image_flip, (
 player_base_image_flip_up_scaled = pygame.transform.scale(player_base_image_flip_up, (X, Y))
 player_base_image_flip_down_scaled = pygame.transform.scale(player_base_image_flip_down, (X, Y))
 dead_image_up_scaled = pygame.transform.scale(dead_image_up, (120, 120))
+
+p2_mid_scaled = pygame.transform.scale(p2_mid, (X, Y))
+p2_down_scaled = pygame.transform.scale(p2_down, (X, Y))
+p2_up_scaled = pygame.transform.scale(p2_up, (X, Y))
+
 
 base_image_scaled = pygame.transform.scale(base_image, (1600, 100))
 game_over1_scaled = pygame.transform.scale2x(game_over1)
@@ -485,18 +500,64 @@ gravity = 0
 
 
 def choosing_screne():
+    pygame.display.set_caption('CHOOSE MODE')
     print("CHOOSING SCRENE")
 
-    online_button = button("ONLINE", 300, SET_HEIGHT/2 + 50, 210, 50)
-    offline_button = button("OFFLINE", 840, SET_HEIGHT/2 - 100, 250, 50)
+    online_button = button("ONLINE", 280, SET_HEIGHT/2 + 50, 210, 50)
+    offline_button = button("OFFLINE", 900, SET_HEIGHT/2 - 100, 250, 50)
     menu_button = button('MAIN MENU', SET_WIDTH - 320, 20, 300, 50)
+
+    size1 = 15, 800
+    my_surface1 = pygame.Surface(size1)
+    my_surface1.set_alpha(150)
+    # my_surface1 = pygame.transform.rotate(my_surface1, 45)
+    my_surface1.fill((255, 200, 0))
+    size2 = 15, 800
+    my_surface2 = pygame.Surface(size2)
+    my_surface2.set_alpha(100)
+    # my_surface2 = pygame.transform.rotate(my_surface2, 45)
+    my_surface2.fill((0, 200, 255))
+
+    size3 = 1400, 15
+    my_surface3 = pygame.Surface(size3)
+    my_surface3.set_alpha(150)
+    # my_surface3 = pygame.transform.rotate(my_surface1, 45)
+    my_surface3.fill((255, 200, 0))
+    size4 = 1400, 15
+    my_surface4 = pygame.Surface(size4)
+    my_surface4.set_alpha(100)
+    # my_surface4 = pygame.transform.rotate(my_surface2, 45)
+    my_surface4.fill((0, 200, 255))
+
+
+
+
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
 
+        # pygame.draw.polygon(screen, (255, 0, 0), ((0, 0), (0, SET_HEIGHT), (SET_WIDTH, SET_HEIGHT)), 0)
+        # pygame.draw.polygon(screen, (255, 0, 0), ((150, 700), (100, 650), (50, 700)), 0)
+        # pygame.draw.polygon(screen, (56, 135, 198), ((0, 0), (SET_WIDTH, 0), (SET_WIDTH, SET_HEIGHT)), 0)
+        # pygame.draw.polygon(screen, (0, 0, 255), ((150, 700), (100, 750), (50, 700)), 0)
+        #
+        # pygame.draw.circle(screen, (255, 0, 0), (605, SET_HEIGHT/2 + 70), 107, 60)
+        # pygame.draw.circle(screen, (0, 0, 255), (735, SET_HEIGHT/2 - 100), 107, 60)
+        # draw_circle_alpha(screen, (255, 0, 0, 0), (400, SET_HEIGHT/2 + 50), 50)
+
+        screen.blit(my_surface1, (0, 0))
+        screen.blit(my_surface2, (0, 0))
+
+        screen.blit(my_surface3, (0, 0))
+        screen.blit(my_surface4, (0, 0))
+
+        screen.blit(my_surface1, (1385, 0))
+        screen.blit(my_surface2, (1385, 0))
+
+        screen.blit(my_surface3, (0, 785))
+        screen.blit(my_surface4, (0, 785))
+
         pygame.draw.line(screen, (100, 100, 40), (0, 0), (SET_WIDTH, SET_HEIGHT), 4)
-        pygame.draw.polygon(screen, (164, 120, 123), ((0, 0), (0, SET_HEIGHT), (SET_WIDTH, SET_HEIGHT)), 1)
-        pygame.draw.polygon(screen, (56, 135, 198), ((0, 0), (0, SET_HEIGHT), (SET_WIDTH, SET_HEIGHT)), 1)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -514,9 +575,9 @@ def choosing_screne():
                     pygame.mixer.music.stop()
                     gameplay_offline_screne()
 
-        screen.blit(player_base_image_up_scaled, (60, 220))
+        screen.blit(p2_up_scaled, (60, 220))
         screen.blit(player_base_image_flip_scaled, (640, 570))
-        screen.blit(player_base_image_down_scaled, (700, 180))
+        screen.blit(player_base_image_down_scaled, (700, 100))
         menu_button.draw()
         online_button.draw()
         offline_button.draw()
@@ -528,6 +589,7 @@ def choosing_screne():
 
 
 def controls():
+    pygame.display.set_caption('CONTROLS')
     print('CONTROLS')
     pygame.mixer.music.unpause()
     screen.fill('black')
@@ -565,6 +627,7 @@ def controls():
 
 
 def waiting_screne():
+    pygame.display.set_caption('WAITING..')
     print("WAITING SCRENE")
 
     Player = Network()
@@ -631,8 +694,8 @@ def gameplay_screne(Player):
 
 
         clock = pygame.time.Clock()
-        score_rangex = 49
-        score_rangey = 51
+        score_rangex = 48
+        score_rangey = 52
         score = 0
         pygame.display.set_caption('FLAPPY BIRD')
         print("Main")
@@ -673,32 +736,20 @@ def gameplay_screne(Player):
 
         online_score = 0
         gravity = 0
-        tubespeed = -2
+        tubespeed = -5
 
         # PLAYER
         p1 = player(50, 300, player_base_image_scaled)
-        p2 = player(50, 300, player_base_image_scaled)
+        p2 = player(50, 300, p2_mid_scaled)
 
         # ADDING SPRITE TO GROUP
         p1.append(player_base_image_down_scaled)
-        p1.append(player_base_image_down_scaled)
-        p1.append(player_base_image_down_scaled)
-        p1.append(player_base_image_down_scaled)
-        p1.append(player_base_image_down_scaled)
         p1.append(player_base_image_scaled)
         p1.append(player_base_image_up_scaled)
-        p1.append(player_base_image_up_scaled)
-        p1.append(player_base_image_up_scaled)
 
-        p2.append(player_base_image_down_scaled)
-        p2.append(player_base_image_down_scaled)
-        p2.append(player_base_image_down_scaled)
-        p2.append(player_base_image_down_scaled)
-        p2.append(player_base_image_down_scaled)
-        p2.append(player_base_image_scaled)
-        p2.append(player_base_image_up_scaled)
-        p2.append(player_base_image_up_scaled)
-        p2.append(player_base_image_up_scaled)
+        p2.append(p2_down_scaled)
+        p2.append(p2_mid_scaled)
+        p2.append(p2_up_scaled)
 
         # MAKING SPRITE GROUP
         animate_player = pygame.sprite.Group()
@@ -743,13 +794,13 @@ def gameplay_screne(Player):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    gravity = -2.8
+                    gravity = -5.8
                     p1.animate()
                     flap.play()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
-                    gravity = -2.8
+                    gravity = -5.8
                     p1.animate()
                     flap.play()
 
@@ -772,7 +823,7 @@ def gameplay_screne(Player):
             online_score += 1
             score_s.play()
 
-        gravity += 0.08
+        gravity += 0.4
         p1.movey(gravity)
 
         OB1.move(obs_up1_rect, tubespeed)
@@ -905,8 +956,8 @@ def gameplay_screne(Player):
 
 
 
-        if p1.rect.top >= SET_HEIGHT - 130:
-            p1.rect.bottom = SET_HEIGHT - 130
+        if p1.rect.top >= SET_HEIGHT - 100:
+            p1.rect.bottom = SET_HEIGHT - 30
             game_music.stop()
             alive = Player.send('dead')
         if p1.rect.top <= 0:
@@ -929,10 +980,10 @@ def gameplay_screne(Player):
 
 
 
-        score_text = font_menu.render(str(score), True, 'black')
-        score_text_rect = score_text.get_rect()
-        score_text_rect.right = SET_WIDTH-50
-        score_text_rect.top = 15
+        online_score_text = font_menu.render(str(score), True, 'black')
+        online_score_rect = online_score_text.get_rect()
+        online_score_rect.right = SET_WIDTH-50
+        online_score_rect.top = 15
 
         # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
         # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
@@ -959,14 +1010,15 @@ def gameplay_screne(Player):
         # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
 
         # screen.blit(p2.image, p2.rect.center)
-        animate_player.draw(screen)
+
         animate_player_2.draw(screen)
+        animate_player.draw(screen)
         animate_player.update(0)
         animate_player_2.update(1)
-        screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
+        screen.blit(online_score_text, (online_score_rect.left, online_score_rect.top))
         screen.blit(base_image_scaled, (0, 750))
         pygame.display.update()
-        clock.tick(150)
+        clock.tick(60)
 
 
 def exit_online_screne(online_score):
@@ -1024,8 +1076,8 @@ HIGH_SCORE = 0
 
 def gameplay_offline_screne():
     clock = pygame.time.Clock()
-    score_rangex = 49
-    score_rangey = 51
+    score_rangex = 48
+    score_rangey = 52
     score = 0
     pygame.display.set_caption('FLAPPY BIRD')
     print("Main")
@@ -1077,20 +1129,14 @@ def gameplay_offline_screne():
     global gravity
 
     gravity = 0
-    tubespeed = -2
+    tubespeed = -5
 
     # PLAYER
     p1 = player(50, 300, player_base_image_scaled)
 
     # ADDING SPRITE TO GROUP
     p1.append(player_base_image_down_scaled)
-    p1.append(player_base_image_down_scaled)
-    p1.append(player_base_image_down_scaled)
-    p1.append(player_base_image_down_scaled)
-    p1.append(player_base_image_down_scaled)
     p1.append(player_base_image_scaled)
-    p1.append(player_base_image_up_scaled)
-    p1.append(player_base_image_up_scaled)
     p1.append(player_base_image_up_scaled)
 
     # MAKING SPRITE GROUP
@@ -1130,7 +1176,7 @@ def gameplay_offline_screne():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    gravity = -2.8
+                    gravity = -5.8
                     p1.animate()
                     flap.play()
                 if event.key == pygame.K_ESCAPE:
@@ -1142,7 +1188,7 @@ def gameplay_offline_screne():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
-                    gravity = -2.8
+                    gravity = -5.8
                     p1.animate()
                     flap.play()
                 if pause_button.check_click():
@@ -1171,7 +1217,7 @@ def gameplay_offline_screne():
             score_s.play()
 
 
-        gravity += 0.08
+        gravity += 0.4
         p1.movey(gravity)
 
         OB1.move(obs_up1_rect, tubespeed)
@@ -1239,7 +1285,7 @@ def gameplay_offline_screne():
         screen.blit(base_image_scaled, (0, 750))
         pause_button.draw()
         pygame.display.update()
-        clock.tick(150)
+        clock.tick(60)
 
 
 def pause(score):

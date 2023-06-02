@@ -1,27 +1,48 @@
-import os
-# def make(tup):
-#     return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(tup[4]) + "," + str(tup[5]) + "," + str(tup[6]) + "," + str(tup[7]) + "," + str(tup[8]) + "," + str(tup[9])
-#
-#
-# def read_obs_co(msg):
-#     message = msg.split(',')
-#     print(message)
-#     return int(message[0]), int(message[1]), int(message[2]), int(message[3]), int(message[4]), int(message[5]), int(message[6]), int(message[7]), int(message[8]), int(message[9])
-#
-#
-# mess = [(1650, 685),(2150, 715),(2650, 728),(3150, 697),(3650, 734),(1650, 130.5),(2150, 46.5),(2650, 98.5),(3150, 66.0),(3650,140.5)]
-# mess = make(mess)
-#
-# print(mess)
-# print()
-# print()
-# print()
-# mess = read_obs_co(mess)
-# print(mess)
+import pygame
+pygame.init()
 
-path = os.getcwd()
-path = os.path.join(path, '..')
-path = os.path.join(path, 'sounds/main_menu.ogg')
-path = os.path.join(path, 'sounds/main_menu.ogg')
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255, 50)  # This color contains an extra integer. It's the alpha value.
+PURPLE = (255, 0, 255)
 
-print(path)
+screen = pygame.display.set_mode((200, 325))
+screen.fill(WHITE)  # Make the background white. Remember that the screen is a Surface!
+clock = pygame.time.Clock()
+
+size = (50, 50)
+red_image = pygame.Surface(size)
+green_image = pygame.Surface(size)
+blue_image = pygame.Surface(size, pygame.SRCALPHA)  # Contains a flag telling pygame that the Surface is per-pixel alpha
+purple_image = pygame.Surface(size)
+
+red_image.set_colorkey(BLACK)
+green_image.set_alpha(50)
+# For the 'blue_image' it's the alpha value of the color that's been drawn to each pixel that determines transparency.
+purple_image.set_colorkey(BLACK)
+purple_image.set_alpha(50)
+
+
+while True:
+    clock.tick(60)
+
+    pygame.draw.rect(red_image, RED, red_image.get_rect(), 10)
+    pygame.draw.rect(green_image, GREEN, green_image.get_rect(), 10)
+    pygame.draw.rect(blue_image, BLUE, blue_image.get_rect(), 10)
+    pygame.draw.rect(purple_image, PURPLE, purple_image.get_rect(), 10)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                screen.blit(red_image, (75, 25))
+            elif event.key == pygame.K_2:
+                screen.blit(green_image, (75, 100))
+            elif event.key == pygame.K_3:
+                screen.blit(blue_image, (75, 175))
+            elif event.key == pygame.K_4:
+                screen.blit(purple_image, (75, 250))
+
+    pygame.display.update()
