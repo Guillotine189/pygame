@@ -13,7 +13,7 @@ mixer.init()
 path = os.getcwd()
 path = os.path.join(path, '..')
 path = os.path.join(path, 'sounds/main_menu.ogg')
-print(path)
+
 
 # GAME SOUNDS
 pygame.mixer.music.load(path)
@@ -102,7 +102,7 @@ class Network:
 
     def __init__(self):
         self.host = '127.0.0.1'
-        self.port = 9900
+        self.port = 9901
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
@@ -838,8 +838,8 @@ def gameplay_screne(Player):
 
         else:
             won = Player.send('winner?')
-            print(won)
             if int(won):
+                Player.client.send('RESET'.encode(Player.format))
                 Player.client.send('!D'.encode(Player.format))
                 winning_screne()
 

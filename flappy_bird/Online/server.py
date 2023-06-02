@@ -3,7 +3,7 @@ import threading
 import random
 
 HOST = '127.0.0.1'
-PORT = 9900
+PORT = 9901
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -106,13 +106,13 @@ def make(tup):
 def DISCONNECT(client, addr):
     clients.remove(client)
     print(f"{addr} DISCONNECTED")
-    # print("LISTENING...")
+
 
 
 
 def receive(client, addr, pl_no):
     count = 1
-    global running, position
+    global running, position, player_no, status, winner
     obs = tube()
     while True:
         try:
@@ -120,11 +120,10 @@ def receive(client, addr, pl_no):
             
             
             if message == "!D":
-                print(message)
                 DISCONNECT(client, addr)
                 break
+
             elif message == "OBS_INIT":
-                print("MESSAGE FOR OBS RECV")
                 coordinates = obs.get_co()
                 for i in range(0, 10):
                     coord = make(coordinates[i])
@@ -133,7 +132,6 @@ def receive(client, addr, pl_no):
                     print(f"MSG SENT - {coord}")
 
             elif message == 'OBS_1':
-                print("MSG FOR ONE OBS RECV")
                 coordinate = obs.get_one_co()
                 coord = str(coordinate[0])
                 client.send(coord.encode(FORMAT))
@@ -159,7 +157,6 @@ def receive(client, addr, pl_no):
             
             
             elif message == 'INIT_POS':
-                print("GOT REQUEST FOR INIT POS")
                 client.send('?'.encode(FORMAT))
                 INITIAL_POS = client.recv(1024).decode(FORMAT)
                 INITIAL_POS = read_obs_co(INITIAL_POS)
@@ -182,7 +179,6 @@ def receive(client, addr, pl_no):
 
             elif message == 'con_stat':
                 if count:
-                    print("REQUEST FOR CON_STAT")
                     count -= 1
                 if pl_no == 0:
                     status[0] = 1
@@ -207,6 +203,13 @@ def receive(client, addr, pl_no):
                     client.send('1'.encode(FORMAT))
                 else:
                     client.send('0'.encode(FORMAT))
+
+
+            elif message == 'RESET':
+                player_no = 0
+                position = [(-100, -100), (-100, -100)]
+                status = [0, 0]
+                winner = [0, 0]
 
             elif message == "!SD":
                 print(message)
