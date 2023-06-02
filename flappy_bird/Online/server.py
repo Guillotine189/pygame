@@ -96,8 +96,9 @@ def read_obs_co(msg):
 #     message = msg.split(',')
 #     return int(message[0]), int(message[1])
 
-position = [(0, 0),(0, 0)]
-
+position = [(-100, -100),(-100, -100)]
+status = [0, 0]
+winner = [0, 0]
 
 def make(tup):
     return str(tup[0]) + "," + str(tup[1])
@@ -110,6 +111,7 @@ def DISCONNECT(client, addr):
 
 
 def receive(client, addr, pl_no):
+    count = 1
     global running, position
     obs = tube()
     while True:
@@ -124,7 +126,6 @@ def receive(client, addr, pl_no):
             elif message == "OBS_INIT":
                 print("MESSAGE FOR OBS RECV")
                 coordinates = obs.get_co()
-                print(coordinates)
                 for i in range(0, 10):
                     coord = make(coordinates[i])
                     client.send(coord.encode(FORMAT))
@@ -135,10 +136,8 @@ def receive(client, addr, pl_no):
                 print("MSG FOR ONE OBS RECV")
                 coordinate = obs.get_one_co()
                 coord = str(coordinate[0])
-                print(coord)
                 client.send(coord.encode(FORMAT))
                 client.recv(1024).decode(FORMAT)
-                print(coord)
                 coord = str(coordinate[1])
                 client.send(coord.encode(FORMAT))
             #
@@ -160,7 +159,7 @@ def receive(client, addr, pl_no):
             
             
             elif message == 'INIT_POS':
-                print("GIT REQUEST FOR INIT POS")
+                print("GOT REQUEST FOR INIT POS")
                 client.send('?'.encode(FORMAT))
                 INITIAL_POS = client.recv(1024).decode(FORMAT)
                 INITIAL_POS = read_obs_co(INITIAL_POS)
@@ -180,6 +179,34 @@ def receive(client, addr, pl_no):
                     client.send(make(position[0]).encode(FORMAT))
                     position[1] = read_obs_co(NEW_POS)
 
+
+            elif message == 'con_stat':
+                if count:
+                    print("REQUEST FOR CON_STAT")
+                    count -= 1
+                if pl_no == 0:
+                    status[0] = 1
+                    client.send(f'{status[1]}'.encode(FORMAT))
+                else:
+                    status[1] = 1
+                    client.send(f"{status[0]}".encode(FORMAT))
+
+
+            elif message == 'dead':
+                if pl_no == 0:
+                    client.send('0'.encode(FORMAT))
+                    winner[1] = 1
+                else:
+                    client.send('0'.encode(FORMAT))
+                    winner[0] = 1
+
+            elif message == 'winner?':
+                if pl_no == 0 and winner[0]:
+                    client.send('1'.encode(FORMAT))
+                elif pl_no == 1 and winner[1]:
+                    client.send('1'.encode(FORMAT))
+                else:
+                    client.send('0'.encode(FORMAT))
 
             elif message == "!SD":
                 print(message)

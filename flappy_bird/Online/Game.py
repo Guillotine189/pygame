@@ -1,15 +1,22 @@
+import os
 import sys
 import random
 import pygame
 from pygame import mixer
 import socket
 
+
 pygame.init()
 pygame.font.init()
 mixer.init()
 
+path = os.getcwd()
+path = os.path.join(path, '..')
+path = os.path.join(path, 'sounds/main_menu.ogg')
+print(path)
+
 # GAME SOUNDS
-pygame.mixer.music.load('/home/sarthak/pygame/flappy_bird/sounds/main_menu.ogg')
+pygame.mixer.music.load(path)
 
 game_music = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/gameplay_sound.ogg')
 flap = mixer.Sound('/home/sarthak/pygame/flappy_bird/sounds/flap.wav')
@@ -352,15 +359,14 @@ def main_menu(x):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     pygame.mixer.music.stop()
-                    gameplay_screne()
+                    waiting_screne()
                 if event.key == pygame.K_ESCAPE:
                     print("EXITING")
                     pygame.quit()
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1.check_click():
-                    pygame.mixer.music.stop()
-                    gameplay_screne()
+                    waiting_screne()
                 if button2.check_click():
                     print("EXITING")
                     pygame.quit()
@@ -484,6 +490,37 @@ def controls():
 
 
 
+def waiting_screne():
+    print("WAITING SCRENE")
+
+    Player = Network()
+
+    while Player.status:
+
+        status = Player.send('con_stat')
+        screen.fill('black')
+        screen.blit(background_play, (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        tex = font_menu.render('WAITING FOR PLAYER..', True, 'black').convert_alpha()
+
+        screen.blit(tex, (SET_WIDTH/2 - 300, SET_HEIGHT/2))
+
+        if int(status):
+            pygame.mixer.music.stop()
+            gameplay_screne(Player)
+
+        pygame.display.update()
+
+
+
+
+
+
 
 def read_obs_co(msg):
     message = msg.split(',')
@@ -494,10 +531,10 @@ def make(tup):
     return  message
 
 
-def gameplay_screne():
+def gameplay_screne(Player):
+    alive = 1
+    won = 0
 
-
-    Player = Network()
     if Player.first_message == 0:
         main_menu(1)
 
@@ -588,8 +625,6 @@ def gameplay_screne():
         animate_player.add(p1)
         # animate_player_2.add(p2)
 
-        # BUTTONS
-        pause_button = button('PAUSE', 50, 50, 180, 50)
 
     while Player.status:
 
@@ -628,37 +663,26 @@ def gameplay_screne():
                     gravity = -2.8
                     p1.animate()
                     flap.play()
-                if event.key == pygame.K_ESCAPE:
-                    state = True
-                    while state:
-                        animate_player.draw(screen)
-                        pause(score)
-                        state = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -2.8
                     p1.animate()
                     flap.play()
-                if pause_button.check_click():
-                    animate_player.draw(screen)
-                    run = True
-                    while run:
-                        pause(score)
-                        run = False
+
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
             game_music.stop()
-            intermediate(p1, score, Player)
+            alive = Player.send('dead')
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
             game_music.stop()
-            intermediate(p1, score, Player)
+            alive = Player.send('dead')
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
             game_music.stop()
-            intermediate(p1, score, Player)
+            alive = Player.send('dead')
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
                 or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
@@ -798,32 +822,45 @@ def gameplay_screne():
 
 
 
-
         if p1.rect.top >= SET_HEIGHT - 130:
             p1.rect.bottom = SET_HEIGHT - 130
             game_music.stop()
-            intermediate(p1, score, Player)
+            alive = Player.send('dead')
         if p1.rect.top <= 0:
             p1.rect.top = 0
             game_music.stop()
-            intermediate(p1, score, Player)
+            alive = Player.send('dead')
+
+
+        if not int(alive):
+            Player.client.send('!D'.encode(Player.format))
+            exit_online_screne()
+
+        else:
+            won = Player.send('winner?')
+            print(won)
+            if int(won):
+                Player.client.send('!D'.encode(Player.format))
+                winning_screne()
+
+
 
         score_text = font_menu.render(str(score), True, 'black')
         score_text_rect = score_text.get_rect()
         score_text_rect.right = SET_WIDTH-50
         score_text_rect.top = 15
 
-        pygame.draw.rect(screen, 'black', p1.hitbox, 2)
-        pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
+        # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
         #
         # pygame.draw.rect(screen, 'black', p1.rect, 2)
         # pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
@@ -837,7 +874,6 @@ def gameplay_screne():
         # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
         # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
 
-
         screen.blit(p2.image, p2.rect.center)
         animate_player.draw(screen)
         # animate_player_2.draw(screen)
@@ -845,49 +881,48 @@ def gameplay_screne():
         # animate_player_2.update(1)
         screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
         screen.blit(base_image_scaled, (0, 750))
-        pause_button.draw()
         pygame.display.update()
         clock.tick(150)
 
-def pause(score):
 
-    escape_sound.play()
-    print('PAUSE')
-    run = True
-    largetext = pause_font.render('PAUSED', True, 'black')
-    screen.blit(largetext, (500, 200))
-    score_text = font_menu.render('SCORE : ' + str(score), True, 'black')
-    score_text_rect = score_text.get_rect()
-    score_text_rect.center = (670, 350)
-    con_but = button('CONTINUE', 200, 540, 275, 50)
-    menu_but = button('MAIN MENU', 880, 540, 300, 50)
+def exit_online_screne():
 
-    while run:
+    main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    while True:
+        screen.fill('black')
+        screen.blit(background_menu, (0, 0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print("EXITING")
                 pygame.quit()
-                sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if con_but.check_click():
-                    run = False
-                if menu_but.check_click():
-                    game_music.stop()
+                if main_menu_button.check_click():
                     main_menu(1)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    escape_sound.play()
-                    run = False
 
-        con_but.draw()
-        menu_but.draw()
-        screen.blit(base_image_scaled, (0, 750))
-        screen.blit(score_text, score_text_rect)
+        screen.blit(pause_font.render('YOU LOOSE', True, 'black'), (SET_WIDTH/2 - 250, SET_HEIGHT/2 - 100))
+        main_menu_button.draw()
         pygame.display.update()
 
-    print("Main")
+
+def winning_screne():
+
+    main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    while True:
+        screen.fill('black')
+        screen.blit(background_menu, (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if main_menu_button.check_click():
+                    main_menu(1)
+
+        screen.blit(pause_font.render('YOU WON', True, 'black'), (SET_WIDTH / 2 - 200, SET_HEIGHT / 2 - 100))
+        main_menu_button.draw()
+        pygame.display.update()
 
 
 HIGH_SCORE = 0
