@@ -1335,17 +1335,17 @@ def gameplay_offline_screne():
         score_text_rect.right = SET_WIDTH-50
         score_text_rect.top = 15
 
-        pygame.draw.rect(screen, 'black', p1.hitbox, 2)
-        pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
-        pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
-        pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
+        # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+        # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+        # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
         animate_player.draw(screen)
         animate_player.update(0)
