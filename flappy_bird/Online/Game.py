@@ -248,7 +248,9 @@ class tube:
             return 1
         else:
             return 0
-
+    def update(self):
+        self.hitbox_up = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
+        self.hitbox_down = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 5, 110, 418) 
 
 class button:
     def __init__(self, text, x, y, w, h):
@@ -1076,6 +1078,34 @@ def winning_screne(online_score):
 
 
 
+couu = 0
+new_r1 = 0
+new_r2 = 0
+def get_one_coord(x):
+    global couu, new_r2, new_r1
+
+    if couu == 0:
+        rand1 = random.randint(200, 340)
+        rand10 = rand1 + 130 + random.randint(0, 20)
+        # rand1 = 330 safe bet max
+        # rand10 = 400 safe bet low
+        new_r1 = rand1
+        new_r2 = rand10
+        
+
+    if x==1:
+        couu += 1
+        if couu >= 2:
+            couu = 0
+        return new_r1
+    else:
+        couu += 1
+        if couu >= 2:
+            couu = 0
+        return new_r2
+
+
+
 
 
 def gameplay_offline_screne():
@@ -1247,26 +1277,48 @@ def gameplay_offline_screne():
         OB9.move(obs_down4_rect, tubespeed)
         OB10.move(obs_down5_rect, tubespeed)
 
+
         if OB1.check(0):
+            down_pos = get_one_coord(0)
+            OB1.obstacle_rect.top = down_pos
             OB1.position(OB5.obstacle_rect.right + 500)
         if OB2.check(0):
+            down_pos = get_one_coord(0)
+            OB2.obstacle_rect.top = down_pos
             OB2.position(OB1.obstacle_rect.right + 500)
         if OB3.check(0):
+            down_pos = get_one_coord(0)
+            OB3.obstacle_rect.top = down_pos
             OB3.position(OB2.obstacle_rect.right + 500)
         if OB4.check(0):
+            down_pos = get_one_coord(0)
+            OB4.obstacle_rect.top = down_pos
             OB4.position(OB3.obstacle_rect.right + 500)
         if OB5.check(0):
+            down_pos = get_one_coord(0)
+            OB5.obstacle_rect.top = down_pos
             OB5.position(OB4.obstacle_rect.right + 500)
 
+
         if OB6.check(0):
-            OB6.position(OB5.obstacle_rect.right + 500)
+            up_pos = get_one_coord(1)
+            OB6.obstacle_rect.bottom = up_pos
+            OB6.position(OB10.obstacle_rect.right + 500)
         if OB7.check(0):
+            up_pos = get_one_coord(1)
+            OB7.obstacle_rect.bottom = up_pos
             OB7.position(OB6.obstacle_rect.right + 500)
         if OB8.check(0):
+            up_pos = get_one_coord(1)
+            OB8.obstacle_rect.bottom = up_pos
             OB8.position(OB7.obstacle_rect.right + 500)
         if OB9.check(0):
+            up_pos = get_one_coord(1)
+            OB9.obstacle_rect.bottom = up_pos
             OB9.position(OB8.obstacle_rect.right + 500)
         if OB10.check(0):
+            up_pos = get_one_coord(1)
+            OB10.obstacle_rect.bottom = up_pos
             OB10.position(OB9.obstacle_rect.right + 500)
 
         if p1.rect.top >= SET_HEIGHT - 130:
@@ -1283,17 +1335,17 @@ def gameplay_offline_screne():
         score_text_rect.right = SET_WIDTH-50
         score_text_rect.top = 15
 
-        # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
-        # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', p1.hitbox, 2)
+        pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+        pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+        pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
         animate_player.draw(screen)
         animate_player.update(0)

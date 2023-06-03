@@ -29,7 +29,7 @@ class Network:
 
     def __init__(self):
         self.host = '127.0.0.1'
-        self.port = 9901
+        self.port = 9900
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False

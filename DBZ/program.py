@@ -7,13 +7,13 @@ SCREEN_HEIGHT = 900
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pygame.display.set_caption("Test window")
-icon_right = pygame.image.load('./all_image/goku/baseright.png')
-icon_left = pygame.image.load("./all_image/goku/baseleft.png")
-icon_a = pygame.image.load('./all_image/goku/about.png')
-icon_b = pygame.image.load('./all_image/goku/evolving.png')
-icon_c = pygame.image.load('./all_image/goku/evolved.png')
+icon_right = pygame.image.load('./all_image/goku/baseright.png').convert_alpha()
+icon_left = pygame.image.load("./all_image/goku/baseleft.png").convert_alpha()
+icon_a = pygame.image.load('./all_image/goku/about.png').convert_alpha()
+icon_b = pygame.image.load('./all_image/goku/evolving.png').convert_alpha()
+icon_c = pygame.image.load('./all_image/goku/evolved.png').convert_alpha()
 curr_image = icon_right
-background = pygame.image.load("./all_image/back.png")
+background = pygame.image.load("./all_image/back.png").convert_alpha()
 
 pygame.display.set_icon(icon_right)
 
@@ -25,8 +25,8 @@ playery_change = 0
 form = 'B'
 f = 'B'
 
-speed = 19
-gravity = 17.8
+speed = 5
+gravity = 2.8
 
 
 
