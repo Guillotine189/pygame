@@ -247,6 +247,7 @@ class player(pygame.sprite.Sprite):
                     self.current_sprite = 0
                     self.is_animating = False
                 self.image = self.sprites[int(self.current_sprite)]
+
     def movex(self, speed):
         self.rect.left += speed
 
@@ -295,16 +296,28 @@ class button:
 
     def draw(self):
         button_text = font_menu.render(self.text, True, 'black')
-        pygame.draw.rect(screen, 'white', ((self.x, self.y), (self.w, self.h)))
-        pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x + self.w, self.y), 4)
-        pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x, self.y + self.h), 4)
-        pygame.draw.line(screen, (200, 190, 140), (self.x + self.w, self.y), (self.x + self.w, self.y + self.h), 4)
-        pygame.draw.line(screen, (200, 190, 140), (self.x, self.y + self.h), (self.x + self.w, self.y + self.h), 4)
+        #
+        # pygame.draw.rect(screen, 'white', ((self.x, self.y), (self.w, self.h)))
+        # pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x + self.w, self.y), 4)
+        # pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x, self.y + self.h), 4)
+        # pygame.draw.line(screen, (200, 190, 140), (self.x + self.w, self.y), (self.x + self.w, self.y + self.h), 4)
+        # pygame.draw.line(screen, (200, 190, 140), (self.x, self.y + self.h), (self.x + self.w, self.y + self.h), 4)
         if self.check_hover():
-            pygame.draw.rect(screen, 'dark orange', ((self.x + 8, self.y + 5), (self.w - 14, self.h - 8)), 0, 5)
+            pygame.draw.rect(screen, 'white', ((self.x, self.y - 10), (self.w, self.h)))
+            pygame.draw.line(screen, (200, 190, 140), (self.x, self.y - 10,), (self.x + self.w, self.y - 10), 4)
+            pygame.draw.line(screen, (200, 190, 140), (self.x, self.y - 10,), (self.x, self.y - 10+ self.h), 4)
+            pygame.draw.line(screen, (200, 190, 140), (self.x + self.w, self.y - 10), (self.x + self.w, self.y - 10 + self.h), 4)
+            pygame.draw.line(screen, (200, 190, 140), (self.x, self.y - 10 + self.h), (self.x + self.w, self.y - 10 + self.h), 4)
+            pygame.draw.rect(screen, 'dark orange', ((self.x + 8, self.y - 10 + 5), (self.w - 14, self.h - 8)), 0, 5)
+            screen.blit(button_text, (self.x + 15, self.y - 10))
         else:
+            pygame.draw.rect(screen, 'white', ((self.x, self.y), (self.w, self.h)))
+            pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x + self.w, self.y), 4)
+            pygame.draw.line(screen, (200, 190, 140), (self.x, self.y,), (self.x, self.y + self.h), 4)
+            pygame.draw.line(screen, (200, 190, 140), (self.x + self.w, self.y), (self.x + self.w, self.y + self.h), 4)
+            pygame.draw.line(screen, (200, 190, 140), (self.x, self.y + self.h), (self.x + self.w, self.y + self.h), 4)
             pygame.draw.rect(screen, 'orange', ((self.x + 8, self.y + 5), (self.w - 14, self.h - 8)), 0, 5)
-        screen.blit(button_text, (self.x + 15, self.y))
+            screen.blit(button_text, (self.x + 15, self.y))
 
 
 
@@ -1174,6 +1187,9 @@ def gameplay_offline_screne():
     # BUTTONS
     pause_button = button('PAUSE', 50, 50, 180, 50)
 
+
+    arr = []
+
     while True:
 
         screen.fill('black')
@@ -1191,7 +1207,16 @@ def gameplay_offline_screne():
         OB9 = tube(obs_down4, obs_down4_rect)
         OB10 = tube(obs_down5, obs_down5_rect)
 
-
+        arr.append(OB1)
+        arr.append(OB2)
+        arr.append(OB3)
+        arr.append(OB4)
+        arr.append(OB5)
+        arr.append(OB6)
+        arr.append(OB7)
+        arr.append(OB8)
+        arr.append(OB9)
+        arr.append(OB10)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1209,7 +1234,7 @@ def gameplay_offline_screne():
                     state = True
                     while state:
                         animate_player.draw(screen)
-                        pause(score)
+                        pause(score, animate_player, arr)
                         state = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -1221,21 +1246,21 @@ def gameplay_offline_screne():
                     animate_player.draw(screen)
                     run = True
                     while run:
-                        pause(score)
+                        pause(score, animate_player, arr)
                         run = False
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
             game_music.stop()
-            intermediate(p1, score)
+            intermediate(p1, score, arr)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
             game_music.stop()
-            intermediate(p1, score)
+            intermediate(p1, score, arr)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
             game_music.stop()
-            intermediate(p1, score)
+            intermediate(p1, score, arr)
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
                 or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
@@ -1282,11 +1307,11 @@ def gameplay_offline_screne():
         if p1.rect.top >= SET_HEIGHT - 130:
             p1.rect.bottom = SET_HEIGHT - 130
             game_music.stop()
-            intermediate(p1, score)
+            intermediate(p1, score, arr)
         if p1.rect.top <= 0:
             p1.rect.top = 0
             game_music.stop()
-            intermediate(p1, score)
+            intermediate(p1, score, arr)
 
         score_text = font_menu.render(str(score), True, 'black')
         score_text_rect = score_text.get_rect()
@@ -1314,13 +1339,12 @@ def gameplay_offline_screne():
         clock.tick(60)
 
 
-def pause(score):
+def pause(score, animate_player, arr):
 
     escape_sound.play()
     print('PAUSE')
     run = True
     largetext = pause_font.render('PAUSED', True, 'black')
-    screen.blit(largetext, (500, 200))
     score_text = font_menu.render('SCORE : ' + str(score), True, 'black')
     score_text_rect = score_text.get_rect()
     score_text_rect.center = (670, 350)
@@ -1328,7 +1352,10 @@ def pause(score):
     menu_but = button('MAIN MENU', 880, 540, 300, 50)
 
     while run:
-
+        screen.fill('black')
+        screen.blit(background_play, (0, 0))
+        screen.blit(largetext, (500, 200))
+        animate_player.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -1346,6 +1373,9 @@ def pause(score):
                     escape_sound.play()
                     run = False
 
+        for i in range(10):
+            arr[i].draw()
+
         con_but.draw()
         menu_but.draw()
         screen.blit(base_image_scaled, (0, 750))
@@ -1356,7 +1386,7 @@ def pause(score):
 
 
 
-def intermediate(p1, score):
+def intermediate(p1, score, arr):
     clock = pygame.time.Clock()
     g = 0
     initial_height = p1.rect.top
@@ -1366,10 +1396,13 @@ def intermediate(p1, score):
     while True:
 
         screen.blit(background_play, (0, 0))
-        screen.blit(base_image_scaled, (0, 750))
-        screen.blit(dead_image_up_scaled, (p1.rect.left + 60, p1.rect.top + 10))
         new_height = p1.rect.top
 
+        for i in range(10):
+            arr[i].draw()
+
+        screen.blit(base_image_scaled, (0, 750))
+        screen.blit(dead_image_up_scaled, (p1.rect.left + 60, p1.rect.top + 10))
 
         p1.rect.left += 4
         for event in pygame.event.get():
