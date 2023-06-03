@@ -18,21 +18,14 @@ pygame.mixer.music.load(os.path.join(path, '../sounds/main_menu.ogg'))
 # os.path.join(path, '../sounds/
  
 game_music = mixer.Sound(os.path.join(path, '../sounds/gameplay_sound.ogg'))
-path = fpath
 flap = mixer.Sound(os.path.join(path, '../sounds/flap.wav'))
-path = fpath
 score_s = mixer.Sound(os.path.join(path, '../sounds/point.wav'))
-path = fpath
 die = mixer.Sound(os.path.join(path, '../sounds/diesound.wav'))
-path = fpath
 hit = mixer.Sound(os.path.join(path, '../sounds/hit.wav'))
-path = fpath
 exit_screen_sound = mixer.Sound(os.path.join(path, '../sounds/exit_sound.ogg'))
-path = fpath
 button_sound = mixer.Sound(os.path.join(path, '../sounds/button.wav'))
-path = fpath
 escape_sound = mixer.Sound(os.path.join(path, '../sounds/escape_sound.ogg'))
-path = fpath
+
 
 
 # SET SCREEN
@@ -52,49 +45,29 @@ pause_font = pygame.font.SysFont('arial.ttf', 120, 20)
 # os.path.join(path, '../images/
 
 player_base_image = pygame.image.load(os.path.join(path, '../images/base_mid.png')).convert_alpha()
-path = fpath
 player_base_image_up = pygame.image.load(os.path.join(path, '../images/base_up.png')).convert_alpha()
-path = fpath
 player_base_image_down = pygame.image.load(os.path.join(path, '../images/base_down.png')).convert_alpha()
-path = fpath
 player_gameplay_base = pygame.image.load(os.path.join(path, '../images/base.png')).convert_alpha()
-path = fpath
 dead_image = pygame.image.load(os.path.join(path, '../images/dead_final_60.png')).convert_alpha()
-path = fpath
 dead_image_up = pygame.image.load(os.path.join(path, '../images/bottom.png')).convert_alpha()
-path = fpath
 player_base_image_flip = pygame.image.load(os.path.join(path, '../images/base_mid_flip.png')).convert_alpha()
-path = fpath
 player_base_image_flip_up = pygame.image.load(os.path.join(path, '../images/base_up_flip.png')).convert_alpha()
-path = fpath
 player_base_image_flip_down = pygame.image.load(os.path.join(path, '../images/base_down_flip.png')).convert_alpha()
-path = fpath
-
 
 
 p2_up = pygame.image.load(os.path.join(path, '../images/bluebird-upflap.png')).convert_alpha()
-path = fpath
 p2_mid = pygame.image.load(os.path.join(path, '../images/bluebird-midflap.png')).convert_alpha()
-path = fpath
 p2_down = pygame.image.load(os.path.join(path, '../images/bluebird-downflap.png')).convert_alpha()
-path = fpath
 
 
 # BACKGROUND IMAGES
 background_menu = pygame.image.load(os.path.join(path, '../images/background_menu_1400x800.png')).convert_alpha()
-path = fpath
 background_play = pygame.image.load(os.path.join(path, '../images/main_1400x800.png')).convert_alpha()
-path = fpath
 base_image = pygame.image.load(os.path.join(path, '../images/base_.png')).convert_alpha()
-path = fpath
 game_over1 = pygame.image.load(os.path.join(path, '../images/game_over1.png')).convert_alpha()
-path = fpath
 game_over2 = pygame.image.load(os.path.join(path, '../images/game_over2.png')).convert_alpha()
-path = fpath
 rip = pygame.image.load(os.path.join(path, '../images/rip.png')).convert_alpha()
-path = fpath
 logo = pygame.image.load(os.path.join(path, '../images/LOGO.png')).convert_alpha()
-path = fpath
 logo_scaled = pygame.transform.scale(logo, (450, 150))
 
 
@@ -123,25 +96,16 @@ game_over2_scaled = pygame.transform.scale2x(game_over2)
 
 # OBSTACLE IMAGES
 obs_down1 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
-path = fpath
 obs_up1 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
-path = fpath
 obs_down2 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
-path = fpath
 obs_up2 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
-path = fpath
 obs_down3 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
-path = fpath
 obs_up3 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
-path = fpath
 obs_down4 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
-path = fpath
 obs_up4 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
-path = fpath
 obs_down5 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
-path = fpath
 obs_up5 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
-path = fpath
+
 
 
 
@@ -1354,8 +1318,11 @@ def pause(score, animate_player, arr):
     while run:
         screen.fill('black')
         screen.blit(background_play, (0, 0))
-        screen.blit(largetext, (500, 200))
         animate_player.draw(screen)
+
+        for i in range(10):
+            arr[i].draw()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -1373,12 +1340,12 @@ def pause(score, animate_player, arr):
                     escape_sound.play()
                     run = False
 
-        for i in range(10):
-            arr[i].draw()
+
 
         con_but.draw()
         menu_but.draw()
         screen.blit(base_image_scaled, (0, 750))
+        screen.blit(largetext, (500, 200))
         screen.blit(score_text, score_text_rect)
         pygame.display.update()
 
