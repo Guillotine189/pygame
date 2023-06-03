@@ -578,7 +578,6 @@ def controls():
     print('CONTROLS')
     pygame.mixer.music.unpause()
     screen.fill('black')
-    screen.blit(background_menu, (0, 0))
     text1 = font_menu.render("CONTROLS", True, (0, 0, 0))
     text2 = font_menu.render("LEFT CLICK OR PRESS SPACE BAR TO FLY", True, (0, 0, 0))
     text3 = font_menu.render("PRESS ESCAPE TO GO BACK ", True, (0, 0, 0))
@@ -586,6 +585,8 @@ def controls():
     B1 = button("GO BACK", 595, 450, 250, 50)
 
     while True:
+
+        screen.blit(background_menu, (0, 0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
