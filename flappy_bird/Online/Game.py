@@ -408,7 +408,8 @@ def main_menu(x):
         # MOUSE ON BIRD
         if bird.rect.collidepoint(m_pos) and direction == 'right':
             time += 0.04
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if pygame.mouse.get_pressed()[0]:
+                time = 0
                 bird.movey(-80)
                 bird.movex(2)
                 pressed_bird += 1
@@ -422,7 +423,8 @@ def main_menu(x):
                     screen.blit(curse_text, (bird.rect.left + 15, bird.rect.top - 40))
         elif flip_bird.rect.collidepoint(m_pos) and direction == 'left':
             time += 0.04
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if pygame.mouse.get_pressed()[0]:
+                time = 0
                 flip_bird.movey(80)
                 bird.movex(-2)
                 screen.blit(help_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
