@@ -189,6 +189,8 @@ class player(pygame.sprite.Sprite):
         self.rect.topleft = (self.x, self.y)
         self.hitbox = self.rect
         self.is_animating = False
+        self.going_up = False
+        self.angle = 0
     #
     # def update_once(self):
     #     if self.is_animating:
@@ -751,6 +753,8 @@ def gameplay_screne(Player):
         animate_player_2.add(p2)
 
 
+    angle = 0
+
     while Player.status:
 
         screen.fill('black')
@@ -767,6 +771,25 @@ def gameplay_screne(Player):
         OB8 = tube(obs_down3, obs_down3_rect)
         OB9 = tube(obs_down4, obs_down4_rect)
         OB10 = tube(obs_down5, obs_down5_rect)
+
+
+
+        p1_image = pygame.transform.rotate(p1.image, (p1.angle))
+
+
+        if not p1.going_up:
+            p1.angle -= 3
+
+        if p1.going_up:
+            p1.angle += 5
+
+        if p1.angle >= 60:
+            p1.going_up = False
+
+        if p1.angle <= -90 and p1.going_up == False:
+            p1.angle = -90
+
+
 
 
         position = Player.send('POSITION?')
@@ -786,12 +809,16 @@ def gameplay_screne(Player):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     gravity = -5.8
+                    p1.angle += 5
+                    p1.going_up = True
                     p1.animate()
                     flap.play()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -5.8
+                    p1.angle += 5
+                    p1.going_up = True
                     p1.animate()
                     flap.play()
 
@@ -1003,7 +1030,8 @@ def gameplay_screne(Player):
         # screen.blit(p2.image, p2.rect.center)
 
         animate_player_2.draw(screen)
-        animate_player.draw(screen)
+        # animate_player.draw(screen)
+        screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width() / 2, p1.hitbox.center[1] - p1_image.get_height() / 2))
         animate_player.update(0)
         animate_player_2.update(1)
         screen.blit(online_score_text, (online_score_rect.left, online_score_rect.top))
@@ -1187,6 +1215,8 @@ def gameplay_offline_screne():
 
     arr = []
 
+    angle = 0
+    going_up = False
     while True:
 
         screen.fill('black')
@@ -1226,6 +1256,8 @@ def gameplay_offline_screne():
                 if event.key == pygame.K_SPACE:
                     gravity = -5.8
                     p1.animate()
+                    angle += 5
+                    going_up = True
                     flap.play()
                 if event.key == pygame.K_ESCAPE:
                     state = True
@@ -1238,6 +1270,8 @@ def gameplay_offline_screne():
                 if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                     gravity = -5.8
                     p1.animate()
+                    angle += 5
+                    going_up = True
                     flap.play()
                 if pause_button.check_click():
                     animate_player.draw(screen)
@@ -1332,6 +1366,22 @@ def gameplay_offline_screne():
             game_music.stop()
             intermediate(p1, score, arr)
 
+
+
+
+        p1_image = pygame.transform.rotate(p1.image, (angle))
+        if not going_up:
+            angle -= 3
+
+        if going_up:
+            angle += 5
+
+        if angle >= 60:
+            going_up = False
+
+        if angle <= -90 and going_up == False:
+            angle = -90
+
         score_text = font_menu.render(str(score), True, 'black')
         score_text_rect = score_text.get_rect()
         score_text_rect.right = SET_WIDTH-50
@@ -1349,7 +1399,10 @@ def gameplay_offline_screne():
         # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
         # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
-        animate_player.draw(screen)
+        # animate_player.draw(screen)
+
+
+        screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width()/2, p1.hitbox.center[1] - p1_image.get_height()/2))
         animate_player.update(0)
         screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
         screen.blit(base_image_scaled, (0, 750))

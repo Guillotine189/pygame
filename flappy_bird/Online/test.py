@@ -46,9 +46,10 @@ while True:
     screen.blit(bird_img1, bird_rect)
 
     # screen.blit(bird_mask_image, bird_rect.topleft)
+
     screen.blit(obj, (mpos[0] - 25, mpos[1] - 25))
 
-    line = pygame.draw.line(screen, (255, 0, 0), (bird_rect.center), (mpos[0], mpos[1]), 4)
+    line = pygame.draw.line(screen, (255, 0, 0), bird_rect.center, (mpos[0], mpos[1]), 4)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
