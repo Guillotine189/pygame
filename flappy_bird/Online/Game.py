@@ -818,6 +818,10 @@ def gameplay_screne(Player):
                         p1.animate()
                         flap.play()
 
+                    ##############  TESTING UNEXPECTED DISCOONECTION
+                    # if event.key == pygame.K_ESCAPE:
+                    #     pygame.quit()
+                    #     sys.exit()
 
 
                 if event.type == pygame.MOUSEBUTTONDOWN:

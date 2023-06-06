@@ -252,14 +252,34 @@ def receive(client, addr, pl_no):
                 DISCONNECT(client, addr)
                 running = False
                 break
+
+            ################  HANDLES UNEXPECTED DISCONNNECTION
+
+            elif not message:
+                print(f"DISCONNECTION FROM {addr}")
+                if pl_no == 0:
+                    status[0] = 0
+                else:
+                    status[1] = 0
+                player_no -= 1
+
+                DISCONNECT(client, addr)
+                break
+
             else:
                 pass
 
+
+        ### DON'T KNOW WHEN THIS WILL BE USED
         except:
-            print(f"DISCONNECTED FROM {addr}")
+            print(f"DISCONNECTION FROM {addr}")
             if player_no == 1:
                 reset()
             clients.remove(client)
+            if pl_no == 0:
+                status[0] = 0
+            else:
+                status[1] = 0
             player_no -= 1
             break
 
