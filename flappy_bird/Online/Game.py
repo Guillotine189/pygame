@@ -4,6 +4,7 @@ import random
 import pygame
 from pygame import mixer
 import socket
+import math
 
 
 pygame.init()
@@ -11,11 +12,10 @@ pygame.font.init()
 mixer.init()
 
 path = os.getcwd()
-fpath = path
+
 # GAME SOUNDS
 pygame.mixer.music.load(os.path.join(path, '../sounds/main_menu.ogg'))
 
-# os.path.join(path, '../sounds/
  
 game_music = mixer.Sound(os.path.join(path, '../sounds/gameplay_sound.ogg'))
 flap = mixer.Sound(os.path.join(path, '../sounds/flap.wav'))
@@ -25,7 +25,6 @@ hit = mixer.Sound(os.path.join(path, '../sounds/hit.wav'))
 exit_screen_sound = mixer.Sound(os.path.join(path, '../sounds/exit_sound.ogg'))
 button_sound = mixer.Sound(os.path.join(path, '../sounds/button.wav'))
 escape_sound = mixer.Sound(os.path.join(path, '../sounds/escape_sound.ogg'))
-
 
 
 # SET SCREEN
@@ -41,19 +40,13 @@ pause_font = pygame.font.SysFont('arial.ttf', 120, 20)
 
 
 # IMAGES PLAYER
-
-# os.path.join(path, '../images/
-
 player_base_image = pygame.image.load(os.path.join(path, '../images/base_mid.png')).convert_alpha()
 player_base_image_up = pygame.image.load(os.path.join(path, '../images/base_up.png')).convert_alpha()
 player_base_image_down = pygame.image.load(os.path.join(path, '../images/base_down.png')).convert_alpha()
 player_gameplay_base = pygame.image.load(os.path.join(path, '../images/base.png')).convert_alpha()
-dead_image = pygame.image.load(os.path.join(path, '../images/dead_final_60.png')).convert_alpha()
-dead_image_up = pygame.image.load(os.path.join(path, '../images/bottom.png')).convert_alpha()
 player_base_image_flip = pygame.image.load(os.path.join(path, '../images/base_mid_flip.png')).convert_alpha()
 player_base_image_flip_up = pygame.image.load(os.path.join(path, '../images/base_up_flip.png')).convert_alpha()
 player_base_image_flip_down = pygame.image.load(os.path.join(path, '../images/base_down_flip.png')).convert_alpha()
-
 
 p2_up = pygame.image.load(os.path.join(path, '../images/bluebird-upflap.png')).convert_alpha()
 p2_mid = pygame.image.load(os.path.join(path, '../images/bluebird-midflap.png')).convert_alpha()
@@ -70,6 +63,9 @@ rip = pygame.image.load(os.path.join(path, '../images/rip.png')).convert_alpha()
 logo = pygame.image.load(os.path.join(path, '../images/LOGO.png')).convert_alpha()
 logo_scaled = pygame.transform.scale(logo, (450, 150))
 
+line_image = pygame.image.load(os.path.join(path, '../images/line.jpg'))
+line_image = pygame.transform.scale(line_image, (1625, 20))
+
 
 # SCALING IMAGES
 X = 120
@@ -81,18 +77,17 @@ player_base_image_down_scaled = pygame.transform.scale(player_base_image_down, (
 player_base_image_flip_scaled = pygame.transform.scale(player_base_image_flip, (X, Y))
 player_base_image_flip_up_scaled = pygame.transform.scale(player_base_image_flip_up, (X, Y))
 player_base_image_flip_down_scaled = pygame.transform.scale(player_base_image_flip_down, (X, Y))
-dead_image_up_scaled = pygame.transform.scale(dead_image_up, (120, 120))
 
 p2_mid_scaled = pygame.transform.scale(p2_mid, (X, Y))
 p2_down_scaled = pygame.transform.scale(p2_down, (X, Y))
 p2_up_scaled = pygame.transform.scale(p2_up, (X, Y))
 
-
 base_image_scaled = pygame.transform.scale(base_image, (1600, 100))
 game_over1_scaled = pygame.transform.scale2x(game_over1)
 game_over2_scaled = pygame.transform.scale2x(game_over2)
 
-
+line_image = pygame.transform.rotate(line_image, -29.5)
+line_image.set_colorkey((255, 255, 255))
 
 # OBSTACLE IMAGES
 obs_down1 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).convert_alpha()
@@ -107,25 +102,20 @@ obs_down5 = pygame.image.load(os.path.join(path, '../images/tube_down.png')).con
 obs_up5 = pygame.image.load(os.path.join(path, '../images/tube_up.png')).convert_alpha()
 
 
-
-
-
 gravity = 0
 HIGH_SCORE = 0
 online_score = 0
-
-
+clock = pygame.time.Clock()
 
 class Network:
 
     def __init__(self):
-        self.host = '192.168.1.18'
-        self.port = 9991
+        self.host = '10.0.0.238'
+        self.port = 9990
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
         self.first_message = self.connect()
-
 
     def connect(self):
         try:
@@ -140,26 +130,6 @@ class Network:
             print("ERROR IN INITIAL CONNECTION")
             return 0
 
-
-    def close(self):
-        try:
-            self.client.send("!D".encode(self.format))
-            self.client.close()
-            self.status = False
-            print("DISCONNECTED")
-        except:
-            print("SERVER DOWN")
-            self.status = False
-    def close_all(self):
-        try:
-            self.client.send("!SD".encode(self.format))
-            self.client.close()
-            self.status = False
-            print("DISCONNECTED")
-        except:
-            print("SERVER DOWN")
-            self.status = False
-
     def send(self, msg):
         try:
             self.client.send(msg.encode(self.format))
@@ -167,12 +137,6 @@ class Network:
         except:
             print("ERROR IN FUNCTION 'Send' ")
             self.status = False
-
-
-
-
-
-
 
 
 class player(pygame.sprite.Sprite):
@@ -191,14 +155,6 @@ class player(pygame.sprite.Sprite):
         self.is_animating = False
         self.going_up = False
         self.angle = 0
-    #
-    # def update_once(self):
-    #     if self.is_animating:
-    #         self.current_sprite += 0.8
-    #         if self.current_sprite == len(self.sprites):
-    #             self.current_sprite = 0
-    #             self.is_animating = False
-    #         self.image = self.sprites[int(self.current_sprite)]
 
     def update(self, input):
         if input:
@@ -237,10 +193,12 @@ class tube:
         self.draw()
 
     def draw(self):
+        self.hitbox_up = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 30, 110, 1000)
+        self.hitbox_down = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 5, 110, 418)
         screen.blit(self.obstacle, self.obstacle_rect)
 
-    def move(self, obstacle_rect, speed):
-        obstacle_rect.left += speed
+    def move(self, speed):
+        self.obstacle_rect.left += speed
 
     def position(self, rect_midright_pos):
         self.obstacle_rect.right = rect_midright_pos
@@ -250,9 +208,11 @@ class tube:
             return 1
         else:
             return 0
+
     def update(self):
         self.hitbox_up = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 30, 110, 1000) # top left, top right, width, height
         self.hitbox_down = pygame.rect.Rect(self.obstacle_rect.left + 60, self.obstacle_rect.top + 5, 110, 418) 
+
 
 class button:
     def __init__(self, text, x, y, w, h):
@@ -287,8 +247,6 @@ class button:
             pygame.draw.rect(screen, 'orange', ((self.x + 8, self.y + 5), (self.w - 14, self.h - 8)), 0, 5)
             screen.blit(button_text, (self.x + 15, self.y))
 
-
-
     def check_click(self):
         left_button = pygame.mouse.get_pressed()[0]
         button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
@@ -310,17 +268,10 @@ class button:
 
 def main_menu(x):
 
-    # INITIALIZE PLAYER RECTANGLES
-    player_base_image_rect = player_base_image.get_rect(midleft=(50, 300))
-    player_base_image_flip_rect = player_base_image_flip.get_rect(midright=(750, 300))
-
     pygame.display.set_caption('MENU')
-
     # PLAY SOUND
     if x:
         pygame.mixer.music.play(-1)
-
-    clock = pygame.time.Clock()
 
     print("MENU")
     menu_text = font_menu.render('MENU', False, 'brown').convert_alpha()
@@ -335,17 +286,16 @@ def main_menu(x):
     high_score_text = font_menu.render('HIGH SCORE : ' + str(HIGH_SCORE), True, 'black').convert_alpha()
     high_score_text_rect = high_score_text.get_rect()
 
-
     # INITIALIZE BIRD
     bird = player(50, 300, player_base_image_scaled)
     flip_bird = player(750, 300, player_base_image_flip_scaled)
 
     # ADDING SPRITES
-    ### BIRD
+    # BIRD
     bird.append(player_base_image_down_scaled)
     bird.append(player_base_image_scaled)
     bird.append(player_base_image_up_scaled)
-    ### FLIP BIRD
+    # FLIP BIRD
     flip_bird.append(player_base_image_flip_down_scaled)
     flip_bird.append(player_base_image_flip_scaled)
     flip_bird.append(player_base_image_flip_up_scaled)
@@ -362,7 +312,6 @@ def main_menu(x):
     pressed_bird = 0
     timer_for_just_play_text = 0
 
-
     while True:
 
         # FILL SCREEN
@@ -374,16 +323,13 @@ def main_menu(x):
         pygame.draw.rect(screen, 'black', (895, 305, 132, 40), 1)  # rectangle around menu
         screen.blit(logo_scaled, (750, 100))
 
-        # pygame.draw.line(screen, 'black', (900, 345), (1017, 345), 2)
-
         # INITIALIZE BUTTON
         button1 = button('PLAY', 800, 400, 150, 50)
         button2 = button('EXIT', 1000, 400, 150, 50)
         button3 = button("CONTROLS", 840, 500, 275, 50)
 
-        # mouse
+        # MOUSE POSITION
         m_pos = pygame.mouse.get_pos()
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -398,7 +344,7 @@ def main_menu(x):
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1.check_click():
-                    choosing_screne()
+                    choosing_screen()
                 if button2.check_click():
                     print("EXITING")
                     pygame.quit()
@@ -419,10 +365,11 @@ def main_menu(x):
             else:
                 if time < 3:
                     screen.blit(leave_alone_text, (bird.rect.left - 40, bird.rect.top - 40))
-                elif time > 3 and time < 6:
+                elif 3 < time < 6:
                     screen.blit(aggh_text, (bird.rect.left + 15, bird.rect.top - 40))
                 else:
                     screen.blit(curse_text, (bird.rect.left + 15, bird.rect.top - 40))
+
         elif flip_bird.rect.collidepoint(m_pos) and direction == 'left':
             time += 0.04
             if pygame.mouse.get_pressed()[0]:
@@ -433,7 +380,7 @@ def main_menu(x):
             else:
                 if time < 3:
                     screen.blit(leave_alone_text, (flip_bird.rect.left - 40, flip_bird.rect.top - 40))
-                elif time >3 and time < 6:
+                elif 3 < time < 6:
                     screen.blit(aggh_text, (flip_bird.rect.left + 15, flip_bird.rect.top - 40))
                 else:
                     screen.blit(curse_text, (flip_bird.rect.left + 15, flip_bird.rect.top - 40))
@@ -446,7 +393,6 @@ def main_menu(x):
             if timer_for_just_play_text >= 5:
                 pressed_bird = 0
                 timer_for_just_play_text = 0
-
 
         # MOVING BIRD L->R and R->L
         if direction == 'right' and bird.rect.left <= 600:
@@ -470,11 +416,8 @@ def main_menu(x):
             animate_bird.draw(screen)
             animate_bird.update(1)
 
-
         bird.rect.bottom = 300
         flip_bird.rect = bird.rect
-
-
 
         button1.draw()
         button2.draw()
@@ -486,69 +429,96 @@ def main_menu(x):
         clock.tick(30)
 
 
+def choosing_screen():
 
-
-
-
-def choosing_screne():
     pygame.display.set_caption('CHOOSE MODE')
-    print("CHOOSING SCRENE")
+    print("CHOOSING screen")
 
+    # SETTING UP BUTTONS
     online_button = button("ONLINE", 280, SET_HEIGHT/2 + 50, 210, 50)
     offline_button = button("OFFLINE", 900, SET_HEIGHT/2 - 100, 250, 50)
     menu_button = button('MAIN MENU', SET_WIDTH - 320, 20, 300, 50)
 
+    # SETTING UP 4 SURFACES FOR BORDER
     size1 = 15, 800
     my_surface1 = pygame.Surface(size1)
     my_surface1.set_alpha(150)
-    # my_surface1 = pygame.transform.rotate(my_surface1, 45)
     my_surface1.fill((255, 200, 0))
     size2 = 15, 800
     my_surface2 = pygame.Surface(size2)
     my_surface2.set_alpha(100)
-    # my_surface2 = pygame.transform.rotate(my_surface2, 45)
     my_surface2.fill((0, 200, 255))
 
     size3 = 1400, 15
     my_surface3 = pygame.Surface(size3)
     my_surface3.set_alpha(150)
-    # my_surface3 = pygame.transform.rotate(my_surface1, 45)
     my_surface3.fill((255, 200, 0))
     size4 = 1400, 15
     my_surface4 = pygame.Surface(size4)
     my_surface4.set_alpha(100)
-    # my_surface4 = pygame.transform.rotate(my_surface2, 45)
     my_surface4.fill((0, 200, 255))
 
+    mpos = pygame.mouse.get_pos()
 
+    img1 = player(60, 220, p2_up_scaled)
+    img2 = player(700, 100, player_base_image_down_scaled)
+    img3 = player(640, 570, player_base_image_flip_scaled)
+
+    img_arr = []
+
+    img_arr.append(img1)
+    img_arr.append(img2)
+    img_arr.append(img3)
 
 
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
 
-        # pygame.draw.polygon(screen, (255, 0, 0), ((0, 0), (0, SET_HEIGHT), (SET_WIDTH, SET_HEIGHT)), 0)
-        # pygame.draw.polygon(screen, (255, 0, 0), ((150, 700), (100, 650), (50, 700)), 0)
-        # pygame.draw.polygon(screen, (56, 135, 198), ((0, 0), (SET_WIDTH, 0), (SET_WIDTH, SET_HEIGHT)), 0)
-        # pygame.draw.polygon(screen, (0, 0, 255), ((150, 700), (100, 750), (50, 700)), 0)
-        #
-        # pygame.draw.circle(screen, (255, 0, 0), (605, SET_HEIGHT/2 + 70), 107, 60)
-        # pygame.draw.circle(screen, (0, 0, 255), (735, SET_HEIGHT/2 - 100), 107, 60)
-        # draw_circle_alpha(screen, (255, 0, 0, 0), (400, SET_HEIGHT/2 + 50), 50)
+        mpos = pygame.mouse.get_pos()
 
+
+        for image_ in img_arr:
+            if mpos[0] > image_.rect.center[0] and mpos[1] < image_.rect.center[1]: # 1st quad
+                image_.angle = math.degrees(math.atan((image_.rect.center[1] - mpos[1]) / (mpos[0] - image_.rect.center[0])))
+            elif mpos[0] > image_.rect.center[0] and mpos[1] > image_.rect.center[1]: # 4th quad
+                image_.angle = math.degrees(math.atan((image_.rect.center[1] - mpos[1]) / (mpos[0] - image_.rect.center[0])))
+            elif mpos[0] < image_.rect.center[0] and mpos[1] < image_.rect.center[1]: # 2nd quad
+                image_.angle =  math.degrees(math.atan((image_.rect.center[1] - mpos[1]) / (image_.rect.center[0] - mpos[0])))
+                image_.angle = 180 - image_.angle
+            elif mpos[0] < image_.rect.center[0] and mpos[1] > image_.rect.center[1]: # 3rd quad
+                image_.angle = math.degrees(math.atan((image_.rect.center[1] - mpos[1]) / (image_.rect.center[0] - mpos[0])))
+                image_.angle = -180 - image_.angle
+            else:
+                pass
+
+
+        img1_ = pygame.transform.rotate(img1.image, img1.angle)
+        img2_ = pygame.transform.rotate(img2.image, img2.angle)
+        img3_ = pygame.transform.rotate(img3.image, 180 + img3.angle)
+
+        screen.blit(img1_, (img1.rect.center[0] - img1_.get_width()/2, img1.rect.center[1] - img1_.get_height()/2))
+        screen.blit(img2_, (img2.rect.center[0] - img2_.get_width()/2, img2.rect.center[1] - img2_.get_height()/2))
+        screen.blit(img3_, (img3.rect.center[0] - img3_.get_width()/2, img3.rect.center[1] - img3_.get_height()/2))
+
+
+
+        # DRAWING ALL SURFACES
         screen.blit(my_surface1, (0, 0))
         screen.blit(my_surface2, (0, 0))
-
         screen.blit(my_surface3, (0, 0))
         screen.blit(my_surface4, (0, 0))
-
         screen.blit(my_surface1, (1385, 0))
         screen.blit(my_surface2, (1385, 0))
-
         screen.blit(my_surface3, (0, 785))
         screen.blit(my_surface4, (0, 785))
 
-        pygame.draw.line(screen, (100, 100, 40), (0, 0), (SET_WIDTH, SET_HEIGHT), 4)
+        # LINE THAT DIVIDES ONLINE AND OFFLINE SIDE
+        pygame.draw.line(screen, (225, 185, 64), (10, 0), (SET_WIDTH, SET_HEIGHT - 13), 4)
+        pygame.draw.line(screen, (225, 185, 64), (0, 13), (SET_WIDTH - 9, SET_HEIGHT), 4)
+        pygame.draw.line(screen, (225, 185, 64), (10, 0), (SET_WIDTH - 9, SET_HEIGHT), 4)
+        pygame.draw.line(screen, (225, 185, 64), (0, 13), (SET_WIDTH, SET_HEIGHT - 13), 4)
+        # screen.blit(line_image, (-5, -5))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -561,37 +531,34 @@ def choosing_screne():
                 if menu_button.check_click():
                     main_menu(0)
                 if online_button.check_click():
-                    waiting_screne()
+                    waiting_screen()
                 if offline_button.check_click():
                     pygame.mixer.music.stop()
-                    gameplay_offline_screne()
+                    gameplay_offline_screen()
 
-        screen.blit(p2_up_scaled, (60, 220))
-        screen.blit(player_base_image_flip_scaled, (640, 570))
-        screen.blit(player_base_image_down_scaled, (700, 100))
+        # DRAWING BIRD IMAGES, BUTTONS
         menu_button.draw()
         online_button.draw()
         offline_button.draw()
         pygame.display.update()
-
-
-
-
+        clock.tick(60)
 
 
 def controls():
-    pygame.display.set_caption('CONTROLS')
     print('CONTROLS')
+    pygame.display.set_caption('CONTROLS')
     pygame.mixer.music.unpause()
-    screen.fill('black')
+
+    # RENDERING TEXT
     text1 = font_menu.render("CONTROLS", True, (0, 0, 0))
     text2 = font_menu.render("LEFT CLICK OR PRESS SPACE BAR TO FLY", True, (0, 0, 0))
     text3 = font_menu.render("PRESS ESCAPE TO GO BACK ", True, (0, 0, 0))
 
+    # CREATING BUTTONS
     B1 = button("GO BACK", 595, 450, 250, 50)
 
     while True:
-
+        screen.fill('black')
         screen.blit(background_menu, (0, 0))
 
         for event in pygame.event.get():
@@ -607,28 +574,36 @@ def controls():
                 if B1.check_click():
                     main_menu(0)
 
-
+        # DRAWING TEXT, BUTTONS
         screen.blit(text1, (580, 230))
         screen.blit(text2, (150, 300))
         screen.blit(text3, (360, 370))
-
         B1.draw()
         pygame.display.update()
+        clock.tick(60)
 
 
+def waiting_screen():
+    print("WAITING screen")
 
-
-def waiting_screne():
-    print("WAITING SCRENE")
-
+    # CREATING PLAYER OBJECT P1
     Player = Network()
+
+    # IF CONNECTION IS  ESTABLISHED
     if Player.status:
         pygame.display.set_caption('WAITING..')
+
+    # CREATING BUTTON
     menu_button = button('MAIN MENU', SET_WIDTH - 320, 20, 300, 50)
+
+    # RENDERING TEXT
+    tex = font_menu.render('WAITING FOR PLAYER..', True, 'black').convert_alpha()
 
     while Player.status:
 
+        # ASK FOR P2 CONNECTION STATUS
         status = Player.send('con_stat')
+
         screen.fill('black')
         screen.blit(background_play, (0, 0))
 
@@ -642,73 +617,61 @@ def waiting_screne():
                     Player.client.send("!D".encode(Player.format))
                     main_menu(0)
 
-        tex = font_menu.render('WAITING FOR PLAYER..', True, 'black').convert_alpha()
-
-        screen.blit(tex, (SET_WIDTH/2 - 300, SET_HEIGHT/2))
-
+        # IF P2 STATUS = 1
         if int(status):
             pygame.mixer.music.stop()
-            gameplay_screne(Player)
+            gameplay_screen(Player)
 
+        # DRAWING BUTTON, TEXT
+        screen.blit(tex, (SET_WIDTH/2 - 300, SET_HEIGHT/2))
         menu_button.draw()
         pygame.display.update()
+        clock.tick(60)
 
 
-
-
-
-
-
+# FUNCTION TO READ THE POSITION OF OBSTACLE AND PLAYER
 def read_obs_co(msg):
     message = msg.split(',')
     return float(message[0]), float(message[1])
 
+
+# FUNCTION TO MAKE THE POSITION OF OBSTACLE AND PLAYER
 def make(tup):
     message = str(tup[0]) + ',' + str(tup[1])
     return message
 
 
+def gameplay_screen(Player):
 
-
-def gameplay_screne(Player):
-    alive = 1
-    won = 0
+    global gravity, online_score
 
     if Player.first_message == 0:
         main_menu(1)
-
-
     else:
         print(Player.first_message)
-        print("SENDING INIT POS")
+
+        # SEND P1 INITIAL POSITION
         tp = Player.send('INIT_POS')
         tp = Player.send('50,300')
 
-
-
-        clock = pygame.time.Clock()
         score_rangex = 48
         score_rangey = 52
         score = 0
         pygame.display.set_caption('FLAPPY BIRD')
-        print("Main")
+        print("Main_online")
 
-        #GAME MUSIC
+        # GAME MUSIC
         game_music.play(-1)
 
-
+        # INITIALIZE OBSTACLE ARRAY
         OBS_CO = []
 
-        print("SENDING")
+        # RECEIVE OBJECT COORDINATES
         Player.client.send('OBS_INIT'.encode(Player.format))
-
-        print("SENT")
         for j in range(0, 10):
             temp = Player.client.recv(1024).decode(Player.format)
             Player.client.send('?'.encode(Player.format))
-            print(temp)
             OBS_CO.append(read_obs_co(temp))
-
 
         # INITIALIZE OBSTACLE RECTANGLE
         obs_up1_rect = obs_up1.get_rect(midright=OBS_CO[0])
@@ -722,14 +685,11 @@ def gameplay_screne(Player):
         obs_down4_rect = obs_down1.get_rect(midright=OBS_CO[8])
         obs_down5_rect = obs_down1.get_rect(midright=OBS_CO[9])
 
-
-
-
-        global gravity, online_score
-
+        # VARIABLES FOR GAMEPLAY
+        alive = 1
         online_score = 0
         gravity = 0
-        tubespeed = -5
+        tube_speed = -5
 
         # PLAYER
         p1 = player(50, 300, player_base_image_scaled)
@@ -752,15 +712,7 @@ def gameplay_screne(Player):
         animate_player.add(p1)
         animate_player_2.add(p2)
 
-
-    angle = 0
-
-    while Player.status:
-
-        screen.fill('black')
-        screen.blit(background_play, (0, 0))
-
-        # OBSTACLE
+        # CREATING OBSTACLES
         OB1 = tube(obs_up1, obs_up1_rect)
         OB2 = tube(obs_up2, obs_up2_rect)
         OB3 = tube(obs_up3, obs_up3_rect)
@@ -772,262 +724,345 @@ def gameplay_screne(Player):
         OB9 = tube(obs_down4, obs_down4_rect)
         OB10 = tube(obs_down5, obs_down5_rect)
 
+        arr = []
+
+        # ADDING OBSTACLES TO arr FOR DRAWING
+        arr.append(OB1)
+        arr.append(OB2)
+        arr.append(OB3)
+        arr.append(OB4)
+        arr.append(OB5)
+        arr.append(OB6)
+        arr.append(OB7)
+        arr.append(OB8)
+        arr.append(OB9)
+        arr.append(OB10)
+
+        # PLATFORM  RECTANGLE
+        platform_v = tube_speed
+
+        platform_rect_1 = base_image_scaled.get_rect()
+        platform_rect_1.x = 0
+        platform_rect_1.y = 750
+
+        platform_rect_2 = base_image_scaled.get_rect()
+        platform_rect_2.x = platform_rect_1.right
+        platform_rect_2.y = 750
+
+        platform_rect_3 = base_image_scaled.get_rect()
+        platform_rect_3.x = platform_rect_2.right
+        platform_rect_3.y = 750
+
+        pf_arr = []
+
+        pf_arr.append(platform_rect_1)
+        pf_arr.append(platform_rect_2)
+        pf_arr.append(platform_rect_3)
+
+        # BACKGROUND IMAGE
+
+        background_v = -1
+
+        background_rect_1 = background_play.get_rect()
+        background_rect_1.x = 0
+        background_rect_1.y = 0
+
+        background_rect_2 = background_play.get_rect()
+        background_rect_2.x = background_rect_1.right
+        background_rect_2.y = 0
+
+        background_rect_3 = background_play.get_rect()
+        background_rect_3.x = background_rect_2.right
+        background_rect_3.y = 0
+
+        back_arr = []
+
+        back_arr.append(background_rect_1)
+        back_arr.append(background_rect_2)
+        back_arr.append(background_rect_3)
 
 
-        p1_image = pygame.transform.rotate(p1.image, (p1.angle))
+        while Player.status:
 
+            screen.fill('black')
 
-        if not p1.going_up:
-            p1.angle -= 3
+            # BACKGROUND IMAGE
+            background_rect_1.right += background_v
+            background_rect_2.right += background_v
+            background_rect_3.right += background_v
 
-        if p1.going_up:
-            p1.angle += 5
+            if background_rect_1.right < 0:
+                background_rect_1.left = background_rect_3.right
+            if background_rect_2.right < 0:
+                background_rect_2.left = background_rect_1.right
+            if background_rect_3.right < 0:
+                background_rect_3.left = background_rect_2.right
 
-        if p1.angle >= 60:
-            p1.going_up = False
+            screen.blit(background_play, background_rect_1)
+            screen.blit(background_play, background_rect_2)
+            screen.blit(background_play, background_rect_3)
 
-        if p1.angle <= -90 and p1.going_up == False:
-            p1.angle = -90
+            # DRAWING OBSTACLES
+            for obs in arr:
+                obs.draw()
 
+            # ROTATING PLAYER 1 IMAGE AND THE CONSTRAINTS
+            p1_image = pygame.transform.rotate(p1.image, p1.angle)
+            if not p1.going_up:
+                p1.angle -= 3
 
-        is_online = Player.send('con_stat')
-        if int(is_online):
+            if p1.going_up:
+                p1.angle += 5
 
-            position = Player.send('POSITION?')
-            my_pos = p1.rect.center
-            pp = Player.send(make(my_pos))
-            pos = read_obs_co(pp)
-            p2.rect.center = int(pos[0]), int(pos[1])
-            p2.animate()
+            if p1.angle >= 60:
+                p1.going_up = False
 
+            if p1.angle <= -90 and p1.going_up == False:
+                p1.angle = -90
 
+            # CHECK PLAYER 2 ONLINE STATUS
+            is_online = Player.send('con_stat')
+            if int(is_online):
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                # SENDING OUR POSITION, RECEIVING P2 POSITION AND UPDATING THE POSITION
+                position = Player.send('POSITION?')
+                my_pos = p1.rect.center
+                pp = Player.send(make(my_pos))
+                pos = read_obs_co(pp)
+                p2.rect.center = int(pos[0]), int(pos[1])
+
+                # SETTING PLAYER 2 ANIMATION TO BE TRUE
+                p2.animate()
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        Player.client.send('!D'.encode(Player.format))
+                        print("EXITING")
+                        pygame.quit()
+                        sys.exit()
+
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            gravity = -5.8
+                            p1.angle += 5
+                            p1.going_up = True
+                            p1.animate()
+                            flap.play()
+
+                        #  TESTING UNEXPECTED DISCONNECTION
+                        # if event.key == pygame.K_ESCAPE:
+                        #     pygame.quit()
+                        #     sys.exit()
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
+                            gravity = -5.8
+                            p1.angle += 5
+                            p1.going_up = True
+                            p1.animate()
+                            flap.play()
+
+                if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
+                    print("COLLIDE1")
+                    game_music.stop()
+                    alive = Player.send('dead')
+                if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
+                    print("COLLIDE2")
+                    game_music.stop()
+                    alive = Player.send('dead')
+                if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
+                    print("COLLIDE3")
+                    game_music.stop()
+                    alive = Player.send('dead')
+
+                if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
+                        or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
+                    online_score += 1
+                    score_s.play()
+
+                # GRAVITY AND PLAYER MOVEMENT WITH GRAVITY
+                gravity += 0.4
+                p1.movey(gravity)
+
+                # MOVING TUBES
+                OB1.move(tube_speed)
+                OB2.move(tube_speed)
+                OB3.move(tube_speed)
+                OB4.move(tube_speed)
+                OB5.move(tube_speed)
+                OB6.move(tube_speed)
+                OB7.move(tube_speed)
+                OB8.move(tube_speed)
+                OB9.move(tube_speed)
+                OB10.move(tube_speed)
+
+                # CHECKING OBSTACLE COORDINATES AND CHANGING THEIR POSITION
+                if OB1.check(0):
+                    req2 = Player.send('OBS_1')
+                    print(f"UP CO REC {req2}")
+                    obs_down1_rect.bottom = int(req2)
+                    req3 = Player.send('OBS_2')
+                    print(f"DOWN CO REC {req3}")
+                    obs_up1_rect.top = int(req3)
+                    req = Player.send('OP')
+                    pos = Player.send(f'{OB5.obstacle_rect.right}')
+                    print(f"OBS POS REC - {int(pos)}")
+                    OB1.position(int(pos))
+                    OB6.position(int(pos))
+
+                if OB2.check(0):
+                    req2 = Player.send('OBS_1')
+                    print(f"UP CO REC {req2}")
+                    obs_down2_rect.bottom = int(req2)
+                    req2 = Player.send('OBS_2')
+                    obs_up2_rect.top = int(req2)
+                    print(f"DOWN CO REC {req2}")
+                    req = Player.send('OP')
+                    pos = Player.send(f'{OB1.obstacle_rect.right}')
+                    OB2.position(int(pos))
+                    OB7.position(int(pos))
+                    print(f"OBS POS REC - {int(pos)}")
+
+                if OB3.check(0):
+                    req2 = Player.send('OBS_1')
+                    print(f"UP CO REC {req2}")
+                    obs_down3_rect.bottom = int(req2)
+                    req2 = Player.send('OBS_2')
+                    print(f"DOwn CO REC {req2}")
+                    obs_up3_rect.top = int(req2)
+                    req = Player.send('OP')
+                    pos = Player.send(f'{OB2.obstacle_rect.right}')
+                    OB3.position(int(pos))
+                    OB8.position(int(pos))
+                    print(f"OBS POS REC - {int(pos)}")
+
+                if OB4.check(0):
+                    req2 = Player.send('OBS_1')
+                    print(f"UP CO REC {req2}")
+                    obs_down4_rect.bottom = int(req2)
+                    req2 = Player.send('OBS_2')
+                    print(f"down CO REC {req2}")
+                    obs_up4_rect.top = int(req2)
+                    req = Player.send('OP')
+                    pos = Player.send(f'{OB3.obstacle_rect.right}')
+                    OB4.position(int(pos))
+                    OB9.position(int(pos))
+                    print(f"OBS POS REC - {int(pos)}")
+
+                if OB5.check(0):
+                    req2 = Player.send('OBS_1')
+                    print(f"UP CO REC {req2}")
+                    obs_down5_rect.bottom = int(req2)
+                    req2 = Player.send('OBS_2')
+                    print(f"down CO REC {req2}")
+                    obs_up5_rect.top = int(req2)
+                    req = Player.send('OP')
+                    pos = Player.send(f'{OB4.obstacle_rect.right}')
+                    OB5.position(int(pos))
+                    OB10.position(int(pos))
+                    print(f"OBS POS REC - {int(pos)}")
+
+                # CHECKING FOR PLAYER UP AND DOWN SCREEN COLLISION
+                if p1.rect.top >= SET_HEIGHT - 100:
+                    p1.rect.bottom = SET_HEIGHT - 30
+                    game_music.stop()
+                    alive = Player.send('dead')
+                if p1.rect.top <= 0:
+                    p1.rect.top = 0
+                    game_music.stop()
+                    alive = Player.send('dead')
+
+                # IF PLAYER IS NOT ALIVE
+                if not int(alive):
                     Player.client.send('!D'.encode(Player.format))
-                    print("EXITING")
-                    pygame.quit()
-                    sys.exit()
+                    print("DISCONNECTED")
+                    loosing_screen(online_score)
 
+                # SCORE TEXT RENDERING AND SETTING ITS POSITION
+                online_score_text = font_menu.render(str(score), True, 'black')
+                online_score_rect = online_score_text.get_rect()
+                online_score_rect.right = SET_WIDTH-50
+                online_score_rect.top = 15
 
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        gravity = -5.8
-                        p1.angle += 5
-                        p1.going_up = True
-                        p1.animate()
-                        flap.play()
+                #  PLATFORM POSITION
+                platform_rect_1.right += platform_v
+                platform_rect_2.right += platform_v
+                platform_rect_3.right += platform_v
 
-                    ##############  TESTING UNEXPECTED DISCOONECTION
-                    # if event.key == pygame.K_ESCAPE:
-                    #     pygame.quit()
-                    #     sys.exit()
+                if platform_rect_1.right < 0:
+                    platform_rect_1.left = platform_rect_3.right
+                if platform_rect_2.right < 0:
+                    platform_rect_2.left = platform_rect_1.right
+                if platform_rect_3.right < 0:
+                    platform_rect_3.left = platform_rect_2.right
 
+                # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
+                # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+                # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+                # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+                # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+                # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+                # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+                # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+                # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+                # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+                # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
-                        gravity = -5.8
-                        p1.angle += 5
-                        p1.going_up = True
-                        p1.animate()
-                        flap.play()
+                # pygame.draw.rect(screen, 'black', p1.rect, 2)
+                # pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB4.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB5.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB6.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB7.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB8.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
+                # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
+                # screen.blit(p2.image, p2.rect.center)
 
+                # UPDATING PLAYER 1 AND 2 SPRITES, DRAWING P2 SPRITE, DRAWING ROTATED P1 IMAGE EXTRACTED FROM SPRITE
+                # SCORE TEXT, BACKGROUND IMAGES
 
+                animate_player_2.draw(screen)
+                screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width()/2, p1.hitbox.center[1] - p1_image.get_height()/2))
+                animate_player.update(0)
+                animate_player_2.update(1)
+                screen.blit(online_score_text, (online_score_rect.left, online_score_rect.top))
 
-            if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
-                print("COLLIDE1")
-                game_music.stop()
-                alive = Player.send('dead')
-            if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
-                print("COLLIDE2")
-                game_music.stop()
-                alive = Player.send('dead')
-            if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
-                print("COLLIDE3")
-                game_music.stop()
-                alive = Player.send('dead')
+                screen.blit(base_image_scaled, platform_rect_1)
+                screen.blit(base_image_scaled, platform_rect_2)
+                screen.blit(base_image_scaled, platform_rect_3)
 
-            if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
-                    or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
-                online_score += 1
-                score_s.play()
+                pygame.display.update()
+                clock.tick(60)
 
-            gravity += 0.4
-            p1.movey(gravity)
-
-            OB1.move(obs_up1_rect, tubespeed)
-            OB2.move(obs_up2_rect, tubespeed)
-            OB3.move(obs_up3_rect, tubespeed)
-            OB4.move(obs_up4_rect, tubespeed)
-            OB5.move(obs_up5_rect, tubespeed)
-            OB6.move(obs_down1_rect, tubespeed)
-            OB7.move(obs_down2_rect, tubespeed)
-            OB8.move(obs_down3_rect, tubespeed)
-            OB9.move(obs_down4_rect, tubespeed)
-            OB10.move(obs_down5_rect, tubespeed)
-
-
-            #
-            # OB1.hitbox_up.right = OB1.hitbox_up.right - tubespeed
-            # OB2.hitbox_up.right = OB2.hitbox_up.right - tubespeed
-            # OB3.hitbox_up.right = OB3.hitbox_up.right - tubespeed
-            # OB4.hitbox_up.right = OB4.hitbox_up.right - tubespeed
-            # OB5.hitbox_up.right = OB5.hitbox_up.right - tubespeed
-            # OB6.hitbox_down.right = OB6.hitbox_down.right - tubespeed
-            # OB7.hitbox_down.right = OB7.hitbox_down.right - tubespeed
-            # OB8.hitbox_down.right = OB8.hitbox_down.right - tubespeed
-            # OB9.hitbox_down.right = OB9.hitbox_down.right - tubespeed
-            # OB10.hitbox_down.right = OB10.hitbox_down.right - tubespeed
-
-            if OB1.check(0):
-                req2 = Player.send('OBS_1')
-                print(f"UP CO REC {req2}")
-                obs_down1_rect.bottom = int(req2)
-                req3 = Player.send('OBS_2')
-                print(f"DOWN CO REC {req3}")
-                obs_up1_rect.top = int(req3)
-                req = Player.send('OP')
-                pos = Player.send(f'{OB5.obstacle_rect.right}')
-                print(f"OBS POS REC - {int(pos)}")
-                OB1.position(int(pos))
-                OB6.position(int(pos))
-
-
-            if OB2.check(0):
-                req2 = Player.send('OBS_1')
-                print(f"UP CO REC {req2}")
-                obs_down2_rect.bottom = int(req2)
-                req2 = Player.send('OBS_2')
-                obs_up2_rect.top = int(req2)
-                print(f"DOWN CO REC {req2}")
-                req = Player.send('OP')
-                pos = Player.send(f'{OB1.obstacle_rect.right}')
-                OB2.position(int(pos))
-                OB7.position(int(pos))
-                print(f"OBS POS REC - {int(pos)}")
-
-            if OB3.check(0):
-                req2 = Player.send('OBS_1')
-                print(f"UP CO REC {req2}")
-                obs_down3_rect.bottom = int(req2)
-                req2 = Player.send('OBS_2')
-                print(f"DOwn CO REC {req2}")
-                obs_up3_rect.top = int(req2)
-                req = Player.send('OP')
-                pos = Player.send(f'{OB2.obstacle_rect.right}')
-                OB3.position(int(pos))
-                OB8.position(int(pos))
-                print(f"OBS POS REC - {int(pos)}")
-
-            if OB4.check(0):
-                req2 = Player.send('OBS_1')
-                print(f"UP CO REC {req2}")
-                obs_down4_rect.bottom = int(req2)
-                req2 = Player.send('OBS_2')
-                print(f"down CO REC {req2}")
-                obs_up4_rect.top = int(req2)
-                req = Player.send('OP')
-                pos = Player.send(f'{OB3.obstacle_rect.right}')
-                OB4.position(int(pos))
-                OB9.position(int(pos))
-                print(f"OBS POS REC - {int(pos)}")
-
-            if OB5.check(0):
-                req2 = Player.send('OBS_1')
-                print(f"UP CO REC {req2}")
-                obs_down5_rect.bottom = int(req2)
-                req2 = Player.send('OBS_2')
-                print(f"down CO REC {req2}")
-                obs_up5_rect.top = int(req2)
-                req = Player.send('OP')
-                pos = Player.send(f'{OB4.obstacle_rect.right}')
-                OB5.position(int(pos))
-                OB10.position(int(pos))
-                print(f"OBS POS REC - {int(pos)}")
-
-
-
-            if p1.rect.top >= SET_HEIGHT - 100:
-                p1.rect.bottom = SET_HEIGHT - 30
-                game_music.stop()
-                alive = Player.send('dead')
-            if p1.rect.top <= 0:
-                p1.rect.top = 0
-                game_music.stop()
-                alive = Player.send('dead')
-
-
-            if not int(alive):
-                Player.client.send('!D'.encode(Player.format))
-                loosing_screen(online_score)
-
+            # IF P2 IS NOT ONLINE ANYMORE
             else:
-                won = Player.send('winner?')
-                if int(won):
+                # CHECK IF P1 HAS WON
+                winner_dec = Player.send('winner?')
+
+                # IS P1 DID NOT WIN -> P2 DISCONNECTED
+                if not int(winner_dec):
                     Player.client.send('RESET'.encode(Player.format))
                     Player.client.send('!D'.encode(Player.format))
-                    game_music.stop()
-                    winning_screne(online_score)
+                    print("DISCONNECTED")
+                    error_screen()
 
-
-
-            online_score_text = font_menu.render(str(score), True, 'black')
-            online_score_rect = online_score_text.get_rect()
-            online_score_rect.right = SET_WIDTH-50
-            online_score_rect.top = 15
-
-            # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
-            # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
-            # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
-            # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
-            # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
-            # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
-            # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
-            # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
-            # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
-            # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
-            # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
-            #
-            # pygame.draw.rect(screen, 'black', p1.rect, 2)
-            # pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB4.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB5.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB6.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB7.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB8.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
-            # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
-
-            # screen.blit(p2.image, p2.rect.center)
-
-            animate_player_2.draw(screen)
-            # animate_player.draw(screen)
-            screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width() / 2, p1.hitbox.center[1] - p1_image.get_height() / 2))
-            animate_player.update(0)
-            animate_player_2.update(1)
-            screen.blit(online_score_text, (online_score_rect.left, online_score_rect.top))
-            screen.blit(base_image_scaled, (0, 750))
-            pygame.display.update()
-            clock.tick(60)
-        else:
-            winner_dec = Player.send('winner?')
-            if not int(winner_dec):
-                Player.client.send('RESET'.encode(Player.format))
-                Player.client.send('!D'.encode(Player.format))
-                error_screen()
-            else:
-                Player.client.send('!D'.encode(Player.format))
-                Player.client.send('RESET'.encode(Player.format))
-                winning_screne(online_score)
-
-
+                # IF P1 WON
+                else:
+                    Player.client.send('RESET'.encode(Player.format))
+                    Player.client.send('!D'.encode(Player.format))
+                    print("DISCONNECTED")
+                    winning_screen(online_score)
 
 
 def error_screen():
-
-    menu_but = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    
+    # CREATING BUTTON
+    menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    
+    # RENDERING TEXT AND ASSIGNING RECTANGLE POSITION 
     error_text = pause_font.render('Player 2 Disconnected', True, 'black')
     error_text_rect = error_text.get_rect()
     error_text_rect.center = SET_WIDTH/2, SET_HEIGHT/2 - 100
@@ -1040,31 +1075,34 @@ def error_screen():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if menu_but.check_click():
+                if menu_button.check_click():
                     exit_screen_sound.stop()
                     main_menu(1)
-
+        
+        # DRAWING TEXT, BUTTON
         screen.blit(error_text, error_text_rect)
-        menu_but.draw()
+        menu_button.draw()
         pygame.display.update()
+        clock.tick(60)
 
 
-
-
-def loosing_screen(online_score):
+def loosing_screen(score):
 
     global HIGH_SCORE
-
-    if online_score > HIGH_SCORE:
-        score_text = font_menu.render("NEW HIGH SCORE : " + str(online_score), 1, (0, 0, 0))
-        HIGH_SCORE = online_score
-    else:
-        score_text = font_menu.render("SCORE :  " + str(online_score), 1, (0, 0, 0))
-
-
     exit_screen_sound.play(-1)
-    main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+
+    # RENDERING SCORE AND ASSIGNING RECT IT'S POSITION
+    if score > HIGH_SCORE:
+        score_text = font_menu.render("NEW HIGH SCORE : " + str(score), True, (0, 0, 0))
+        HIGH_SCORE = score
+    else:
+        score_text = font_menu.render("SCORE :  " + str(score), True, (0, 0, 0))
     score_text_rect = score_text.get_rect()
+    score_text_rect.center = SET_WIDTH / 2, 200
+    
+    # CREATING BUTTON
+    menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
@@ -1074,29 +1112,36 @@ def loosing_screen(online_score):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if main_menu_button.check_click():
+                if menu_button.check_click():
                     exit_screen_sound.stop()
                     main_menu(1)
-        score_text_rect.center = SET_WIDTH/2, 200
+                    
+        # DRAWING SCORE , WIN_TEXT, BUTTON
         screen.blit(score_text, score_text_rect)
         screen.blit(pause_font.render('YOU LOOSE', True, 'black'), (SET_WIDTH/2 - 250, SET_HEIGHT/2 - 100))
-        main_menu_button.draw()
+        menu_button.draw()
         pygame.display.update()
+        clock.tick(60)
 
 
-def winning_screne(online_score):
+def winning_screen(score):
 
     global HIGH_SCORE
     exit_screen_sound.play(-1)
-
-    if online_score > HIGH_SCORE:
-        score_text = font_menu.render("NEW HIGH SCORE : " + str(online_score), 1, (0, 0, 0))
-        HIGH_SCORE = online_score
+    
+    # RENDERING SCORE AND ASSIGNING RECT IT'S POSITION
+    if score > HIGH_SCORE:
+        score_text = font_menu.render("NEW HIGH SCORE : " + str(score), True, (0, 0, 0))
+        HIGH_SCORE = score
     else:
-        score_text = font_menu.render("SCORE :  " + str(online_score), 1, (0, 0, 0))
-
-    main_menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+        score_text = font_menu.render("SCORE :  " + str(score), True, (0, 0, 0))
+        
     score_text_rect = score_text.get_rect()
+    score_text_rect.center = SET_WIDTH/2, 200
+
+    # CREATING BUTTON
+    menu_button = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    
     while True:
         screen.fill('black')
         screen.blit(background_menu, (0, 0))
@@ -1106,26 +1151,33 @@ def winning_screne(online_score):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if main_menu_button.check_click():
+                if menu_button.check_click():
                     exit_screen_sound.stop()
                     main_menu(1)
-
-        score_text_rect.center = SET_WIDTH/2, 200
+        
+        # DRAWING SCORE , WIN_TEXT, BUTTON
         screen.blit(score_text, score_text_rect)
         screen.blit(pause_font.render('YOU WON', True, 'black'), (SET_WIDTH / 2 - 200, SET_HEIGHT / 2 - 100))
-        main_menu_button.draw()
+        menu_button.draw()
         pygame.display.update()
+        clock.tick(60)
 
 
-
-
-couu = 0
+# GLOBAL VARIABLE USED ONLY IN THE NEXT FUNCTION
+times_asked = 0
 new_r1 = 0
 new_r2 = 0
-def get_one_coord(x):
-    global couu, new_r2, new_r1
 
-    if couu == 0:
+
+def get_one_coord(x):
+    
+    # x REPRESENT WHICH COORDINATE IT WANTS, UP OR DOWN
+    # if times asked is = 0 , generate a new coordinate
+    # IF times_asked is >=2, generate a new coordinate
+    
+    global times_asked, new_r2, new_r1
+    
+    if times_asked == 0:
         rand1 = random.randint(200, 340)
         rand10 = rand1 + 130 + random.randint(0, 20)
         # rand1 = 330 safe bet max
@@ -1133,33 +1185,30 @@ def get_one_coord(x):
         new_r1 = rand1
         new_r2 = rand10
         
-
-    if x==1:
-        couu += 1
-        if couu >= 2:
-            couu = 0
+    if x == 1:
+        times_asked += 1
+        if times_asked >= 2:
+            times_asked = 0
         return new_r1
     else:
-        couu += 1
-        if couu >= 2:
-            couu = 0
+        times_asked += 1
+        if times_asked >= 2:
+            times_asked = 0
         return new_r2
 
 
+def gameplay_offline_screen():
+    
+    global gravity
 
-
-
-def gameplay_offline_screne():
-    clock = pygame.time.Clock()
+    print("Main_offline")
+    score = 0
     score_rangex = 48
     score_rangey = 52
-    score = 0
     pygame.display.set_caption('FLAPPY BIRD')
-    print("Main")
 
-    #GAME MUSIC
+    # GAME MUSIC
     game_music.play(-1)
-
 
     # GET RANDOM COORDINATE FOR Y AXIS
     rand1 = random.randint(100, 200)
@@ -1201,10 +1250,8 @@ def gameplay_offline_screne():
     obs_down4_rect = obs_down1.get_rect(midright=obs4_down_co)
     obs_down5_rect = obs_down1.get_rect(midright=obs5_down_co)
 
-    global gravity
-
     gravity = 0
-    tubespeed = -5
+    tube_speed = -5
 
     # PLAYER
     p1 = player(50, 300, player_base_image_scaled)
@@ -1223,45 +1270,107 @@ def gameplay_offline_screne():
     # BUTTONS
     pause_button = button('PAUSE', 50, 50, 180, 50)
 
-
     arr = []
 
     angle = 0
     going_up = False
+
+    # OBSTACLE
+    OB1 = tube(obs_up1, obs_up1_rect)
+    OB2 = tube(obs_up2, obs_up2_rect)
+    OB3 = tube(obs_up3, obs_up3_rect)
+    OB4 = tube(obs_up4, obs_up4_rect)
+    OB5 = tube(obs_up5, obs_up5_rect)
+    OB6 = tube(obs_down1, obs_down1_rect)
+    OB7 = tube(obs_down2, obs_down2_rect)
+    OB8 = tube(obs_down3, obs_down3_rect)
+    OB9 = tube(obs_down4, obs_down4_rect)
+    OB10 = tube(obs_down5, obs_down5_rect)
+
+    # ADDING OBSTACLES TO arr THAT WILL BE PASSED TO THE PAUSE FUNCTION
+    arr.append(OB1)
+    arr.append(OB2)
+    arr.append(OB3)
+    arr.append(OB4)
+    arr.append(OB5)
+    arr.append(OB6)
+    arr.append(OB7)
+    arr.append(OB8)
+    arr.append(OB9)
+    arr.append(OB10)
+
+    # PLATFORM  RECTANGLE
+    platform_v = tube_speed
+
+    platform_rect_1 = base_image_scaled.get_rect()
+    platform_rect_1.x = 0
+    platform_rect_1.y = 750
+
+    platform_rect_2 = base_image_scaled.get_rect()
+    platform_rect_2.x = platform_rect_1.right
+    platform_rect_2.y = 750
+
+    platform_rect_3 = base_image_scaled.get_rect()
+    platform_rect_3.x = platform_rect_2.right
+    platform_rect_3.y = 750
+
+    pf_arr = []
+
+    pf_arr.append(platform_rect_1)
+    pf_arr.append(platform_rect_2)
+    pf_arr.append(platform_rect_3)
+
+    # BACKGROUND IMAGE
+
+    background_v = -1
+
+    background_rect_1 = background_play.get_rect()
+    background_rect_1.x = 0
+    background_rect_1.y = 0
+
+    background_rect_2 = background_play.get_rect()
+    background_rect_2.x = background_rect_1.right
+    background_rect_2.y = 0
+
+    background_rect_3 = background_play.get_rect()
+    background_rect_3.x = background_rect_2.right
+    background_rect_3.y = 0
+
+    back_arr = []
+
+    back_arr.append(background_rect_1)
+    back_arr.append(background_rect_2)
+    back_arr.append(background_rect_3)
+
     while True:
 
         screen.fill('black')
-        screen.blit(background_play, (0, 0))
 
-        # OBSTACLE
-        OB1 = tube(obs_up1, obs_up1_rect)
-        OB2 = tube(obs_up2, obs_up2_rect)
-        OB3 = tube(obs_up3, obs_up3_rect)
-        OB4 = tube(obs_up4, obs_up4_rect)
-        OB5 = tube(obs_up5, obs_up5_rect)
-        OB6 = tube(obs_down1, obs_down1_rect)
-        OB7 = tube(obs_down2, obs_down2_rect)
-        OB8 = tube(obs_down3, obs_down3_rect)
-        OB9 = tube(obs_down4, obs_down4_rect)
-        OB10 = tube(obs_down5, obs_down5_rect)
+        # BACKGROUND IMAGE
+        background_rect_1.right += background_v
+        background_rect_2.right += background_v
+        background_rect_3.right += background_v
 
-        arr.append(OB1)
-        arr.append(OB2)
-        arr.append(OB3)
-        arr.append(OB4)
-        arr.append(OB5)
-        arr.append(OB6)
-        arr.append(OB7)
-        arr.append(OB8)
-        arr.append(OB9)
-        arr.append(OB10)
+        if background_rect_1.right < 0:
+            background_rect_1.left = background_rect_3.right
+        if background_rect_2.right < 0:
+            background_rect_2.left = background_rect_1.right
+        if background_rect_3.right < 0:
+            background_rect_3.left = background_rect_2.right
+
+        screen.blit(background_play, background_rect_1)
+        screen.blit(background_play, background_rect_2)
+        screen.blit(background_play, background_rect_3)
+
+        # DRAWING OBSTACLES
+        for obs in arr:
+            obs.draw()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
                 pygame.quit()
                 sys.exit()
-
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -1274,7 +1383,7 @@ def gameplay_offline_screne():
                     state = True
                     while state:
                         animate_player.draw(screen)
-                        pause(score, animate_player, arr)
+                        pause(score, p1, angle, arr, back_arr, pf_arr)
                         state = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -1288,43 +1397,43 @@ def gameplay_offline_screne():
                     animate_player.draw(screen)
                     run = True
                     while run:
-                        pause(score, animate_player, arr)
+                        pause(score, p1, angle, arr, back_arr, pf_arr)
                         run = False
 
         if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
             print("COLLIDE1")
             game_music.stop()
-            intermediate(p1, score, arr)
+            intermediate(p1, score, arr, back_arr, pf_arr)
         if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
             print("COLLIDE2")
             game_music.stop()
-            intermediate(p1, score, arr)
+            intermediate(p1, score, arr, back_arr, pf_arr)
         if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
             print("COLLIDE3")
             game_music.stop()
-            intermediate(p1, score, arr)
+            intermediate(p1, score, arr, back_arr, pf_arr)
 
         if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
                 or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
             score += 1
             score_s.play()
 
-
         gravity += 0.4
         p1.movey(gravity)
 
-        OB1.move(obs_up1_rect, tubespeed)
-        OB2.move(obs_up2_rect, tubespeed)
-        OB3.move(obs_up3_rect, tubespeed)
-        OB4.move(obs_up4_rect, tubespeed)
-        OB5.move(obs_up5_rect, tubespeed)
-        OB6.move(obs_down1_rect, tubespeed)
-        OB7.move(obs_down2_rect, tubespeed)
-        OB8.move(obs_down3_rect, tubespeed)
-        OB9.move(obs_down4_rect, tubespeed)
-        OB10.move(obs_down5_rect, tubespeed)
-
-
+        # MOVING TUBES
+        OB1.move(tube_speed)
+        OB2.move(tube_speed)
+        OB3.move(tube_speed)
+        OB4.move(tube_speed)
+        OB5.move(tube_speed)
+        OB6.move(tube_speed)
+        OB7.move(tube_speed)
+        OB8.move(tube_speed)
+        OB9.move(tube_speed)
+        OB10.move(tube_speed)
+        
+        # CHECKING TUBE POS AND RECEIVING NEW TUBE POSITION
         if OB1.check(0):
             down_pos = get_one_coord(0)
             OB1.obstacle_rect.top = down_pos
@@ -1346,7 +1455,6 @@ def gameplay_offline_screne():
             OB5.obstacle_rect.top = down_pos
             OB5.position(OB4.obstacle_rect.right + 500)
 
-
         if OB6.check(0):
             up_pos = get_one_coord(1)
             OB6.obstacle_rect.bottom = up_pos
@@ -1367,20 +1475,19 @@ def gameplay_offline_screne():
             up_pos = get_one_coord(1)
             OB10.obstacle_rect.bottom = up_pos
             OB10.position(OB9.obstacle_rect.right + 500)
-
+    
+        # CHECKING PLAYER FOR TOP AND BOTTOM SCREEN COLLISION
         if p1.rect.top >= SET_HEIGHT - 130:
             p1.rect.bottom = SET_HEIGHT - 130
             game_music.stop()
-            intermediate(p1, score, arr)
+            intermediate(p1, score, arr, back_arr, pf_arr)
         if p1.rect.top <= 0:
             p1.rect.top = 0
             game_music.stop()
-            intermediate(p1, score, arr)
-
-
-
-
-        p1_image = pygame.transform.rotate(p1.image, (angle))
+            intermediate(p1, score, arr, back_arr, pf_arr)
+        
+        # ROTATING PLAYER 1 IMAGE AND THE CONSTRAINTS
+        p1_image = pygame.transform.rotate(p1.image, angle)
         if not going_up:
             angle -= 3
 
@@ -1393,6 +1500,20 @@ def gameplay_offline_screne():
         if angle <= -90 and going_up == False:
             angle = -90
 
+        #  PLATFORM POSITION
+        platform_rect_1.right += platform_v
+        platform_rect_2.right += platform_v
+        platform_rect_3.right += platform_v
+
+        if platform_rect_1.right < 0:
+            platform_rect_1.left = platform_rect_3.right
+        if platform_rect_2.right < 0:
+            platform_rect_2.left = platform_rect_1.right
+        if platform_rect_3.right < 0:
+            platform_rect_3.left = platform_rect_2.right
+
+
+        # SCORE TEXT RENDERING AND SETTING ITS POSITION
         score_text = font_menu.render(str(score), True, 'black')
         score_text_rect = score_text.get_rect()
         score_text_rect.right = SET_WIDTH-50
@@ -1412,32 +1533,45 @@ def gameplay_offline_screne():
 
         # animate_player.draw(screen)
 
-
-        screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width()/2, p1.hitbox.center[1] - p1_image.get_height()/2))
+        # DRAWING P1 image , P2 sprite, the score, the buttons
         animate_player.update(0)
+        screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width()/2, p1.hitbox.center[1] - p1_image.get_height()/2))
         screen.blit(score_text, (score_text_rect.left, score_text_rect.top))
-        screen.blit(base_image_scaled, (0, 750))
+
+        screen.blit(base_image_scaled, platform_rect_1)
+        screen.blit(base_image_scaled, platform_rect_2)
+        screen.blit(base_image_scaled, platform_rect_3)
+
         pause_button.draw()
         pygame.display.update()
         clock.tick(60)
 
 
-def pause(score, animate_player, arr):
+def pause(score, p1, angle, arr, back_arr, platform_arr):
 
     escape_sound.play()
     print('PAUSE')
+    
     run = True
-    largetext = pause_font.render('PAUSED', True, 'black')
+    
+    # RENDERING AND SETTING TEXTS POSITION
+    large_text = pause_font.render('PAUSED', True, 'black')
     score_text = font_menu.render('SCORE : ' + str(score), True, 'black')
     score_text_rect = score_text.get_rect()
     score_text_rect.center = (670, 350)
-    con_but = button('CONTINUE', 200, 540, 275, 50)
-    menu_but = button('MAIN MENU', 880, 540, 300, 50)
+    
+    # CREATING BUTTONS
+    continue_button = button('CONTINUE', 200, 540, 275, 50)
+    menu_button = button('MAIN MENU', 880, 540, 300, 50)
+
+    rotated_image = pygame.transform.rotate(p1.image, angle)
 
     while run:
         screen.fill('black')
-        screen.blit(background_play, (0, 0))
-        animate_player.draw(screen)
+
+        screen.blit(background_play, back_arr[0])
+        screen.blit(background_play, back_arr[1])
+        screen.blit(background_play, back_arr[2])
 
         for i in range(10):
             arr[i].draw()
@@ -1449,9 +1583,9 @@ def pause(score, animate_player, arr):
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if con_but.check_click():
+                if continue_button.check_click():
                     run = False
-                if menu_but.check_click():
+                if menu_button.check_click():
                     game_music.stop()
                     main_menu(1)
             if event.type == pygame.KEYDOWN:
@@ -1459,38 +1593,56 @@ def pause(score, animate_player, arr):
                     escape_sound.play()
                     run = False
 
+        screen.blit(rotated_image, (p1.hitbox.center[0] - rotated_image.get_width()/2, p1.hitbox.center[1] - rotated_image.get_height()/2))
 
+        # DRAWING BUTTONS, IMAGES, TEXT,
+        continue_button.draw()
+        menu_button.draw()
 
-        con_but.draw()
-        menu_but.draw()
-        screen.blit(base_image_scaled, (0, 750))
-        screen.blit(largetext, (500, 200))
+        screen.blit(base_image_scaled, platform_arr[0])
+        screen.blit(base_image_scaled, platform_arr[1])
+        screen.blit(base_image_scaled, platform_arr[2])
+
+        screen.blit(large_text, (500, 200))
         screen.blit(score_text, score_text_rect)
         pygame.display.update()
+        clock.tick(60)
 
     print("Main")
 
 
+def intermediate(p1, score, arr, back_arr, platform_arr):
 
-def intermediate(p1, score, arr):
-    clock = pygame.time.Clock()
     g = 0
     initial_height = p1.rect.top
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
     touch = 0
+    angle = p1.angle
 
     while True:
+        angle -= 3
+        if angle < - 80:
+             angle = -80
+
+        new_img = pygame.transform.rotate(player_base_image_down_scaled, angle)
 
         screen.blit(background_play, (0, 0))
         new_height = p1.rect.top
 
+        screen.blit(background_play, back_arr[0])
+        screen.blit(background_play, back_arr[1])
+        screen.blit(background_play, back_arr[2])
+
         for i in range(10):
             arr[i].draw()
 
-        screen.blit(base_image_scaled, (0, 750))
-        screen.blit(dead_image_up_scaled, (p1.rect.left + 60, p1.rect.top + 10))
+        screen.blit(base_image_scaled, platform_arr[0])
+        screen.blit(base_image_scaled, platform_arr[1])
+        screen.blit(base_image_scaled, platform_arr[2])
 
-        p1.rect.left += 4
+        screen.blit(new_img, (p1.rect.left + 60, p1.rect.top + 10))
+
+        p1.rect.left += 6
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("EXITING")
@@ -1500,47 +1652,49 @@ def intermediate(p1, score, arr):
         if touch == 0 and new_height == initial_height:
             hit.play()
             die.play()
-            g = -1.5
+            g = -8.5
             touch = 1
 
         p1.movey(g)
-        g += 0.1
+        g += 0.6
 
         if new_height >= 1500:
-            exit_screen(score)
+            exit_screen(score, back_arr, platform_arr)
         pygame.display.update()
-        clock.tick(150)
+        clock.tick(60)
 
 
-def exit_screen(x):
+def exit_screen(x, back_arr, platform_arr):
     global HIGH_SCORE
-
+    print('LOOSE')
     exit_screen_sound.play(-1)
-
+    
+    # CREATING BUTTONS
     b1 = button('TRY AGAIN', 200, 340, 300, 50)
     b2 = button('MAIN MENU', 880, 340, 300, 50)
     b3 = button('EXIT', 1220, 700, 150, 50)
-
-    print('LOOSE')
+    
+    # SETTING CATION
     pygame.display.set_caption('BETTER LUCK NEXT TIME')
-
-
+    
+    # RENDERING SCORE 
     if x > HIGH_SCORE:
-        score = font_menu.render("NEW HIGH SCORE : " + str(x), 1, (0, 0, 0))
+        score = font_menu.render("NEW HIGH SCORE : " + str(x), True, (0, 0, 0))
         HIGH_SCORE = x
     else:
-        score = font_menu.render("SCORE :  " + str(x), 1, (0, 0, 0))
-
+        score = font_menu.render("SCORE :  " + str(x), True, (0, 0, 0))
+        
     while True:
 
         screen.fill('black')
-        screen.blit(background_play, (0, 0))
+
+        screen.blit(background_play, back_arr[0])
+        screen.blit(background_play, back_arr[1])
+        screen.blit(background_play, back_arr[2])
+        
+        # CREATE SCORE RECT  AND SETTING COORDINATE
         score_rect = score.get_rect()
         score_rect.center = (700, 250)
-        screen.blit(score, score_rect)
-        screen.blit(rip, (500, 420))
-        screen.blit(game_over1_scaled, (380, -190))
-        screen.blit(game_over2_scaled, (400, -190))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1554,7 +1708,7 @@ def exit_screen(x):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if b1.check_click():
                     exit_screen_sound.stop()
-                    gameplay_offline_screne()
+                    gameplay_offline_screen()
                 if b2.check_click():
                     exit_screen_sound.stop()
                     main_menu(1)
@@ -1562,11 +1716,22 @@ def exit_screen(x):
                     print("EXITING")
                     pygame.quit()
                     sys.exit()
-        screen.blit(base_image_scaled, (0, 750))
+                    
+        # DRAWING BUTTONS , IMAGES, AND BASE
+        screen.blit(rip, (500, 420))
+        screen.blit(score, score_rect)
+        screen.blit(game_over1_scaled, (380, -190))
+        screen.blit(game_over2_scaled, (400, -190))
+
+        screen.blit(base_image_scaled, platform_arr[0])
+        screen.blit(base_image_scaled, platform_arr[1])
+        screen.blit(base_image_scaled, platform_arr[2])
+
         b1.draw()
         b2.draw()
         b3.draw()
         pygame.display.update()
+        clock.tick(60)
 
 
 main_menu(1)

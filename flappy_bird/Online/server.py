@@ -2,8 +2,8 @@ import socket
 import threading
 import random
 
-HOST = '192.168.1.18'
-PORT = 9991
+HOST = '10.0.0.238'
+PORT = 9990
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -12,18 +12,9 @@ server.listen()
 FORMAT = 'utf-8'
 
 clients = []
-
-
-# def read(string):
-#     string = string.split(',')
-#     return int(string[0]), int(string[1])
-#
-#
-
+player_no = 0
 
 running = True
-
-
 
 class tube:
 
@@ -91,10 +82,11 @@ class tube:
 def read_obs_co(msg):
     message = msg.split(',')
     return float(message[0]), float(message[1])
-#
+
 # def read_obs_co(msg):
 #     message = msg.split(',')
 #     return int(message[0]), int(message[1])
+
 
 position = [(-100, -100),(-100, -100)]
 status = [0, 0]
@@ -109,25 +101,25 @@ temporary_coord = []
 coordinate = []
 temp_coord = []
 
+
 def make(tup):
     return str(tup[0]) + "," + str(tup[1])
+
 
 def DISCONNECT(client, addr):
     clients.remove(client)
     print(f"{addr} DISCONNECTED")
 
 
-
 def reset():
     global position, player_no, status, winner, SEND_COUNT, SEND_COUNT_INITIAL
-    print("RESETTING SERVER")
+    print("RESETTING")
     player_no = 0
     position = [(-100, -100), (-100, -100)]
     status = [0, 0]
     SEND_COUNT = 0
     winner = [0, 0]
     SEND_COUNT_INITIAL = 0
-
 
 
 def receive(client, addr, pl_no):
@@ -153,10 +145,12 @@ def receive(client, addr, pl_no):
                 break
 
             elif message == "OBS_INIT":
+
                 if SEND_COUNT_INITIAL == 0:
                     coordinates = obs.get_co()
                     temporary_coord = coordinates
-
+                else:
+                    print("GAME START")
                 for i in range(0, 10):
                     coord = make(temporary_coord[i])
                     client.send(coord.encode(FORMAT))
@@ -166,7 +160,6 @@ def receive(client, addr, pl_no):
 
                 if SEND_COUNT_INITIAL >= 2:
                     SEND_COUNT_INITIAL = 0
-
 
             elif message == 'OBS_1':
                 print(SEND_COUNT, 'send count')
@@ -185,14 +178,12 @@ def receive(client, addr, pl_no):
                 if SEND_COUNT >= 2:
                     SEND_COUNT = 0
 
-
             elif message == 'OP':
                 client.send('?'.encode(FORMAT))
                 req = client.recv(1024).decode(FORMAT)
                 req = int(req)
                 client.send(f'{req+500}'.encode(FORMAT))
-            
-            
+
             elif message == 'INIT_POS':
                 client.send('?'.encode(FORMAT))
                 INITIAL_POS = client.recv(1024).decode(FORMAT)
@@ -213,7 +204,6 @@ def receive(client, addr, pl_no):
                     client.send(make(position[0]).encode(FORMAT))
                     position[1] = read_obs_co(NEW_POS)
 
-
             elif message == 'con_stat':
                 if pl_no == 0:
                     status[0] = 1
@@ -221,7 +211,6 @@ def receive(client, addr, pl_no):
                 else:
                     status[1] = 1
                     client.send(f"{status[0]}".encode(FORMAT))
-
 
             elif message == 'dead':
                 if pl_no == 0:
@@ -233,15 +222,13 @@ def receive(client, addr, pl_no):
 
             elif message == 'winner?':
                 if pl_no == 0 and winner[0]:
-                    print("Player 1 won")
                     client.send('1'.encode(FORMAT))
+                    print("PLAYER 1 WON\nGAME ENDED")
                 elif pl_no == 1 and winner[1]:
                     client.send('1'.encode(FORMAT))
-                    print("Player 2 won")
+                    print("PLAYER 2 WON\nGAME ENDED")
                 else:
                     client.send('0'.encode(FORMAT))
-
-
 
             elif message == 'RESET':
                 reset()
@@ -253,7 +240,7 @@ def receive(client, addr, pl_no):
                 running = False
                 break
 
-            ################  HANDLES UNEXPECTED DISCONNNECTION
+            #  HANDLES UNEXPECTED DISCONNNECTION
 
             elif not message:
                 print(f"DISCONNECTION FROM {addr}")
@@ -270,28 +257,18 @@ def receive(client, addr, pl_no):
                 pass
 
 
-        ### DON'T KNOW WHEN THIS WILL BE USED
+        # DON'T KNOW WHEN THIS WILL BE USED
         except:
             print(f"DISCONNECTION FROM {addr}")
-            if player_no == 1:
-                reset()
-            clients.remove(client)
             if pl_no == 0:
                 status[0] = 0
             else:
                 status[1] = 0
             player_no -= 1
+
+            DISCONNECT(client, addr)
             break
 
-
-# coordinates = get_co()
-# print(coordinates)
-# for i in range(9):
-#     coord = make(coordinates[i])
-#     print(coord)
-
-
-player_no = 0
 
 
 while running:
