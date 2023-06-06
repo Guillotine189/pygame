@@ -120,7 +120,7 @@ class Network:
 
     def __init__(self):
         self.host = '192.168.1.18'
-        self.port = 9990
+        self.port = 9991
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
@@ -701,7 +701,7 @@ def gameplay_screne(Player):
 
         print("SENDING")
         Player.client.send('OBS_INIT'.encode(Player.format))
-        # OBS_CO[0] = read_obs_co(ttmp)
+
         print("SENT")
         for j in range(0, 10):
             temp = Player.client.recv(1024).decode(Player.format)
@@ -818,11 +818,6 @@ def gameplay_screne(Player):
                         p1.animate()
                         flap.play()
 
-                    if event.key == pygame.K_ESCAPE:
-                        Player.client.send('!D'.encode(Player.format))
-                        print("EXITING")
-                        pygame.quit()
-                        sys.exit()
 
 
                 if event.type == pygame.MOUSEBUTTONDOWN:

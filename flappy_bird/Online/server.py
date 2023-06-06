@@ -3,7 +3,7 @@ import threading
 import random
 
 HOST = '192.168.1.18'
-PORT = 9990
+PORT = 9991
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -120,7 +120,7 @@ def DISCONNECT(client, addr):
 
 def reset():
     global position, player_no, status, winner, SEND_COUNT, SEND_COUNT_INITIAL
-
+    print("RESETTING SERVER")
     player_no = 0
     position = [(-100, -100), (-100, -100)]
     status = [0, 0]
@@ -161,7 +161,7 @@ def receive(client, addr, pl_no):
                     coord = make(temporary_coord[i])
                     client.send(coord.encode(FORMAT))
                     temp = client.recv(1024).decode(FORMAT)
-                    print(f"MSG SENT - {coord}")
+
                 SEND_COUNT_INITIAL += 1
 
                 if SEND_COUNT_INITIAL >= 2:
@@ -230,13 +230,14 @@ def receive(client, addr, pl_no):
                 else:
                     client.send('0'.encode(FORMAT))
                     winner[0] = 1
-                print(winner, 'recieved')
 
             elif message == 'winner?':
                 if pl_no == 0 and winner[0]:
+                    print("Player 1 won")
                     client.send('1'.encode(FORMAT))
                 elif pl_no == 1 and winner[1]:
                     client.send('1'.encode(FORMAT))
+                    print("Player 2 won")
                 else:
                     client.send('0'.encode(FORMAT))
 
