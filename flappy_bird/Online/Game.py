@@ -634,6 +634,7 @@ def waiting_screne():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                Player.client.send("!D".encode(Player.format))
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -817,6 +818,13 @@ def gameplay_screne(Player):
                         p1.animate()
                         flap.play()
 
+                    if event.key == pygame.K_ESCAPE:
+                        Player.client.send('!D'.encode(Player.format))
+                        print("EXITING")
+                        pygame.quit()
+                        sys.exit()
+
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
                         gravity = -5.8
@@ -824,6 +832,7 @@ def gameplay_screne(Player):
                         p1.going_up = True
                         p1.animate()
                         flap.play()
+
 
 
             if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
