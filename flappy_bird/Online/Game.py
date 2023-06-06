@@ -119,8 +119,8 @@ online_score = 0
 class Network:
 
     def __init__(self):
-        self.host = '10.0.0.238'
-        self.port = 9901
+        self.host = '192.168.1.18'
+        self.port = 9990
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.status = False
@@ -664,10 +664,10 @@ def read_obs_co(msg):
 
 def make(tup):
     message = str(tup[0]) + ',' + str(tup[1])
-    return  message
+    return message
 
 
-0
+
 
 def gameplay_screne(Player):
     alive = 1
@@ -682,7 +682,6 @@ def gameplay_screne(Player):
         print("SENDING INIT POS")
         tp = Player.send('INIT_POS')
         tp = Player.send('50,300')
-
 
 
 
@@ -790,257 +789,261 @@ def gameplay_screne(Player):
             p1.angle = -90
 
 
+        is_online = Player.send('con_stat')
+        if int(is_online):
 
-
-        position = Player.send('POSITION?')
-        my_pos = p1.rect.center
-        pp = Player.send(make(my_pos))
-        pos = read_obs_co(pp)
-        p2.rect.center = int(pos[0]), int(pos[1])
-        p2.animate()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                print("EXITING")
-                pygame.quit()
-                sys.exit()
-
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    gravity = -5.8
-                    p1.angle += 5
-                    p1.going_up = True
-                    p1.animate()
-                    flap.play()
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
-                    gravity = -5.8
-                    p1.angle += 5
-                    p1.going_up = True
-                    p1.animate()
-                    flap.play()
-
-
-        if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
-            print("COLLIDE1")
-            game_music.stop()
-            alive = Player.send('dead')
-        if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
-            print("COLLIDE2")
-            game_music.stop()
-            alive = Player.send('dead')
-        if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
-            print("COLLIDE3")
-            game_music.stop()
-            alive = Player.send('dead')
-
-        if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
-                or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
-            online_score += 1
-            score_s.play()
-
-        gravity += 0.4
-        p1.movey(gravity)
-
-        OB1.move(obs_up1_rect, tubespeed)
-        OB2.move(obs_up2_rect, tubespeed)
-        OB3.move(obs_up3_rect, tubespeed)
-        OB4.move(obs_up4_rect, tubespeed)
-        OB5.move(obs_up5_rect, tubespeed)
-        OB6.move(obs_down1_rect, tubespeed)
-        OB7.move(obs_down2_rect, tubespeed)
-        OB8.move(obs_down3_rect, tubespeed)
-        OB9.move(obs_down4_rect, tubespeed)
-        OB10.move(obs_down5_rect, tubespeed)
-
-
-        #
-        # OB1.hitbox_up.right = OB1.hitbox_up.right - tubespeed
-        # OB2.hitbox_up.right = OB2.hitbox_up.right - tubespeed
-        # OB3.hitbox_up.right = OB3.hitbox_up.right - tubespeed
-        # OB4.hitbox_up.right = OB4.hitbox_up.right - tubespeed
-        # OB5.hitbox_up.right = OB5.hitbox_up.right - tubespeed
-        # OB6.hitbox_down.right = OB6.hitbox_down.right - tubespeed
-        # OB7.hitbox_down.right = OB7.hitbox_down.right - tubespeed
-        # OB8.hitbox_down.right = OB8.hitbox_down.right - tubespeed
-        # OB9.hitbox_down.right = OB9.hitbox_down.right - tubespeed
-        # OB10.hitbox_down.right = OB10.hitbox_down.right - tubespeed
-
-        if OB1.check(0):
-            req2 = Player.send('OBS_1')
-            print(f"UP CO REC {req2}")
-            obs_down1_rect.bottom = int(req2)
-            req3 = Player.send('OBS_2')
-            print(f"DOWN CO REC {req3}")
-            obs_up1_rect.top = int(req3)
-            req = Player.send('OP')
-            pos = Player.send(f'{OB5.obstacle_rect.right}')
-            print(f"OBS POS REC - {int(pos)}")
-            OB1.position(int(pos))
-            OB6.position(int(pos))
-
-
-        if OB2.check(0):
-            req2 = Player.send('OBS_1')
-            print(f"UP CO REC {req2}")
-            obs_down2_rect.bottom = int(req2)
-            req2 = Player.send('OBS_2')
-            obs_up2_rect.top = int(req2)
-            print(f"DOWN CO REC {req2}")
-            req = Player.send('OP')
-            pos = Player.send(f'{OB1.obstacle_rect.right}')
-            OB2.position(int(pos))
-            OB7.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-
-        if OB3.check(0):
-            req2 = Player.send('OBS_1')
-            print(f"UP CO REC {req2}")
-            obs_down3_rect.bottom = int(req2)
-            req2 = Player.send('OBS_2')
-            print(f"DOwn CO REC {req2}")
-            obs_up3_rect.top = int(req2)
-            req = Player.send('OP')
-            pos = Player.send(f'{OB2.obstacle_rect.right}')
-            OB3.position(int(pos))
-            OB8.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-
-        if OB4.check(0):
-            req2 = Player.send('OBS_1')
-            print(f"UP CO REC {req2}")
-            obs_down4_rect.bottom = int(req2)
-            req2 = Player.send('OBS_2')
-            print(f"down CO REC {req2}")
-            obs_up4_rect.top = int(req2)
-            req = Player.send('OP')
-            pos = Player.send(f'{OB3.obstacle_rect.right}')
-            OB4.position(int(pos))
-            OB9.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
-
-        if OB5.check(0):
-            req2 = Player.send('OBS_1')
-            print(f"UP CO REC {req2}")
-            obs_down5_rect.bottom = int(req2)
-            req2 = Player.send('OBS_2')
-            print(f"down CO REC {req2}")
-            obs_up5_rect.top = int(req2)
-            req = Player.send('OP')
-            pos = Player.send(f'{OB4.obstacle_rect.right}')
-            OB5.position(int(pos))
-            OB10.position(int(pos))
-            print(f"OBS POS REC - {int(pos)}")
+            position = Player.send('POSITION?')
+            my_pos = p1.rect.center
+            pp = Player.send(make(my_pos))
+            pos = read_obs_co(pp)
+            p2.rect.center = int(pos[0]), int(pos[1])
+            p2.animate()
 
 
 
-        # if OB6.check(0):
-        #     # req = Player.send('OP')
-        #     # pos = Player.send(f'{OB5.obstacle_rect.right}')
-        #     # OB6.position(int(pos))
-        #     # print(f"OBS POS REC - {int(pos)}")
-        #     req2 = Player.send('OBS_2')
-        #     obs_down1_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
-        # if OB7.check(0):
-        #     # req = Player.send('OP')
-        #     # pos = Player.send(f'{OB6.obstacle_rect.right}')
-        #     # OB7.position(int(pos))
-        #     # print(f"OBS POS REC - {int(pos)}")
-        #     req2 = Player.send('OBS_2')
-        #     obs_down2_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
-        # if OB8.check(0):
-        #     # req = Player.send('OP')
-        #     # pos = Player.send(f'{OB7.obstacle_rect.right}')
-        #     # OB8.position(int(pos))
-        #     # print(f"OBS POS REC - {int(pos)}")
-        #     req2 = Player.send('OBS_2')
-        #     obs_down3_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
-        # if OB9.check(0):
-        #     # req = Player.send('OP')
-        #     # pos = Player.send(f'{OB8.obstacle_rect.right}')
-        #     # OB9.position(int(pos))
-        #     # print(f"OBS POS REC - {int(pos)}")
-        #     req2 = Player.send('OBS_2')
-        #     obs_down4_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
-        # if OB10.check(0):
-        #     # req = Player.send('OP')
-        #     # pos = Player.send(f'{OB9.obstacle_rect.right}')
-        #     # OB10.position(int(pos))
-        #     # print(f"OBS POS REC - {int(pos)}")
-        #     req2 = Player.send('OBS_2')
-        #     obs_down5_rect.midright = read_obs_co(req2)[0], read_obs_co(req2)[1]
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    Player.client.send('!D'.encode(Player.format))
+                    print("EXITING")
+                    pygame.quit()
+                    sys.exit()
+
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        gravity = -5.8
+                        p1.angle += 5
+                        p1.going_up = True
+                        p1.animate()
+                        flap.play()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:  # event.button = 1 - left , 2-right, 3-middle,  4-wheel up, 5-wheel down
+                        gravity = -5.8
+                        p1.angle += 5
+                        p1.going_up = True
+                        p1.animate()
+                        flap.play()
+
+
+            if p1.hitbox.colliderect(OB1.hitbox_up) or p1.hitbox.colliderect(OB2.hitbox_up) or p1.hitbox.colliderect(OB3.hitbox_up):
+                print("COLLIDE1")
+                game_music.stop()
+                alive = Player.send('dead')
+            if p1.hitbox.colliderect(OB4.hitbox_up) or p1.hitbox.colliderect(OB5.hitbox_up) or p1.hitbox.colliderect(OB6.hitbox_down):
+                print("COLLIDE2")
+                game_music.stop()
+                alive = Player.send('dead')
+            if p1.hitbox.colliderect(OB7.hitbox_down) or p1.hitbox.colliderect(OB8.hitbox_down) or p1.hitbox.colliderect(OB9.hitbox_down) or p1.hitbox.colliderect(OB10.hitbox_down):
+                print("COLLIDE3")
+                game_music.stop()
+                alive = Player.send('dead')
+
+            if OB1.hitbox_up.right in range(score_rangex, score_rangey) or OB2.hitbox_up.right in range(score_rangex, score_rangey) or OB3.hitbox_up.right in range(score_rangex, score_rangey) \
+                    or OB4.hitbox_up.right in range(score_rangex, score_rangey) or OB5.hitbox_up.right in range(score_rangex, score_rangey):
+                online_score += 1
+                score_s.play()
+
+            gravity += 0.4
+            p1.movey(gravity)
+
+            OB1.move(obs_up1_rect, tubespeed)
+            OB2.move(obs_up2_rect, tubespeed)
+            OB3.move(obs_up3_rect, tubespeed)
+            OB4.move(obs_up4_rect, tubespeed)
+            OB5.move(obs_up5_rect, tubespeed)
+            OB6.move(obs_down1_rect, tubespeed)
+            OB7.move(obs_down2_rect, tubespeed)
+            OB8.move(obs_down3_rect, tubespeed)
+            OB9.move(obs_down4_rect, tubespeed)
+            OB10.move(obs_down5_rect, tubespeed)
+
+
+            #
+            # OB1.hitbox_up.right = OB1.hitbox_up.right - tubespeed
+            # OB2.hitbox_up.right = OB2.hitbox_up.right - tubespeed
+            # OB3.hitbox_up.right = OB3.hitbox_up.right - tubespeed
+            # OB4.hitbox_up.right = OB4.hitbox_up.right - tubespeed
+            # OB5.hitbox_up.right = OB5.hitbox_up.right - tubespeed
+            # OB6.hitbox_down.right = OB6.hitbox_down.right - tubespeed
+            # OB7.hitbox_down.right = OB7.hitbox_down.right - tubespeed
+            # OB8.hitbox_down.right = OB8.hitbox_down.right - tubespeed
+            # OB9.hitbox_down.right = OB9.hitbox_down.right - tubespeed
+            # OB10.hitbox_down.right = OB10.hitbox_down.right - tubespeed
+
+            if OB1.check(0):
+                req2 = Player.send('OBS_1')
+                print(f"UP CO REC {req2}")
+                obs_down1_rect.bottom = int(req2)
+                req3 = Player.send('OBS_2')
+                print(f"DOWN CO REC {req3}")
+                obs_up1_rect.top = int(req3)
+                req = Player.send('OP')
+                pos = Player.send(f'{OB5.obstacle_rect.right}')
+                print(f"OBS POS REC - {int(pos)}")
+                OB1.position(int(pos))
+                OB6.position(int(pos))
+
+
+            if OB2.check(0):
+                req2 = Player.send('OBS_1')
+                print(f"UP CO REC {req2}")
+                obs_down2_rect.bottom = int(req2)
+                req2 = Player.send('OBS_2')
+                obs_up2_rect.top = int(req2)
+                print(f"DOWN CO REC {req2}")
+                req = Player.send('OP')
+                pos = Player.send(f'{OB1.obstacle_rect.right}')
+                OB2.position(int(pos))
+                OB7.position(int(pos))
+                print(f"OBS POS REC - {int(pos)}")
+
+            if OB3.check(0):
+                req2 = Player.send('OBS_1')
+                print(f"UP CO REC {req2}")
+                obs_down3_rect.bottom = int(req2)
+                req2 = Player.send('OBS_2')
+                print(f"DOwn CO REC {req2}")
+                obs_up3_rect.top = int(req2)
+                req = Player.send('OP')
+                pos = Player.send(f'{OB2.obstacle_rect.right}')
+                OB3.position(int(pos))
+                OB8.position(int(pos))
+                print(f"OBS POS REC - {int(pos)}")
+
+            if OB4.check(0):
+                req2 = Player.send('OBS_1')
+                print(f"UP CO REC {req2}")
+                obs_down4_rect.bottom = int(req2)
+                req2 = Player.send('OBS_2')
+                print(f"down CO REC {req2}")
+                obs_up4_rect.top = int(req2)
+                req = Player.send('OP')
+                pos = Player.send(f'{OB3.obstacle_rect.right}')
+                OB4.position(int(pos))
+                OB9.position(int(pos))
+                print(f"OBS POS REC - {int(pos)}")
+
+            if OB5.check(0):
+                req2 = Player.send('OBS_1')
+                print(f"UP CO REC {req2}")
+                obs_down5_rect.bottom = int(req2)
+                req2 = Player.send('OBS_2')
+                print(f"down CO REC {req2}")
+                obs_up5_rect.top = int(req2)
+                req = Player.send('OP')
+                pos = Player.send(f'{OB4.obstacle_rect.right}')
+                OB5.position(int(pos))
+                OB10.position(int(pos))
+                print(f"OBS POS REC - {int(pos)}")
 
 
 
-        if p1.rect.top >= SET_HEIGHT - 100:
-            p1.rect.bottom = SET_HEIGHT - 30
-            game_music.stop()
-            alive = Player.send('dead')
-        if p1.rect.top <= 0:
-            p1.rect.top = 0
-            game_music.stop()
-            alive = Player.send('dead')
+            if p1.rect.top >= SET_HEIGHT - 100:
+                p1.rect.bottom = SET_HEIGHT - 30
+                game_music.stop()
+                alive = Player.send('dead')
+            if p1.rect.top <= 0:
+                p1.rect.top = 0
+                game_music.stop()
+                alive = Player.send('dead')
 
 
-        if not int(alive):
-            Player.client.send('!D'.encode(Player.format))
-            exit_online_screne(online_score)
+            if not int(alive):
+                Player.client.send('!D'.encode(Player.format))
+                loosing_screen(online_score)
 
+            else:
+                won = Player.send('winner?')
+                if int(won):
+                    Player.client.send('RESET'.encode(Player.format))
+                    Player.client.send('!D'.encode(Player.format))
+                    game_music.stop()
+                    winning_screne(online_score)
+
+
+
+            online_score_text = font_menu.render(str(score), True, 'black')
+            online_score_rect = online_score_text.get_rect()
+            online_score_rect.right = SET_WIDTH-50
+            online_score_rect.top = 15
+
+            # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
+            # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
+            # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
+            # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
+            # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
+            # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
+            # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
+            # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
+            # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
+            # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
+            # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
+            #
+            # pygame.draw.rect(screen, 'black', p1.rect, 2)
+            # pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB4.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB5.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB6.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB7.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB8.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
+            # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
+
+            # screen.blit(p2.image, p2.rect.center)
+
+            animate_player_2.draw(screen)
+            # animate_player.draw(screen)
+            screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width() / 2, p1.hitbox.center[1] - p1_image.get_height() / 2))
+            animate_player.update(0)
+            animate_player_2.update(1)
+            screen.blit(online_score_text, (online_score_rect.left, online_score_rect.top))
+            screen.blit(base_image_scaled, (0, 750))
+            pygame.display.update()
+            clock.tick(60)
         else:
-            won = Player.send('winner?')
-            if int(won):
+            winner_dec = Player.send('winner?')
+            if not int(winner_dec):
                 Player.client.send('RESET'.encode(Player.format))
                 Player.client.send('!D'.encode(Player.format))
-                game_music.stop()
+                error_screen()
+            else:
+                Player.client.send('!D'.encode(Player.format))
+                Player.client.send('RESET'.encode(Player.format))
                 winning_screne(online_score)
 
 
 
-        online_score_text = font_menu.render(str(score), True, 'black')
-        online_score_rect = online_score_text.get_rect()
-        online_score_rect.right = SET_WIDTH-50
-        online_score_rect.top = 15
 
-        # pygame.draw.rect(screen, 'black', p1.hitbox, 2)
-        # pygame.draw.rect(screen, 'black', OB1.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB2.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB3.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB4.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB5.hitbox_up, 2)
-        # pygame.draw.rect(screen, 'black', OB6.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB7.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB8.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB9.hitbox_down, 2)
-        # pygame.draw.rect(screen, 'black', OB10.hitbox_down, 2)
-        #
-        # pygame.draw.rect(screen, 'black', p1.rect, 2)
-        # pygame.draw.rect(screen, 'black', OB1.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB2.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB3.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB4.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB5.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB6.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB7.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB8.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB9.obstacle_rect, 2)
-        # pygame.draw.rect(screen, 'black', OB10.obstacle_rect, 2)
+def error_screen():
 
-        # screen.blit(p2.image, p2.rect.center)
+    menu_but = button('MAIN MENU', SET_WIDTH/2-150, SET_HEIGHT/2+100, 300, 50)
+    error_text = pause_font.render('Player 2 Disconnected', True, 'black')
+    error_text_rect = error_text.get_rect()
+    error_text_rect.center = SET_WIDTH/2, SET_HEIGHT/2 - 100
 
-        animate_player_2.draw(screen)
-        # animate_player.draw(screen)
-        screen.blit(p1_image, (p1.hitbox.center[0] - p1_image.get_width() / 2, p1.hitbox.center[1] - p1_image.get_height() / 2))
-        animate_player.update(0)
-        animate_player_2.update(1)
-        screen.blit(online_score_text, (online_score_rect.left, online_score_rect.top))
-        screen.blit(base_image_scaled, (0, 750))
+    while True:
+        screen.fill('black')
+        screen.blit(background_menu, (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if menu_but.check_click():
+                    exit_screen_sound.stop()
+                    main_menu(1)
+
+        screen.blit(error_text, error_text_rect)
+        menu_but.draw()
         pygame.display.update()
-        clock.tick(60)
 
 
-def exit_online_screne(online_score):
+
+
+def loosing_screen(online_score):
 
     global HIGH_SCORE
 
@@ -1061,7 +1064,7 @@ def exit_online_screne(online_score):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if main_menu_button.check_click():
                     exit_screen_sound.stop()
@@ -1093,7 +1096,7 @@ def winning_screne(online_score):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if main_menu_button.check_click():
                     exit_screen_sound.stop()
@@ -1485,9 +1488,6 @@ def intermediate(p1, score, arr):
                 print("EXITING")
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    main_menu(1)
 
         if touch == 0 and new_height == initial_height:
             hit.play()
