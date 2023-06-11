@@ -12,8 +12,9 @@ class Board:
     def __init__(self, rows, columns):
         self.rows = rows
         self.columns = columns
-
         self.board = [[0 for x in range(8)] for _ in range(self.rows)]
+        self.temp_var = self.board[0][0]
+        self.status = False
 
         self.board[0][0] = Rook(0, 0, 'b')
         self.board[0][1] = Knight(0, 1, 'b')
@@ -32,6 +33,8 @@ class Board:
         self.board[1][5] = Pawn(1, 5, 'b')
         self.board[1][6] = Pawn(1, 6, 'b')
         self.board[1][7] = Pawn(1, 7, 'b')
+
+        self.board[4][3] = Knight(4, 3, 'w')
 
         self.board[7][0] = Rook(7, 0, 'w')
         self.board[7][1] = Knight(7, 1, 'w')
@@ -55,7 +58,15 @@ class Board:
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.board[i][j] != 0:
-                    self.board[i][j].draw(screen)
+                    if self.board[i][j].selected:
+                        self.temp_var = self.board[i][j]
+                        self.status = True
+                    else:
+                        self.board[i][j].draw(screen, self.board)
+        if self.status:
+            self.temp_var.draw(screen, self.board)
+            self.status = False
+
     def selected(self, k, l):
         for i in range(self.rows):
             for j in range(self.columns):
