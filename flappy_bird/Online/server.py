@@ -88,7 +88,7 @@ def read_obs_co(msg):
 #     return int(message[0]), int(message[1])
 
 
-position = [(-100, -100),(-100, -100)]
+position = [(-100, -100), (-100, -100)]
 status = [0, 0]
 winner = [0, 0]
 
