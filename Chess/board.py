@@ -1,3 +1,4 @@
+import sys
 import pygame
 from Pieces import Pawn
 from Pieces import Bishop
@@ -7,16 +8,21 @@ from Pieces import Rook
 from Pieces import Knight
 
 
+pygame.init()
+pygame.font.init()
+my_font = pygame.font.SysFont('monospace', 50)
+
+
 class Board:
 
-    def __init__(self, rows, columns):
+    def __init__(self, rows, columns, screen):
         self.rows = rows
         self.columns = columns
         self.board = [[0 for x in range(8)] for _ in range(self.rows)]
         self.temp_var = self.board[0][0]
         self.status = False
         self.check_pawn = Pawn(0, 0, 'b')
-
+        self.screen = screen
 
         self.board[0][0] = Rook(0, 0, 'b')
         self.board[0][1] = Knight(0, 1, 'b')
@@ -78,29 +84,12 @@ class Board:
                     else:
                         self.board[i][j].selected = False
 
-        # if self.board[k][l] != 0:
-        #     if self.board[k][l].selected:
-        #         self.board[k][l].selected = False
-        #     else:
-        #         self.board[k][l].selected = True
-
         if self.board[k][l] != 0:
-            if self.check_selected(k, l):
+            if self.board[k][l].selected:
                 self.board[k][l].selected = False
             else:
                 self.board[k][l].selected = True
 
-    def move(self, init_row, init_col):
-        pass
-
-
-
-    def check_selected(self, i, j):
-        if self.board[i][j] != 0:
-            if self.board[i][j].selected:
-                return True
-            else:
-                return False
 
     def deselect_all(self):
         for i in range(self.rows):
@@ -120,11 +109,105 @@ class Board:
 
 
     def move_piece(self, oi, oj, ni, nj):
-        self.board[ni][nj] = self.board[oi][oj]
         self.board[oi][oj].move(ni, nj)
+
         if type(self.board[oi][oj]) == type(self.check_pawn):
             self.board[oi][oj].times_moved = 1
+
+            if self.board[oi][oj].color == 'w':
+                if ni == 0:
+                    new_piece = self.change_piece()
+                    if new_piece == 'Q':
+                        self.board[ni][nj] = Queen(ni, nj, 'w')
+                        self.board[oi][oj].has_changed = True
+                    if new_piece == 'B':
+                        self.board[ni][nj] = Bishop(ni, nj, 'w')
+                        self.board[oi][oj].has_changed = True
+                    if new_piece == 'R':
+                        self.board[ni][nj] = Rook(ni, nj, 'w')
+                        self.board[oi][oj].has_changed = True
+                    if new_piece == 'K':
+                        self.board[ni][nj] = Knight(ni, nj, 'w')
+                        self.board[oi][oj].has_changed = True
+
+            else:
+                if ni == 7:
+                    new_piece = self.change_piece()
+                    if new_piece == 'Q':
+                        self.board[ni][nj] = Queen(ni, nj, 'b')
+                        self.board[oi][oj].has_changed = True
+                    if new_piece == 'B':
+                        self.board[ni][nj] = Bishop(ni, nj, 'b')
+                        self.board[oi][oj].has_changed = True
+                    if new_piece == 'R':
+                        self.board[ni][nj] = Rook(ni, nj, 'b')
+                        self.board[oi][oj].has_changed = True
+                    if new_piece == 'K':
+                        self.board[ni][nj] = Knight(ni, nj, 'b')
+                        self.board[oi][oj].has_changed = True
+
+
+        if type(self.board[oi][oj]) == type(self.check_pawn) and self.board[oi][oj].has_changed:
+            pass
+        else:
+            self.board[ni][nj] = self.board[oi][oj]
+
         self.board[oi][oj] = 0
 
     def return_valid(self, i, j):
         return self.board[i][j].return_valid_moves(self.board)
+
+
+    def change_piece(self):
+
+        return_piece = 'Q'
+
+        clock = pygame.time.Clock()
+        rect1 = pygame.Rect(1100/4 + 10, 900/4 + 10, 1100/2 - 20, 900/8)
+        rect2 = pygame.Rect(1100/4 + 10, 900/4 + 20 + 900/8, 1100/2 - 20, 900/8)
+        rect3 = pygame.Rect(1100/4 + 10, 900/4 + 30 + 900/4, 1100/2 - 20, 900/8)
+        rect4 = pygame.Rect(1100/4 + 10, 900/4 + 40 + 900/8 + 900/4, 1100/2 - 20, 900/8)
+        text1 = my_font.render('QUEEN', True, 'white')
+        text2 = my_font.render('BISHOP', True, 'white')
+        text3 = my_font.render('ROOK', True, 'white')
+        text4 = my_font.render('KNIGHT', True, 'white')
+
+        while True:
+            clock.tick(60)
+            mpos = pygame.mouse.get_pos()
+
+            pygame.draw.rect(self.screen, 'black', (1100/4, 900/4, 1100/2, 900/2 + 50), 0)
+            pygame.draw.rect(self.screen, 'red', rect1, 0)
+            pygame.draw.rect(self.screen, 'red', rect2, 0)
+            pygame.draw.rect(self.screen, 'red', rect3, 0)
+            pygame.draw.rect(self.screen, 'red', rect4, 0)
+
+            self.screen.blit(text1, (1100/4 + 200, 900/4 + 50))
+            self.screen.blit(text2, (1100/4 + 200, 900/4 + 60 + 900/8))
+            self.screen.blit(text3, (1100/4 + 200, 900/4 + 70 + 900/4))
+            self.screen.blit(text4, (1100/4 + 200, 900/4 + 80 + 900/8 + 900/4))
+
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+            if rect1.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+                return_piece = 'Q'
+                break
+            if rect2.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+                return_piece = "B"
+                break
+            if rect3.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+                return_piece = "R"
+                break
+            if rect4.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+                return_piece = "K"
+                break
+
+
+
+            pygame.display.update()
+
+        return return_piece

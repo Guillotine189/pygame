@@ -19,7 +19,7 @@ clock = pygame.time.Clock()
 # rect = pygame.rect.Rect(0, 0, WIDTH, HEIGHT)
 
 
-bo = Board(8, 8)
+bo = Board(8, 8, screen)
 
 def check_current_player_by_color(bo, i, j):
     if bo.board[i][j] != 0:
@@ -95,7 +95,7 @@ while True:
                     move = 0
                     bo.deselect_all()
                     print("DESELECTED")
-                else:
+                elif bo.board[i][j] != 0 and check_current_player_by_color(bo, i, j):
                     bo.selected(i, j)
                     start_row = i
                     start_col = j

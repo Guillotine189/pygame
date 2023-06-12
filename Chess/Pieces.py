@@ -626,6 +626,7 @@ class Rook(pieces):
 class Pawn(pieces):
     image = 5
     times_moved = 0
+    has_changed = False
     
     def valid_moves(self, board):
         moves = []
@@ -699,3 +700,4 @@ class Pawn(pieces):
                             moves.append((i + 1, j - 1))
 
             return moves
+
