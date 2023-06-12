@@ -54,6 +54,7 @@ class pieces:
         self.width = int(1100/8)
         self.height = int(900/8)
 
+
     def valid_moves(self, board):
         pass
 
@@ -73,6 +74,16 @@ class pieces:
                     pygame.draw.circle(screen, 'red', center, 15, 0)
 
             pygame.draw.rect(screen, 'red', (self.column * self.width, self.row * self.height, self.width, self.height), 2)
+
+
+    def move(self, new_row, new_column):
+        self.row = new_row
+        self.column = new_column
+
+    def return_valid_moves(self, board):
+        return self.valid_moves(board)
+
+
 
     # def de_select(self):
     #     self.selected = False
@@ -369,48 +380,73 @@ class King(pieces):
             p = board[i-1][j-1]
             if p == 0:
                 moves.append((i-1, j-1))
+            else:
+                # IF THE OTHER PLAYER IS NOT THE SAME COLOR AND NOT A KING
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i - 1, j - 1))
 
         # top middle
         if i > 0:
             p = board[i-1][j]
             if p == 0:
                 moves.append((i-1, j))
+            else:
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i - 1, j))
 
         # top right
         if i > 0 and j < 7:
             p = board[i-1][j+1]
             if p == 0:
                 moves.append((i-1, j+1))
+            else:
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i-1, j+1))
 
         # middle right
         if j < 7:
             p = board[i][j+1]
             if p == 0:
                 moves.append((i, j+1))
+            else:
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i, j + 1))
 
         # middle left
         if j > 0:
             p = board[i][j-1]
             if p == 0:
                 moves.append((i, j-1))
+            else:
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i, j - 1))
 
         # bottom left
         if i < 7 and j > 0:
             p = board[i+1][j-1]
             if p == 0:
                 moves.append((i+1, j-1))
+            else:
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i + 1, j - 1))
 
         # bottom middle
         if i < 7:
             p = board[i+1][j]
             if p == 0:
                 moves.append((i+1, j))
+            else:
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i + 1, j))
 
         # bottom right
         if i < 7 and j < 7:
             p = board[i+1][j+1]
             if p == 0:
                 moves.append((i+1, j+1))
+            else:
+                if p.color != self.color and type(p) != type(board[i][j]):
+                    moves.append((i + 1, j + 1))
 
         return moves
 
@@ -586,46 +622,77 @@ class Rook(pieces):
 
 class Pawn(pieces):
     image = 5
+    count = 0
 
     def valid_moves(self, board):
         moves = []
         i = self.row
         j = self.column
 
+        if self.count == 0:
+            border_w = i - 2
+            border_b = i + 2
+        else:
+            border_w = i - 1
+            border_b = i + 1
+
         if self.color == "w":
             if self.row > 0:
                 arr = []
-                for x in range(0, i):
+                for x in range(border_w, i):
                     p = board[x][j]
                     if p != 0:
                         arr.append(x)
-                if len(arr) == 0:
-                    for k in range(0, i):
-                        moves.append((k, j))
-                else:
-                    if type(board[arr[len(arr) - 1]][j]) == type(board[i][j]) and board[arr[len(arr) - 1]][j].color != self.color:
-                            moves.append((arr[len(arr) - 1], j))
 
+                # FOR FORWARDS
+                if len(arr) == 0:
+                    for k in range(border_w, i):
+                        moves.append((k, j))
+
+                else:
                     for k in range(arr[len(arr) - 1] + 1, i):
                         moves.append((k, j))
+
+                # FOR SIDES
+                if j < 7:
+                    p = board[i - 1][j + 1]
+                    if p!= 0:
+                        if p.color != self.color:
+                            moves.append((i - 1, j + 1))
+                if j > 0:
+                    p = board[i - 1][j - 1]
+                    if p!= 0:
+                        if p.color != self.color:
+                            moves.append((i - 1, j - 1))
 
             return moves
 
         elif self.color == "b":
             if self.row < 7:
 
-                first_obs = 8
-                for x in range(i + 1, 8):
+                first_obs = border_b + 1
+                for x in range(i + 1, border_b + 1):
                     p = board[x][j]
                     if p != 0:
                         first_obs = x
                         break
 
                 # available spots
-                if type(board[first_obs][j]) == type(board[i][j]) and board[first_obs][j].color != self.color:
-                    moves.append((first_obs, j))
 
                 for k in range(i + 1, first_obs):
                     moves.append((k, j))
+
+                # FOR SIDES
+                if j < 7:
+                    p = board[i + 1][j + 1]
+                    if p!= 0:
+                        if p.color != self.color:
+                            moves.append((i + 1, j + 1))
+
+                if j > 0:
+                    p = board[i + 1][j - 1]
+                    if p!= 0:
+                        if p.color != self.color:
+                            moves.append((i + 1, j - 1))
 
             return moves

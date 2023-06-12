@@ -34,7 +34,7 @@ class Board:
         self.board[1][6] = Pawn(1, 6, 'b')
         self.board[1][7] = Pawn(1, 7, 'b')
 
-        self.board[4][3] = Knight(4, 3, 'w')
+        self.board[5][4] = Queen(5, 4, 'b')
 
         self.board[7][0] = Rook(7, 0, 'w')
         self.board[7][1] = Knight(7, 1, 'w')
@@ -76,8 +76,59 @@ class Board:
                     else:
                         self.board[i][j].selected = False
 
+        # if self.board[k][l] != 0:
+        #     if self.board[k][l].selected:
+        #         self.board[k][l].selected = False
+        #     else:
+        #         self.board[k][l].selected = True
+
         if self.board[k][l] != 0:
-            if self.board[k][l].selected:
+            if self.check_selected(k, l):
                 self.board[k][l].selected = False
             else:
                 self.board[k][l].selected = True
+
+    def move(self, init_row, init_col):
+        pass
+
+
+
+    def check_selected(self, i, j):
+        if self.board[i][j] != 0:
+            if self.board[i][j].selected:
+                return True
+            else:
+                return False
+
+    def deselect_all(self):
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if self.board[i][j] != 0:
+                    self.board[i][j].selected = False
+
+    def check_any_selected(self):
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if self.board[i][j] != 0:
+                    if self.board[i][j].selected:
+                        return True
+
+        return False
+
+
+    # def check_sected_valid_moves(self,i ,j):
+    #     arr = self.board[i][j].return_valid_moves(self.board)
+
+        # if i,j in self.board[i][j].return_valid_moves():
+        #     return True
+        # else:
+        #     return False
+
+
+    def move_piece(self, oi, oj, ni, nj):
+        self.board[ni][nj] = self.board[oi][oj]
+        self.board[oi][oj].move(ni, nj)
+        self.board[oi][oj] = 0
+
+    def return_valid(self, i, j):
+        return self.board[i][j].return_valid_moves(self.board)

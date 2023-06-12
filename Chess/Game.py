@@ -22,7 +22,11 @@ clock = pygame.time.Clock()
 bo = Board(8, 8)
 
 
-
+def check_element_in_arr(element, arr):
+    for i in arr:
+        if i == element:
+            return True
+    return False
 
 def click(mpos):
     y_co = int(mpos[0]/(WIDTH/8))
@@ -31,6 +35,9 @@ def click(mpos):
 
 
 
+move = 0
+start_row = 0
+start_col = 0
 
 while True:
     mpos = pygame.mouse.get_pos()
@@ -49,7 +56,39 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             i, j = click(mpos)
             print(i, j)
-            bo.selected(i, j)
+            if move == 0:
+                bo.selected(i, j)
+                start_row = i
+                start_col = j
+
+            if bo.check_any_selected() and move == 0:
+                move += 1
+                print("SELECTED")
+            elif bo.check_any_selected() and move == 1:
+                valid_moves = bo.return_valid(start_row, start_col)
+
+                if (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color) and check_element_in_arr((i, j), valid_moves):
+                    move = 0
+                    print("MOVED")
+                    bo.move_piece(start_row, start_col, i, j)
+                    bo.deselect_all()
+                elif (i, j) == (start_row, start_col):
+                    move = 0
+                    bo.deselect_all()
+                    print("DESELECTED")
+                elif bo.board[i][j] == 0:
+                    move = 0
+                    bo.deselect_all()
+                    print("DESELECTED")
+                else:
+                    bo.selected(i, j)
+                    start_row = i
+                    start_col = j
+                    print("NEW SELECTED")
+            else:
+                move = 0
+                print("DESELECTED")
+
 
     pygame.display.update()
     clock.tick(60)
