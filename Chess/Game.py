@@ -49,6 +49,13 @@ start_col = 0
 current_player_color = 'w'
 
 
+def change_current_player_color():
+    global current_player_color
+    if current_player_color == 'w':
+        current_player_color = 'b'
+    else:
+        current_player_color = 'w'
+
 
 while True:
     mpos = pygame.mouse.get_pos()
@@ -81,12 +88,15 @@ while True:
                 if (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color) and check_element_in_arr((i, j), valid_moves):
                     move = 0
                     print("MOVED")
-                    bo.move_piece(start_row, start_col, i, j)
+                    king_did_not_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
                     bo.deselect_all()
-                    if current_player_color == 'w':
-                        current_player_color = 'b'
+                    if king_did_not_move:
+                        pass
                     else:
-                        current_player_color = 'w'
+                        if current_player_color == 'w':
+                            current_player_color = 'b'
+                        else:
+                            current_player_color = 'w'
                 elif (i, j) == (start_row, start_col):
                     move = 0
                     bo.deselect_all()

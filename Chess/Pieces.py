@@ -450,7 +450,23 @@ class King(pieces):
                 if p.color != self.color and type(p) != type(board[i][j]):
                     moves.append((i + 1, j + 1))
 
+        # danger_moves = self.king_danger_moves(board)
+        # for i in moves:
+        #     for j in danger_moves:
+        #         if i == j:
+        #             moves.remove(i)
+
         return moves
+
+
+
+
+
+
+
+
+
+
 
 
 
