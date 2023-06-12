@@ -6,19 +6,33 @@ from Pieces import King
 from Pieces import Queen
 from Pieces import Rook
 from Pieces import Knight
-# from Game import current_player_color
+
 
 
 pygame.init()
 pygame.font.init()
 my_font = pygame.font.SysFont('monospace', 50)
 
+check_list = []
+check_tup = ()
+
 
 def check_element_in_arr(element, arr):
+
     for i in arr:
-        for k in i:
-            if element == k:
+        if type(i) == type(check_tup):
+            # THIS IS A TUPLE
+            if element == i:
                 return True
+        elif type(i) == type(check_list) and len(i) > 0:
+            # THE TUPLES ARE IN A LIST
+            for j in i:
+                if element == j:
+                    return True
+        else:
+            # ZERO LENGTH LIST
+            pass
+
     return False
 
 
@@ -57,7 +71,7 @@ class Board:
         # self.board[1][6] = Pawn(1, 6, 'b')
         # self.board[1][7] = Pawn(1, 7, 'b')
 
-        self.board[5][4] = King(5, 4, 'b')
+        self.board[3][4] = King(3, 4, 'w')
 
         self.board[7][0] = Rook(7, 0, 'w')
         self.board[7][1] = Knight(7, 1, 'w')
@@ -69,12 +83,12 @@ class Board:
         self.board[7][7] = Rook(7, 7, 'w')
 
         # self.board[6][0] = Pawn(6, 0, 'w')
-        # self.board[6][1] = Pawn(6, 1, 'w')
-        # self.board[6][2] = Pawn(6, 2, 'w')
-        # self.board[6][3] = Pawn(6, 3, 'w')
-        # self.board[6][4] = Pawn(6, 4, 'w')
-        # self.board[6][5] = Pawn(6, 5, 'w')
-        # self.board[6][6] = Pawn(6, 6, 'w')
+        self.board[6][1] = Pawn(6, 1, 'w')
+        self.board[6][2] = Pawn(6, 2, 'w')
+        self.board[6][3] = Pawn(6, 3, 'w')
+        self.board[6][4] = Pawn(6, 4, 'w')
+        self.board[6][5] = Pawn(6, 5, 'w')
+        self.board[6][6] = Pawn(6, 6, 'w')
         # self.board[6][7] = Pawn(6, 7, 'w')
 
     def draw(self, screen):
@@ -125,7 +139,7 @@ class Board:
 
     def move_piece(self, oi, oj, ni, nj, color_current):
 
-        king_did_not_move = False
+        king_was_not_able_to_move = False
 
         if type(self.board[oi][oj]) == type(self.check_pawn):
             self.board[oi][oj].times_moved = 1
@@ -176,9 +190,10 @@ class Board:
         if color_current == 'w':
             if type(self.board[oi][oj]) == type(self.check_king) and self.board[oi][oj].color == 'w':
                 king_pos = oi, oj
+                after_moving_danger_spots = self.king_danger_moves_after_moving(king_pos[0], king_pos[1], ni, nj)
                 danger_spots = self.king_danger_moves(king_pos[0], king_pos[1])
-                if check_element_in_arr((ni, nj), danger_spots):
-                    king_did_not_move = True
+                if check_element_in_arr((ni, nj), danger_spots) or check_element_in_arr((ni, nj), after_moving_danger_spots):
+                    king_was_not_able_to_move = True
                     self.update_old_piece = False
                     self.remove_old_piece = False
                     self.move_old_piece = False
@@ -187,9 +202,13 @@ class Board:
         else:
             if type(self.board[oi][oj]) == type(self.check_king) and self.board[oi][oj].color == 'b':
                 king_pos = oi, oj
+                after_moving_danger_spots = self.king_danger_moves_after_moving(king_pos[0], king_pos[1], ni, nj)
                 danger_spots = self.king_danger_moves(king_pos[0], king_pos[1])
-                if check_element_in_arr((ni, nj), danger_spots):
-                    king_did_not_move = True
+
+                # BEFORE MOVING CHECKING IF THE POSSIBLE PATH ARE CUTTING WITH THE OTHER PLAYERS PATH
+                # AFTER MOVING CHECKING IF THE PATH MOVED TO IS CUTTING  WITH THE OTHER PLAYERS PATH
+                if check_element_in_arr((ni, nj), danger_spots) or check_element_in_arr((ni, nj), after_moving_danger_spots):
+                    king_was_not_able_to_move = True
                     self.update_old_piece = False
                     self.remove_old_piece = False
                     self.move_old_piece = False
@@ -197,20 +216,10 @@ class Board:
 
 
 
-
-        print(self.remove_old_piece)
-        print(self.move_old_piece)
-        print(self.update_old_piece)
-
-
         if self.update_old_piece:
             self.board[oi][oj].move(ni, nj)
-
-
         if self.move_old_piece:
             self.board[ni][nj] = self.board[oi][oj]
-
-
         if self.remove_old_piece:
             self.board[oi][oj] = 0
 
@@ -219,7 +228,24 @@ class Board:
         self.update_old_piece = True
 
 
-        return king_did_not_move
+        return king_was_not_able_to_move
+
+
+    def king_danger_moves_after_moving(self,ii, ij, k, l):
+        piece_at_new_pos = self.board[k][l]
+
+        self.board[k][l] = self.board[ii][ij] # new position has king
+        # self.board[ii][ij].move(k, l)
+        self.board[ii][ij] = 0
+
+        new_danger_moves = self.king_danger_moves(k, l)
+
+
+        self.board[ii][ij] = self.board[k][l]
+        self.board[k][l] = piece_at_new_pos
+        # self.board[k][l].move(ii, ij)
+
+        return new_danger_moves
 
 
     def king_danger_moves(self, k, l):
@@ -229,7 +255,23 @@ class Board:
             for j in range(self.columns):
                 if self.board[i][j] != 0:
                     if self.board[i][j].color != self.board[k][l].color:
-                        danger_moves.append(self.board[i][j].return_valid_moves(self.board))
+
+                        # ONLY CHECK THE LEFT AND RIGHT FOR PAWN
+                        if type(self.board[i][j]) == type(self.check_pawn):
+                            if self.board[i][j].color == 'b':
+                                if j < 7:
+                                    danger_moves.append((i + 1, j + 1))
+                                if j > 0:
+                                    danger_moves.append((i + 1, j - 1))
+
+                            else:
+                                if j < 7:
+                                    danger_moves.append((i - 1, j + 1))
+                                if j > 0:
+                                    danger_moves.append((i - 1, j - 1))
+
+                        else:
+                            danger_moves.append(self.board[i][j].return_valid_moves(self.board))
 
         return danger_moves
 
