@@ -21,6 +21,13 @@ clock = pygame.time.Clock()
 
 bo = Board(8, 8)
 
+def check_current_player_by_color(bo, i, j):
+    if bo.board[i][j] != 0:
+        if bo.board[i][j].my_color() == current_player_color:
+            return True
+        else:
+            return False
+
 
 def check_element_in_arr(element, arr):
     for i in arr:
@@ -39,6 +46,10 @@ move = 0
 start_row = 0
 start_col = 0
 
+current_player_color = 'w'
+
+
+
 while True:
     mpos = pygame.mouse.get_pos()
     screen.fill("black")
@@ -56,7 +67,7 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             i, j = click(mpos)
             print(i, j)
-            if move == 0:
+            if move == 0 and check_current_player_by_color(bo, i, j):
                 bo.selected(i, j)
                 start_row = i
                 start_col = j
@@ -72,6 +83,10 @@ while True:
                     print("MOVED")
                     bo.move_piece(start_row, start_col, i, j)
                     bo.deselect_all()
+                    if current_player_color == 'w':
+                        current_player_color = 'b'
+                    else:
+                        current_player_color = 'w'
                 elif (i, j) == (start_row, start_col):
                     move = 0
                     bo.deselect_all()

@@ -15,6 +15,8 @@ class Board:
         self.board = [[0 for x in range(8)] for _ in range(self.rows)]
         self.temp_var = self.board[0][0]
         self.status = False
+        self.check_pawn = Pawn(0, 0, 'b')
+
 
         self.board[0][0] = Rook(0, 0, 'b')
         self.board[0][1] = Knight(0, 1, 'b')
@@ -116,18 +118,12 @@ class Board:
         return False
 
 
-    # def check_sected_valid_moves(self,i ,j):
-    #     arr = self.board[i][j].return_valid_moves(self.board)
-
-        # if i,j in self.board[i][j].return_valid_moves():
-        #     return True
-        # else:
-        #     return False
-
 
     def move_piece(self, oi, oj, ni, nj):
         self.board[ni][nj] = self.board[oi][oj]
         self.board[oi][oj].move(ni, nj)
+        if type(self.board[oi][oj]) == type(self.check_pawn):
+            self.board[oi][oj].times_moved = 1
         self.board[oi][oj] = 0
 
     def return_valid(self, i, j):

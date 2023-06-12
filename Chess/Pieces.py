@@ -54,6 +54,8 @@ class pieces:
         self.width = int(1100/8)
         self.height = int(900/8)
 
+    def my_color(self):
+        return self.color
 
     def valid_moves(self, board):
         pass
@@ -174,7 +176,7 @@ class Queen(pieces):
                 p = board[ti+1][tj-1]
                 if p == 0:
                     moves.append((ti+1, tj-1))
-                    if ti + 1 > 0 and tj - 1 > 0:
+                    if ti + 1 < 7 and tj - 1 > 0:
                         if board[ti+2][tj-2] != 0:
                             if board[ti+2][tj-2].color != self.color:
                                 moves.append((ti + 2, tj - 2))
@@ -351,7 +353,7 @@ class Bishop(pieces):
                 p = board[ti+1][tj-1]
                 if p == 0:
                     moves.append((ti+1, tj-1))
-                    if ti + 1 > 0 and tj - 1 > 0:
+                    if ti + 1 < 7 and tj - 1 > 0:
                         if board[ti+2][tj-2] != 0:
                             if board[ti+2][tj-2].color != self.color:
                                 moves.append((ti + 2, tj - 2))
@@ -597,7 +599,7 @@ class Rook(pieces):
 
 
         # left
-        if i > 0:
+        if j > 0:
             # finding all the obstacle
             # arr will have positions(row) in increasing order
             arr = []
@@ -616,20 +618,21 @@ class Rook(pieces):
                 for k in range(first_obstacle_column + 1, j):
                     moves.append((i, k))
 
+
         return moves
 
 
 
 class Pawn(pieces):
     image = 5
-    count = 0
-
+    times_moved = 0
+    
     def valid_moves(self, board):
         moves = []
         i = self.row
         j = self.column
 
-        if self.count == 0:
+        if self.times_moved == 0:
             border_w = i - 2
             border_b = i + 2
         else:
