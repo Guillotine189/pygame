@@ -87,8 +87,9 @@ while True:
 
                 if (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color) and check_element_in_arr((i, j), valid_moves):
                     move = 0
-                    print("MOVED")
                     king_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
+                    bo.check('w')
+                    bo.check('b')
                     bo.deselect_all()
                     if king_was_not_able_to_move:
                         pass
@@ -97,6 +98,8 @@ while True:
                             current_player_color = 'b'
                         else:
                             current_player_color = 'w'
+
+                        print("MOVED")
                 elif (i, j) == (start_row, start_col):
                     move = 0
                     bo.deselect_all()

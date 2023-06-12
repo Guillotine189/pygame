@@ -53,6 +53,7 @@ class pieces:
         self.drawimage = None
         self.width = int(1100/8)
         self.height = int(900/8)
+        self.check = False
 
     def my_color(self):
         return self.color
@@ -67,6 +68,9 @@ class pieces:
             self.drawimage = B[self.image]
 
         screen.blit(self.drawimage, (self.column * self.width, self.row * self.height))
+        if self.check:
+            pygame.draw.rect(screen, 'blue', (self.column * self.width, self.row * self.height, self.width, self.height), 0)
+
         if self.selected:
 
             valid_moves = self.valid_moves(board)
@@ -74,6 +78,7 @@ class pieces:
                 for d in valid_moves:
                     center = d[1]*self.width + self.width/2, d[0]*self.height + self.height/2
                     pygame.draw.circle(screen, 'red', center, 15, 0)
+
 
             pygame.draw.rect(screen, 'red', (self.column * self.width, self.row * self.height, self.width, self.height), 2)
 
@@ -371,6 +376,7 @@ class Bishop(pieces):
 
 class King(pieces):
     image = 1
+    check = False
 
     def valid_moves(self, board):
         moves = []
@@ -450,25 +456,7 @@ class King(pieces):
                 if p.color != self.color and type(p) != type(board[i][j]):
                     moves.append((i + 1, j + 1))
 
-        # danger_moves = self.king_danger_moves(board)
-        # for i in moves:
-        #     for j in danger_moves:
-        #         if i == j:
-        #             moves.remove(i)
-
         return moves
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

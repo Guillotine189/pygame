@@ -18,8 +18,9 @@ check_tup = ()
 
 
 def check_element_in_arr(element, arr):
-
+    # print(arr)
     for i in arr:
+        # print(i, element)
         if type(i) == type(check_tup):
             # THIS IS A TUPLE
             if element == i:
@@ -27,6 +28,7 @@ def check_element_in_arr(element, arr):
         elif type(i) == type(check_list) and len(i) > 0:
             # THE TUPLES ARE IN A LIST
             for j in i:
+                # print(j, element)
                 if element == j:
                     return True
         else:
@@ -57,38 +59,43 @@ class Board:
         self.board[0][1] = Knight(0, 1, 'b')
         self.board[0][2] = Bishop(0, 2, 'b')
         self.board[0][3] = Queen(0, 3, 'b')
-        self.board[0][4] = King(0, 4, 'b')
+        # self.board[0][4] = King(0, 4, 'b')
         self.board[0][5] = Bishop(0, 5, 'b')
         self.board[0][6] = Knight(0, 6, 'b')
         self.board[0][7] = Rook(0, 7, 'b')
 
-        # self.board[1][0] = Pawn(1, 0, 'b')
-        # self.board[1][1] = Pawn(1, 1, 'b')
-        # self.board[1][2] = Pawn(1, 2, 'b')
-        # self.board[1][3] = Pawn(1, 3, 'b')
-        # self.board[1][4] = Pawn(1, 4, 'b')
-        # self.board[1][5] = Pawn(1, 5, 'b')
-        # self.board[1][6] = Pawn(1, 6, 'b')
-        # self.board[1][7] = Pawn(1, 7, 'b')
+        self.board[1][0] = Pawn(1, 0, 'b')
+        self.board[1][1] = Pawn(1, 1, 'b')
+        self.board[1][2] = Pawn(1, 2, 'b')
+        self.board[1][3] = Pawn(1, 3, 'b')
+        self.board[1][4] = Pawn(1, 4, 'b')
+        self.board[1][5] = Pawn(1, 5, 'b')
+        self.board[1][6] = Pawn(1, 6, 'b')
+        self.board[1][7] = Pawn(1, 7, 'b')
+        self.board[6][3] = Pawn(6, 3, 'w')
+        self.board[6][4] = Pawn(6, 4, 'w')
+        self.board[6][5] = Pawn(6, 5, 'w')
+        self.board[6][6] = Pawn(6, 6, 'w')
 
         self.board[3][4] = King(3, 4, 'w')
+        self.board[4][4] = King(4, 4, 'b')
 
         self.board[7][0] = Rook(7, 0, 'w')
         self.board[7][1] = Knight(7, 1, 'w')
         self.board[7][2] = Bishop(7, 2, 'w')
         self.board[7][4] = Queen(7, 4, 'w')
-        self.board[7][3] = King(7, 3, 'w')
+        # self.board[7][3] = King(7, 3, 'w')
         self.board[7][5] = Bishop(7, 5, 'w')
         self.board[7][6] = Knight(7, 6, 'w')
         self.board[7][7] = Rook(7, 7, 'w')
 
         # self.board[6][0] = Pawn(6, 0, 'w')
         self.board[6][1] = Pawn(6, 1, 'w')
-        self.board[6][2] = Pawn(6, 2, 'w')
-        self.board[6][3] = Pawn(6, 3, 'w')
-        self.board[6][4] = Pawn(6, 4, 'w')
-        self.board[6][5] = Pawn(6, 5, 'w')
-        self.board[6][6] = Pawn(6, 6, 'w')
+        # self.board[6][2] = Pawn(6, 2, 'w')
+        # self.board[6][3] = Pawn(6, 3, 'w')
+        # self.board[6][4] = Pawn(6, 4, 'w')
+        # self.board[6][5] = Pawn(6, 5, 'w')
+        # self.board[6][6] = Pawn(6, 6, 'w')
         # self.board[6][7] = Pawn(6, 7, 'w')
 
     def draw(self, screen):
@@ -214,6 +221,22 @@ class Board:
                     self.move_old_piece = False
                  #  Return 1 so that you will not change player
 
+        if self.check(color_current):
+            piece_at_new_pos = self.board[ni][nj]
+            self.board[ni][nj] = self.board[oi][oj]  # new position
+            self.board[oi][oj] = 0
+
+            if self.check(color_current):
+                king_was_not_able_to_move = True
+                self.update_old_piece = False
+                self.remove_old_piece = False
+                self.move_old_piece = False
+            else:
+                pass
+
+            self.board[oi][oj] = self.board[ni][nj]
+            self.board[ni][nj] = piece_at_new_pos
+
 
 
         if self.update_old_piece:
@@ -235,7 +258,7 @@ class Board:
         piece_at_new_pos = self.board[k][l]
 
         self.board[k][l] = self.board[ii][ij] # new position has king
-        # self.board[ii][ij].move(k, l)
+        # self.board[ii][ij].move(k, l            # self.board[ii][ij].move(k, l))
         self.board[ii][ij] = 0
 
         new_danger_moves = self.king_danger_moves(k, l)
@@ -270,6 +293,9 @@ class Board:
                                 if j > 0:
                                     danger_moves.append((i - 1, j - 1))
 
+                        elif isinstance(self.board[i][j], King):
+                            pass
+
                         else:
                             danger_moves.append(self.board[i][j].return_valid_moves(self.board))
 
@@ -279,6 +305,24 @@ class Board:
 
     def return_valid(self, i, j):
         return self.board[i][j].return_valid_moves(self.board)
+
+
+
+    def check(self, for_color):
+        position = 0, 0
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j], King):
+                    position = i, j
+
+        enemy_moves = self.king_danger_moves(position[0], position[1])
+        if check_element_in_arr((position[0],position[1]), enemy_moves):
+            self.board[position[0]][position[1]].check = True
+            print(f"CHECK FOR {for_color}")
+            return True
+        else:
+            self.board[position[0]][position[1]].check = False
+            return False
 
 
     def change_piece(self):
