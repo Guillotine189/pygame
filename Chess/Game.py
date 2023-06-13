@@ -5,7 +5,12 @@ from Pieces import Pawn
 
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
 font_ = pygame.font.SysFont('monospace', 70)
+
+
+move_sound = pygame.mixer.Sound('./sounds/move-self.mp3')
+check_sound = pygame.mixer.Sound('./sounds/move-check.mp3')
 
 # 139, 110 - size of block
 
@@ -55,13 +60,14 @@ current_player_color = 'w'
 
 def loosing_screen(text):
     text = text + ' WON'
-    text_ = font_.render(text, True, 'white')
+    text_ = font_.render(text, True, 'black')
     text_rect = text_.get_rect()
     back_rect = text_rect
     text_rect.center = 1100/2, 900/2
 
     while True:
-        pygame.draw.rect(screen, 'black', back_rect, 0)
+        pygame.draw.rect(screen, (150, 255, 0), back_rect, 0)
+        pygame.draw.rect(screen, (0, 0, 0), back_rect, 2)
         screen.blit(text_, text_rect)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -75,12 +81,13 @@ def loosing_screen(text):
         pygame.display.update()
 
 def stalemate_screen(text):
-    text_ = font_.render(text, True, 'white')
+    text_ = font_.render(text, True, 'black')
     text_rect = text_.get_rect()
     back_rect = text_rect
     text_rect.center = 1100/2, 900/2
     while True:
-        pygame.draw.rect(screen, 'black', back_rect, 0)
+        pygame.draw.rect(screen, (100, 255, 0), back_rect, 0)
+        pygame.draw.rect(screen, (0, 0, 0), back_rect, 2)
         screen.blit(text_, text_rect)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -128,8 +135,10 @@ while True:
                     piece_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
                     bo.deselect_all()
                     if piece_was_not_able_to_move:
+                        check_sound.play()
                         pass
                     else:
+                        move_sound.play()
                         if current_player_color == 'w':
                             current_player_color = 'b'
                         else:

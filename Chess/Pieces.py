@@ -7,12 +7,12 @@ rook_white = pygame.image.load('./images/rook.png')
 knight_white = pygame.image.load('./images/knight.png')
 pawn_white = pygame.image.load('./images/pawn.png')
 
-bishop_black = pygame.image.load('./images/bishop_black.png')
-king_black = pygame.image.load('./images/king_black.png')
-queen_black = pygame.image.load('./images/queen_black.png')
-rook_black = pygame.image.load('./images/rook_black.png')
-knight_black = pygame.image.load('./images/knight_black.png')
-pawn_black = pygame.image.load('./images/pawn_black.png')
+bishop_black = pygame.image.load('./images/bishop_black1.png')
+king_black = pygame.image.load('./images/king_black1.png')
+queen_black = pygame.image.load('./images/queen_black1.png')
+rook_black = pygame.image.load('./images/rook_black1.png')
+knight_black = pygame.image.load('./images/knight_black1.png')
+pawn_black = pygame.image.load('./images/pawn_black1.png')
 
 a = []
 a.append(bishop_white)
