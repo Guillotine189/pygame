@@ -253,21 +253,74 @@ class Board:
 
         return piece_was_not_able_to_move
 
-    def king_danger_moves_after_moving(self,ii, ij, k, l):
-        piece_at_new_pos = self.board[k][l]
-
-        self.board[k][l] = self.board[ii][ij] # new position has king
-        # self.board[ii][ij].move(k, l            # self.board[ii][ij].move(k, l))
-        self.board[ii][ij] = 0
-
-        new_danger_moves = self.king_danger_moves(k, l)
 
 
-        self.board[ii][ij] = self.board[k][l]
-        self.board[k][l] = piece_at_new_pos
-        # self.board[k][l].move(ii, ij)
 
-        return new_danger_moves
+
+    def check_valid_moves(self, oi, oj, ni, nj, color_current):
+        if self.board[ni][nj] != 0:
+            piece_at_new_pos = self.board[ni][nj]
+            self.board[ni][nj] = self.board[oi][oj]  # new position
+            self.board[oi][oj] = 0
+
+            if self.check(color_current):
+                # FINDING KINGS POSITION
+                position = 0, 0
+                for i in range(self.rows):
+                    for j in range(self.columns):
+                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(
+                                self.board[i][j], King):
+                            position = i, j
+                # CHANGING CHECK STATUS TO FALSE BECAUSE WHEN CHECK() FUNC IN USED IT TURNS IT TRUE IF KING WAS CHECKED
+                self.board[position[0]][position[1]].check = False
+                self.board[oi][oj] = self.board[ni][nj]
+                self.board[ni][nj] = piece_at_new_pos
+                # THIS PRODUCES CHECK SO RETURN NOT A VALID MOVE
+                return False
+
+            else:
+                self.board[oi][oj] = self.board[ni][nj]
+                self.board[ni][nj] = piece_at_new_pos
+                return True
+
+            # IF NEW POSITION DOES NOT HAVE A PIECE
+        else:
+            self.board[ni][nj] = self.board[oi][oj]  # new position
+            self.board[oi][oj] = 0
+
+            if self.check(color_current):
+                position = 0, 0
+                for i in range(self.rows):
+                    for j in range(self.columns):
+                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
+                            position = i, j
+
+                self.board[position[0]][position[1]].check = False
+                self.board[oi][oj] = self.board[ni][nj]
+                self.board[ni][nj] = 0
+                return False
+            else:
+                self.board[oi][oj] = self.board[ni][nj]
+                self.board[ni][nj] = 0
+                return True
+
+
+
+    # def king_danger_moves_after_moving(self,ii, ij, k, l):
+    #     piece_at_new_pos = self.board[k][l]
+    #
+    #     self.board[k][l] = self.board[ii][ij] # new position has king
+    #     # self.board[ii][ij].move(k, l            # self.board[ii][ij].move(k, l))
+    #     self.board[ii][ij] = 0
+    #
+    #     new_danger_moves = self.king_danger_moves(k, l)
+    #
+    # 
+    #     self.board[ii][ij] = self.board[k][l]
+    #     self.board[k][l] = piece_at_new_pos
+    #     # self.board[k][l].move(ii, ij)
+    #
+    #     return new_danger_moves
 
     def king_danger_moves(self, k, l):
         danger_moves = []
@@ -295,14 +348,14 @@ class Board:
                             pass
 
                         else:
-                            danger_moves.append(self.board[i][j].return_valid_moves(self.board))
+                            danger_moves.append(self.board[i][j].return_possible_moves(self.board))
 
         return danger_moves
 
 
 
     def return_valid(self, i, j):
-        return self.board[i][j].return_valid_moves(self.board)
+        return self.board[i][j].return_possible_moves(self.board)
 
 
 
@@ -316,84 +369,52 @@ class Board:
         enemy_moves = self.king_danger_moves(position[0], position[1])
         if check_element_in_arr((position[0], position[1]), enemy_moves):
             self.board[position[0]][position[1]].check = True
-            print(f"CHECK FOR {for_color}")
             return True
         else:
             self.board[position[0]][position[1]].check = False
             return False
 
     def checkmate(self, for_color):
-        position = 0, 0
-        for i in range(self.rows):
-            for j in range(self.columns):
-                if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j], King):
-                    position = i, j
 
-        kings_valid_moves = self.board[position[0]][position[1]].return_valid_moves(self.board)
+        if self.check(for_color):
+            # IF KING IN CHECK
 
-        can_move = True
-        for i in kings_valid_moves:
-            piece_at_new_pos = self.board[i[0]][i[1]]
-            self.board[i[0]][i[1]] = self.board[position[0]][position[1]]  # assuming the move is done
-            self.board[position[0]][position[1]] = 0
-            after_moving_enemy_moves = self.king_danger_moves(i[0], i[1])
-
-            if check_element_in_arr((i[0], i[1]), after_moving_enemy_moves):
-                can_move = False
-            else:
-                can_move = True
-                self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
-                self.board[i[0]][i[1]] = piece_at_new_pos
-                break
-
-            self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
-            self.board[i[0]][i[1]] = piece_at_new_pos
-
-        enemy_moves = self.king_danger_moves(position[0], position[1]) # initial
-        if check_element_in_arr((position[0], position[1]), enemy_moves) and not can_move:
-            print("CHECKMATE")
-
+            for i in range(8):
+                for j in range(8):
+                    if self.board[i][j] != 0:
+                        if self.board[i][j].color == for_color:
+                            all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
+                            for move in all_possible_moves_for_a_piece:
+                                if self.check_valid_moves(i, j, move[0], move[1], for_color):  # TRUE FOR VALID
+                                    # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETURN NOT CHECKMATE
+                                    return 0
+                                else:
+                                    pass
+            # IF FOR EVERY POSSIBLE MOVES FOR EVERY PIECE NO POSITION WAS FOUND
+            # SUCH THAT A CHECK WAS NOT PRODUCED
+            # BECAUSE THE KING IS ALREADY IN CHECK RETUEN 1
             return 1
+        # KING WAS NOT IN CHECK SO RETURN NOT CHECKMATE
         else:
             return 0
+
 
 
     def stalemate(self, for_color):
 
-        position = 0, 0
-        for i in range(self.rows):
-            for j in range(self.columns):
-                if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j],
-                                                                                                King):
-                    position = i, j
-
-        kings_valid_moves = self.board[position[0]][position[1]].return_valid_moves(self.board)
-
-        can_move = True
-        for i in kings_valid_moves:
-            piece_at_new_pos = self.board[i[0]][i[1]]
-            self.board[i[0]][i[1]] = self.board[position[0]][position[1]]  # assuming the move is done
-            self.board[position[0]][position[1]] = 0
-            after_moving_enemy_moves = self.king_danger_moves(i[0], i[1])
-
-            if check_element_in_arr((i[0], i[1]), after_moving_enemy_moves):
-                can_move = False
-            else:
-                can_move = True
-                self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
-                self.board[i[0]][i[1]] = piece_at_new_pos
-                break
-
-            self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
-            self.board[i[0]][i[1]] = piece_at_new_pos
-
-        if not can_move:
-            print("STALEMATE")
-            return 1
-        else:
-            return 0
-
-
+        for i in range(8):
+            for j in range(8):
+                if self.board[i][j] != 0:
+                    if self.board[i][j].color == for_color:
+                        all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
+                        for move in all_possible_moves_for_a_piece:
+                            if self.check_valid_moves(i, j, move[0], move[1], for_color): # TRUE FOR VALID
+                                # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETUEN NOT STALEMATE IE 0
+                                return 0
+                            else:
+                                pass
+        
+        return 1
 
     def change_piece(self):
 

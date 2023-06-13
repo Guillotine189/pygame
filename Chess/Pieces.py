@@ -58,7 +58,7 @@ class pieces:
     def my_color(self):
         return self.color
 
-    def valid_moves(self, board):
+    def possible_moves(self, board):
         pass
 
     def draw(self, screen, board):
@@ -73,9 +73,9 @@ class pieces:
 
         if self.selected:
 
-            valid_moves = self.valid_moves(board)
-            if len(valid_moves):
-                for d in valid_moves:
+            possible_moves = self.possible_moves(board)
+            if len(possible_moves):
+                for d in possible_moves:
                     center = d[1]*self.width + self.width/2, d[0]*self.height + self.height/2
                     pygame.draw.circle(screen, 'red', center, 15, 0)
 
@@ -87,8 +87,8 @@ class pieces:
         self.row = new_row
         self.column = new_column
 
-    def return_valid_moves(self, board):
-        return self.valid_moves(board)
+    def return_possible_moves(self, board):
+        return self.possible_moves(board)
 
 
 
@@ -102,7 +102,7 @@ class pieces:
 class Queen(pieces):
     image = 2
 
-    def valid_moves(self, board):
+    def possible_moves(self, board):
         moves = []
         i = self.row
         j = self.column
@@ -281,7 +281,7 @@ class Queen(pieces):
 class Bishop(pieces):
     image = 0
 
-    def valid_moves(self, board):
+    def possible_moves(self, board):
         moves = []
         i = self.row
         j = self.column
@@ -378,7 +378,7 @@ class King(pieces):
     image = 1
     check = False
 
-    def valid_moves(self, board):
+    def possible_moves(self, board):
         moves = []
         i = self.row
         j = self.column
@@ -463,7 +463,7 @@ class King(pieces):
 class Knight(pieces):
     image = 4
 
-    def valid_moves(self, board):
+    def possible_moves(self, board):
         moves = []
         i = self.row
         j = self.column
@@ -539,7 +539,7 @@ class Knight(pieces):
 class Rook(pieces):
     image = 3
 
-    def valid_moves(self, board):
+    def possible_moves(self, board):
         moves = []
         i = self.row
         j = self.column
@@ -632,7 +632,7 @@ class Pawn(pieces):
     times_moved = 0
     has_changed = False
     
-    def valid_moves(self, board):
+    def possible_moves(self, board):
         moves = []
         i = self.row
         j = self.column
