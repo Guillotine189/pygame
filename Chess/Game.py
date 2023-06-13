@@ -1,8 +1,11 @@
 import sys
 from board import Board
 import pygame
+from Pieces import Pawn
 
 pygame.init()
+pygame.font.init()
+font_ = pygame.font.SysFont('monospace', 100)
 
 # 139, 110 - size of block
 
@@ -49,12 +52,46 @@ start_col = 0
 current_player_color = 'w'
 
 
-def change_current_player_color():
-    global current_player_color
-    if current_player_color == 'w':
-        current_player_color = 'b'
-    else:
-        current_player_color = 'w'
+
+def loosing_screen(text):
+    text = text + ' WON'
+    text_ = font_.render(text, True, 'white')
+    text_rect = text_.get_rect()
+    back_rect = text_rect
+    text_rect.center = 1100/2, 900/2
+
+    while True:
+        pygame.draw.rect(screen, 'black', back_rect, 0)
+        screen.blit(text_, text_rect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
+
+def stalemate_screen(text):
+    text_ = font_.render(text, True, 'white')
+    text_rect = text_.get_rect()
+    back_rect = text_rect
+    text_rect.center = 1100/2, 900/2
+    while True:
+        pygame.draw.rect(screen, 'black', back_rect, 0)
+        screen.blit(text_, text_rect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
 
 
 while True:
@@ -87,11 +124,9 @@ while True:
 
                 if (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color) and check_element_in_arr((i, j), valid_moves):
                     move = 0
-                    king_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
-                    bo.check('w')
-                    bo.check('b')
+                    piece_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
                     bo.deselect_all()
-                    if king_was_not_able_to_move:
+                    if piece_was_not_able_to_move:
                         pass
                     else:
                         if current_player_color == 'w':
@@ -99,7 +134,30 @@ while True:
                         else:
                             current_player_color = 'w'
 
+                        if isinstance(bo.board[i][j], Pawn):
+                            bo.board[i][j].times_moved = 1
+
+                        a = bo.checkmate('w')
+                        b = bo.checkmate('b')
+
+                        if a:
+                            loosing_screen('BLACK')
+                        if b:
+                            loosing_screen('WHITE')
+
+                        a = bo.stalemate('w')
+                        b = bo.stalemate('b')
+
+                        if a:
+                            stalemate_screen('STALEMATE')
+                        if b:
+                            stalemate_screen('STALEMATE')
+
+                        bo.check('w')
+                        bo.check('b')
+
                         print("MOVED")
+
                 elif (i, j) == (start_row, start_col):
                     move = 0
                     bo.deselect_all()
@@ -120,3 +178,4 @@ while True:
 
     pygame.display.update()
     clock.tick(60)
+

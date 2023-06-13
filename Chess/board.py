@@ -59,7 +59,7 @@ class Board:
         self.board[0][1] = Knight(0, 1, 'b')
         self.board[0][2] = Bishop(0, 2, 'b')
         self.board[0][3] = Queen(0, 3, 'b')
-        # self.board[0][4] = King(0, 4, 'b')
+        self.board[0][4] = King(0, 4, 'b')
         self.board[0][5] = Bishop(0, 5, 'b')
         self.board[0][6] = Knight(0, 6, 'b')
         self.board[0][7] = Rook(0, 7, 'b')
@@ -72,31 +72,28 @@ class Board:
         self.board[1][5] = Pawn(1, 5, 'b')
         self.board[1][6] = Pawn(1, 6, 'b')
         self.board[1][7] = Pawn(1, 7, 'b')
-        self.board[6][3] = Pawn(6, 3, 'w')
-        self.board[6][4] = Pawn(6, 4, 'w')
-        self.board[6][5] = Pawn(6, 5, 'w')
-        self.board[6][6] = Pawn(6, 6, 'w')
 
-        self.board[3][4] = King(3, 4, 'w')
-        self.board[4][4] = King(4, 4, 'b')
+        # self.board[3][4] = King(3, 4, 'w')
+        # self.board[4][4] = King(4, 4, 'b')
+
 
         self.board[7][0] = Rook(7, 0, 'w')
         self.board[7][1] = Knight(7, 1, 'w')
         self.board[7][2] = Bishop(7, 2, 'w')
-        self.board[7][4] = Queen(7, 4, 'w')
-        # self.board[7][3] = King(7, 3, 'w')
+        self.board[7][3] = Queen(7, 3, 'w')
+        self.board[7][4] = King(7, 4, 'w')
         self.board[7][5] = Bishop(7, 5, 'w')
         self.board[7][6] = Knight(7, 6, 'w')
         self.board[7][7] = Rook(7, 7, 'w')
 
-        # self.board[6][0] = Pawn(6, 0, 'w')
+        self.board[6][0] = Pawn(6, 0, 'w')
         self.board[6][1] = Pawn(6, 1, 'w')
-        # self.board[6][2] = Pawn(6, 2, 'w')
-        # self.board[6][3] = Pawn(6, 3, 'w')
-        # self.board[6][4] = Pawn(6, 4, 'w')
-        # self.board[6][5] = Pawn(6, 5, 'w')
-        # self.board[6][6] = Pawn(6, 6, 'w')
-        # self.board[6][7] = Pawn(6, 7, 'w')
+        self.board[6][2] = Pawn(6, 2, 'w')
+        self.board[6][3] = Pawn(6, 3, 'w')
+        self.board[6][4] = Pawn(6, 4, 'w')
+        self.board[6][5] = Pawn(6, 5, 'w')
+        self.board[6][6] = Pawn(6, 6, 'w')
+        self.board[6][7] = Pawn(6, 7, 'w')
 
     def draw(self, screen):
         for i in range(self.rows):
@@ -146,14 +143,9 @@ class Board:
 
     def move_piece(self, oi, oj, ni, nj, color_current):
 
-        king_was_not_able_to_move = False
+        piece_was_not_able_to_move = False
 
         if type(self.board[oi][oj]) == type(self.check_pawn):
-            self.board[oi][oj].times_moved = 1
-            self.update_old_piece = True
-            self.remove_old_piece = True
-            self.move_old_piece = True
-
 
             if self.board[oi][oj].color == 'w':
                 if ni == 0:
@@ -193,41 +185,26 @@ class Board:
                     self.remove_old_piece = True
                     self.move_old_piece = False
 
-
-        if color_current == 'w':
-            if type(self.board[oi][oj]) == type(self.check_king) and self.board[oi][oj].color == 'w':
-                king_pos = oi, oj
-                after_moving_danger_spots = self.king_danger_moves_after_moving(king_pos[0], king_pos[1], ni, nj)
-                danger_spots = self.king_danger_moves(king_pos[0], king_pos[1])
-                if check_element_in_arr((ni, nj), danger_spots) or check_element_in_arr((ni, nj), after_moving_danger_spots):
-                    king_was_not_able_to_move = True
-                    self.update_old_piece = False
-                    self.remove_old_piece = False
-                    self.move_old_piece = False
-                 #  Return 1 so that you will not change player
-
-        else:
-            if type(self.board[oi][oj]) == type(self.check_king) and self.board[oi][oj].color == 'b':
-                king_pos = oi, oj
-                after_moving_danger_spots = self.king_danger_moves_after_moving(king_pos[0], king_pos[1], ni, nj)
-                danger_spots = self.king_danger_moves(king_pos[0], king_pos[1])
-
-                # BEFORE MOVING CHECKING IF THE POSSIBLE PATH ARE CUTTING WITH THE OTHER PLAYERS PATH
-                # AFTER MOVING CHECKING IF THE PATH MOVED TO IS CUTTING  WITH THE OTHER PLAYERS PATH
-                if check_element_in_arr((ni, nj), danger_spots) or check_element_in_arr((ni, nj), after_moving_danger_spots):
-                    king_was_not_able_to_move = True
-                    self.update_old_piece = False
-                    self.remove_old_piece = False
-                    self.move_old_piece = False
-                 #  Return 1 so that you will not change player
-
-        if self.check(color_current):
+        # CHECKING IF THE CURRENT MOVE WILL RESULT IN CHECK FOR CURRENT PLAYER
+        # IF NEW POSITION HAS A PIECE
+        if self.board[ni][nj] != 0:
             piece_at_new_pos = self.board[ni][nj]
             self.board[ni][nj] = self.board[oi][oj]  # new position
             self.board[oi][oj] = 0
 
             if self.check(color_current):
-                king_was_not_able_to_move = True
+
+                # FINDING KINGS POSITION
+                position = 0, 0
+                for i in range(self.rows):
+                    for j in range(self.columns):
+                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(
+                                self.board[i][j], King):
+                            position = i, j
+                # CHANGING CHECK STATUS TO FALSE BECAUSE WHEN CHECK() FUNC IN USED IT TURNS IT TRUE IF KING WAS CHECKED
+                self.board[position[0]][position[1]].check = False
+
+                piece_was_not_able_to_move = True
                 self.update_old_piece = False
                 self.remove_old_piece = False
                 self.move_old_piece = False
@@ -237,8 +214,32 @@ class Board:
             self.board[oi][oj] = self.board[ni][nj]
             self.board[ni][nj] = piece_at_new_pos
 
+            # IF NEW POSITION DOES NOT HAVE A PIECE
+        else:
+            self.board[ni][nj] = self.board[oi][oj]  # new position
+            self.board[oi][oj] = 0
 
+            if self.check(color_current):
 
+                position = 0, 0
+                for i in range(self.rows):
+                    for j in range(self.columns):
+                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
+                            position = i, j
+
+                self.board[position[0]][position[1]].check = False
+
+                piece_was_not_able_to_move = True
+                self.update_old_piece = False
+                self.remove_old_piece = False
+                self.move_old_piece = False
+            else:
+                pass
+
+            self.board[oi][oj] = self.board[ni][nj]
+            self.board[ni][nj] = 0
+
+        # FINALLY MOVING PIECES
         if self.update_old_piece:
             self.board[oi][oj].move(ni, nj)
         if self.move_old_piece:
@@ -250,9 +251,7 @@ class Board:
         self.move_old_piece = True
         self.update_old_piece = True
 
-
-        return king_was_not_able_to_move
-
+        return piece_was_not_able_to_move
 
     def king_danger_moves_after_moving(self,ii, ij, k, l):
         piece_at_new_pos = self.board[k][l]
@@ -269,7 +268,6 @@ class Board:
         # self.board[k][l].move(ii, ij)
 
         return new_danger_moves
-
 
     def king_danger_moves(self, k, l):
         danger_moves = []
@@ -316,13 +314,85 @@ class Board:
                     position = i, j
 
         enemy_moves = self.king_danger_moves(position[0], position[1])
-        if check_element_in_arr((position[0],position[1]), enemy_moves):
+        if check_element_in_arr((position[0], position[1]), enemy_moves):
             self.board[position[0]][position[1]].check = True
             print(f"CHECK FOR {for_color}")
             return True
         else:
             self.board[position[0]][position[1]].check = False
             return False
+
+    def checkmate(self, for_color):
+        position = 0, 0
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j], King):
+                    position = i, j
+
+        kings_valid_moves = self.board[position[0]][position[1]].return_valid_moves(self.board)
+
+        can_move = True
+        for i in kings_valid_moves:
+            piece_at_new_pos = self.board[i[0]][i[1]]
+            self.board[i[0]][i[1]] = self.board[position[0]][position[1]]  # assuming the move is done
+            self.board[position[0]][position[1]] = 0
+            after_moving_enemy_moves = self.king_danger_moves(i[0], i[1])
+
+            if check_element_in_arr((i[0], i[1]), after_moving_enemy_moves):
+                can_move = False
+            else:
+                can_move = True
+                self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
+                self.board[i[0]][i[1]] = piece_at_new_pos
+                break
+
+            self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
+            self.board[i[0]][i[1]] = piece_at_new_pos
+
+        enemy_moves = self.king_danger_moves(position[0], position[1]) # initial
+        if check_element_in_arr((position[0], position[1]), enemy_moves) and not can_move:
+            print("CHECKMATE")
+
+            return 1
+        else:
+            return 0
+
+
+    def stalemate(self, for_color):
+
+        position = 0, 0
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j],
+                                                                                                King):
+                    position = i, j
+
+        kings_valid_moves = self.board[position[0]][position[1]].return_valid_moves(self.board)
+
+        can_move = True
+        for i in kings_valid_moves:
+            piece_at_new_pos = self.board[i[0]][i[1]]
+            self.board[i[0]][i[1]] = self.board[position[0]][position[1]]  # assuming the move is done
+            self.board[position[0]][position[1]] = 0
+            after_moving_enemy_moves = self.king_danger_moves(i[0], i[1])
+
+            if check_element_in_arr((i[0], i[1]), after_moving_enemy_moves):
+                can_move = False
+            else:
+                can_move = True
+                self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
+                self.board[i[0]][i[1]] = piece_at_new_pos
+                break
+
+            self.board[position[0]][position[1]] = self.board[i[0]][i[1]]
+            self.board[i[0]][i[1]] = piece_at_new_pos
+
+        if not can_move:
+            print("STALEMATE")
+            return 1
+        else:
+            return 0
+
 
 
     def change_piece(self):

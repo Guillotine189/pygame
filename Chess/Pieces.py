@@ -390,7 +390,7 @@ class King(pieces):
                 moves.append((i-1, j-1))
             else:
                 # IF THE OTHER PLAYER IS NOT THE SAME COLOR AND NOT A KING
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i - 1, j - 1))
 
         # top middle
@@ -399,7 +399,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i-1, j))
             else:
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i - 1, j))
 
         # top right
@@ -408,7 +408,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i-1, j+1))
             else:
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i-1, j+1))
 
         # middle right
@@ -417,7 +417,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i, j+1))
             else:
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i, j + 1))
 
         # middle left
@@ -426,7 +426,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i, j-1))
             else:
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i, j - 1))
 
         # bottom left
@@ -435,7 +435,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i+1, j-1))
             else:
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i + 1, j - 1))
 
         # bottom middle
@@ -444,7 +444,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i+1, j))
             else:
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i + 1, j))
 
         # bottom right
@@ -453,7 +453,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i+1, j+1))
             else:
-                if p.color != self.color and type(p) != type(board[i][j]):
+                if p.color != self.color and not isinstance(p, King):
                     moves.append((i + 1, j + 1))
 
         return moves
@@ -475,7 +475,7 @@ class Knight(pieces):
                 moves.append((i + 2, j+1))
             else:
                 if p.color != self.color:
-                    moves.append((i+2, j+2))
+                    moves.append((i+2, j+1))
 
         # point bottom left
         if i < 6 and j > 0:
