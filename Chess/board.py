@@ -55,45 +55,48 @@ class Board:
         self.move_old_piece = True
         self.update_old_piece = True
 
-        self.board[0][0] = Rook(0, 0, 'b')
-        self.board[0][1] = Knight(0, 1, 'b')
-        self.board[0][2] = Bishop(0, 2, 'b')
-        self.board[0][3] = Queen(0, 3, 'b')
-        self.board[0][4] = King(0, 4, 'b')
-        self.board[0][5] = Bishop(0, 5, 'b')
-        self.board[0][6] = Knight(0, 6, 'b')
-        self.board[0][7] = Rook(0, 7, 'b')
+        # self.board[0][0] = Rook(0, 0, 'b')
+        # self.board[0][1] = Knight(0, 1, 'b')
+        # self.board[0][2] = Bishop(0, 2, 'b')
+        # self.board[0][3] = Queen(0, 3, 'b')
+        # self.board[0][4] = King(0, 4, 'b')
+        # self.board[0][5] = Bishop(0, 5, 'b')
+        # self.board[0][6] = Knight(0, 6, 'b')
+        # self.board[0][7] = Rook(0, 7, 'b')
+        #
+        # self.board[1][0] = Pawn(1, 0, 'b')
+        # self.board[1][1] = Pawn(1, 1, 'b')
+        # self.board[1][2] = Pawn(1, 2, 'b')
+        # self.board[1][3] = Pawn(1, 3, 'b')
+        # self.board[1][4] = Pawn(1, 4, 'b')
+        # self.board[1][5] = Pawn(1, 5, 'b')
+        # self.board[1][6] = Pawn(1, 6, 'b')
+        # self.board[1][7] = Pawn(1, 7, 'b')
+        #
+        self.board[3][4] = King(3, 4, 'w')
+        self.board[4][4] = King(4, 4, 'b')
+        self.board[1][6] = Queen(1, 6, 'b')
+        self.board[5][6] = Queen(5, 6, 'w')
 
-        self.board[1][0] = Pawn(1, 0, 'b')
-        self.board[1][1] = Pawn(1, 1, 'b')
-        self.board[1][2] = Pawn(1, 2, 'b')
-        self.board[1][3] = Pawn(1, 3, 'b')
-        self.board[1][4] = Pawn(1, 4, 'b')
-        self.board[1][5] = Pawn(1, 5, 'b')
-        self.board[1][6] = Pawn(1, 6, 'b')
-        self.board[1][7] = Pawn(1, 7, 'b')
-
-        # self.board[3][4] = King(3, 4, 'w')
-        # self.board[4][4] = King(4, 4, 'b')
-
-
-        self.board[7][0] = Rook(7, 0, 'w')
-        self.board[7][1] = Knight(7, 1, 'w')
-        self.board[7][2] = Bishop(7, 2, 'w')
-        self.board[7][3] = Queen(7, 3, 'w')
-        self.board[7][4] = King(7, 4, 'w')
-        self.board[7][5] = Bishop(7, 5, 'w')
-        self.board[7][6] = Knight(7, 6, 'w')
-        self.board[7][7] = Rook(7, 7, 'w')
-
-        self.board[6][0] = Pawn(6, 0, 'w')
-        self.board[6][1] = Pawn(6, 1, 'w')
-        self.board[6][2] = Pawn(6, 2, 'w')
-        self.board[6][3] = Pawn(6, 3, 'w')
-        self.board[6][4] = Pawn(6, 4, 'w')
-        self.board[6][5] = Pawn(6, 5, 'w')
-        self.board[6][6] = Pawn(6, 6, 'w')
-        self.board[6][7] = Pawn(6, 7, 'w')
+        #
+        #
+        # self.board[7][0] = Rook(7, 0, 'w')
+        # self.board[7][1] = Knight(7, 1, 'w')
+        # self.board[7][2] = Bishop(7, 2, 'w')
+        # self.board[7][3] = Queen(7, 3, 'w')
+        # self.board[7][4] = King(7, 4, 'w')
+        # self.board[7][5] = Bishop(7, 5, 'w')
+        # self.board[7][6] = Knight(7, 6, 'w')
+        # self.board[7][7] = Rook(7, 7, 'w')
+        #
+        # self.board[6][0] = Pawn(6, 0, 'w')
+        # self.board[6][1] = Pawn(6, 1, 'w')
+        # self.board[6][2] = Pawn(6, 2, 'w')
+        # self.board[6][3] = Pawn(6, 3, 'w')
+        # self.board[6][4] = Pawn(6, 4, 'w')
+        # self.board[6][5] = Pawn(6, 5, 'w')
+        # self.board[6][6] = Pawn(6, 6, 'w')
+        # self.board[6][7] = Pawn(6, 7, 'w')
 
     def draw(self, screen):
         for i in range(self.rows):
@@ -142,7 +145,7 @@ class Board:
 
 
     def move_piece(self, oi, oj, ni, nj, color_current):
-
+        original_check_status = self.board[oi][oj].check
         piece_was_not_able_to_move = False
 
         if type(self.board[oi][oj]) == type(self.check_pawn):
@@ -239,6 +242,10 @@ class Board:
             self.board[oi][oj] = self.board[ni][nj]
             self.board[ni][nj] = 0
 
+
+        if original_check_status:
+            self.board[oi][oj].check = True
+
         # FINALLY MOVING PIECES
         if self.update_old_piece:
             self.board[oi][oj].move(ni, nj)
@@ -254,9 +261,6 @@ class Board:
         return piece_was_not_able_to_move
 
 
-
-
-
     def check_valid_moves(self, oi, oj, ni, nj, color_current):
         if self.board[ni][nj] != 0:
             piece_at_new_pos = self.board[ni][nj]
@@ -268,9 +272,9 @@ class Board:
                 position = 0, 0
                 for i in range(self.rows):
                     for j in range(self.columns):
-                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(
-                                self.board[i][j], King):
+                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
                             position = i, j
+                            break
                 # CHANGING CHECK STATUS TO FALSE BECAUSE WHEN CHECK() FUNC IN USED IT TURNS IT TRUE IF KING WAS CHECKED
                 self.board[position[0]][position[1]].check = False
                 self.board[oi][oj] = self.board[ni][nj]
@@ -294,6 +298,7 @@ class Board:
                     for j in range(self.columns):
                         if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
                             position = i, j
+                            break
 
                 self.board[position[0]][position[1]].check = False
                 self.board[oi][oj] = self.board[ni][nj]
@@ -305,22 +310,6 @@ class Board:
                 return True
 
 
-
-    # def king_danger_moves_after_moving(self,ii, ij, k, l):
-    #     piece_at_new_pos = self.board[k][l]
-    #
-    #     self.board[k][l] = self.board[ii][ij] # new position has king
-    #     # self.board[ii][ij].move(k, l            # self.board[ii][ij].move(k, l))
-    #     self.board[ii][ij] = 0
-    #
-    #     new_danger_moves = self.king_danger_moves(k, l)
-    #
-    # 
-    #     self.board[ii][ij] = self.board[k][l]
-    #     self.board[k][l] = piece_at_new_pos
-    #     # self.board[k][l].move(ii, ij)
-    #
-    #     return new_danger_moves
 
     def king_danger_moves(self, k, l):
         danger_moves = []
@@ -365,6 +354,7 @@ class Board:
             for j in range(self.columns):
                 if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j], King):
                     position = i, j
+                    break
 
         enemy_moves = self.king_danger_moves(position[0], position[1])
         if check_element_in_arr((position[0], position[1]), enemy_moves):
@@ -392,7 +382,16 @@ class Board:
                                     pass
             # IF FOR EVERY POSSIBLE MOVES FOR EVERY PIECE NO POSITION WAS FOUND
             # SUCH THAT A CHECK WAS NOT PRODUCED
-            # BECAUSE THE KING IS ALREADY IN CHECK RETUEN 1
+            # BECAUSE THE KING IS ALREADY IN CHECK RETURN 1
+
+            position = 0, 0
+            for i in range(self.rows):
+                for j in range(self.columns):
+                    if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j], King):
+                        position = i, j
+                        break
+            self.board[position[0]][position[1]].check = True
+
             return 1
         # KING WAS NOT IN CHECK SO RETURN NOT CHECKMATE
         else:

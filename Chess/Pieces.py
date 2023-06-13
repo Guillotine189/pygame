@@ -1,18 +1,18 @@
 import pygame
 
-bishop_white = pygame.image.load('./images/bishop.jpg')
-king_white = pygame.image.load('./images/king.jpg')
-queen_white = pygame.image.load('./images/queen.jpg')
-rook_white = pygame.image.load('./images/rook.jpg')
-knight_white = pygame.image.load('./images/knight.jpg')
-pawn_white = pygame.image.load('./images/pawn.jpg')
+bishop_white = pygame.image.load('./images/bishop.png')
+king_white = pygame.image.load('./images/king.png')
+queen_white = pygame.image.load('./images/queen.png')
+rook_white = pygame.image.load('./images/rook.png')
+knight_white = pygame.image.load('./images/knight.png')
+pawn_white = pygame.image.load('./images/pawn.png')
 
-bishop_black = pygame.image.load('./images/bishop_black.jpg')
-king_black = pygame.image.load('./images/king_black.jpg')
-queen_black = pygame.image.load('./images/queen_black.jpg')
-rook_black = pygame.image.load('./images/rook_black.jpg')
-knight_black = pygame.image.load('./images/knight_black.jpg')
-pawn_black = pygame.image.load('./images/pawn_black.jpg')
+bishop_black = pygame.image.load('./images/bishop_black.png')
+king_black = pygame.image.load('./images/king_black.png')
+queen_black = pygame.image.load('./images/queen_black.png')
+rook_black = pygame.image.load('./images/rook_black.png')
+knight_black = pygame.image.load('./images/knight_black.png')
+pawn_black = pygame.image.load('./images/pawn_black.png')
 
 a = []
 a.append(bishop_white)
@@ -67,20 +67,22 @@ class pieces:
         else:
             self.drawimage = B[self.image]
 
-        screen.blit(self.drawimage, (self.column * self.width, self.row * self.height))
+        # BLOCK THAT DENOTES CHECK
         if self.check:
-            pygame.draw.rect(screen, 'blue', (self.column * self.width, self.row * self.height, self.width, self.height), 0)
+            pygame.draw.rect(screen, 'red', (self.column * self.width, self.row * self.height, self.width + 5, self.height + 5), 0)
 
+        # PIECE IMAGE
+        screen.blit(self.drawimage, (self.column * self.width + 2, self.row * self.height))
+
+        # IF SELECTED DRAW THE RECTANGLE AND DOTS
         if self.selected:
-
             possible_moves = self.possible_moves(board)
             if len(possible_moves):
                 for d in possible_moves:
                     center = d[1]*self.width + self.width/2, d[0]*self.height + self.height/2
                     pygame.draw.circle(screen, 'red', center, 15, 0)
 
-
-            pygame.draw.rect(screen, 'red', (self.column * self.width, self.row * self.height, self.width, self.height), 2)
+            pygame.draw.rect(screen, 'red', (self.column * self.width + self.column, self.row * self.height + 2, self.width + 2, self.height), 6)
 
 
     def move(self, new_row, new_column):

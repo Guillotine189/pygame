@@ -5,15 +5,16 @@ from Pieces import Pawn
 
 pygame.init()
 pygame.font.init()
-font_ = pygame.font.SysFont('monospace', 100)
+font_ = pygame.font.SysFont('monospace', 70)
 
 # 139, 110 - size of block
+        # self.board[4][4] = King(4, 4, 'b')
 
 WIDTH = 1100
 HEIGHT = 900
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-board_image = pygame.image.load('./images/board.png')
+board_image = pygame.image.load('./images/board2.png')
 board_image = pygame.transform.scale(board_image, (WIDTH, HEIGHT))
 
 
@@ -94,6 +95,7 @@ def stalemate_screen(text):
         pygame.display.update()
 
 
+
 while True:
     mpos = pygame.mouse.get_pos()
     screen.fill("black")
@@ -137,22 +139,50 @@ while True:
                         if isinstance(bo.board[i][j], Pawn):
                             bo.board[i][j].times_moved = 1
 
+                        # CHECK FOR TIE
+                        count = 0
+                        for i in range(8):
+                            for j in range(8):
+                                if bo.board[i][j] == 0:
+                                    count += 1
+                        # IF ONLY THE 2 KINGS ARE LEFT
+                        if count == 62:
+                            screen.blit(board_image, (0, 0))
+                            bo.draw(screen)
+                            pygame.display.update()
+                            stalemate_screen('STALEMATE')
+
+                        # CHECK FOR CHECKMATE
                         a = bo.checkmate('w')
                         b = bo.checkmate('b')
 
                         if a:
+                            screen.blit(board_image, (0, 0))
+                            bo.draw(screen)
+                            pygame.display.update()
                             loosing_screen('BLACK')
                         if b:
+                            screen.blit(board_image, (0, 0))
+                            bo.draw(screen)
+                            pygame.display.update()
                             loosing_screen('WHITE')
 
+                        # CHECK FOR STALEMATE
                         a = bo.stalemate('w')
                         b = bo.stalemate('b')
 
                         if a:
+                            screen.blit(board_image, (0, 0))
+                            bo.draw(screen)
+                            pygame.display.update()
                             stalemate_screen('STALEMATE')
                         if b:
+                            screen.blit(board_image, (0, 0))
+                            bo.draw(screen)
+                            pygame.display.update()
                             stalemate_screen('STALEMATE')
 
+                        # CHECK FOR NORMAL CHECK
                         bo.check('w')
                         bo.check('b')
 
