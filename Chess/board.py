@@ -11,7 +11,7 @@ from Pieces import Knight
 
 pygame.init()
 pygame.font.init()
-my_font = pygame.font.SysFont('monospace', 50)
+my_font = pygame.font.SysFont('monospace', 70)
 
 check_list = []
 check_tup = ()
@@ -72,14 +72,14 @@ class Board:
         # self.board[1][5] = Pawn(1, 5, 'b')
         # self.board[1][6] = Pawn(1, 6, 'b')
         # self.board[1][7] = Pawn(1, 7, 'b')
-        #
+
         self.board[3][4] = King(3, 4, 'w')
         self.board[4][4] = King(4, 4, 'b')
-        self.board[1][6] = Queen(1, 6, 'b')
-        self.board[5][6] = Queen(5, 6, 'w')
+        self.board[2][6] = Pawn(2, 6, 'w')
+        self.board[5][6] = Pawn(5, 6, 'b')
 
-        #
-        #
+
+        
         # self.board[7][0] = Rook(7, 0, 'w')
         # self.board[7][1] = Knight(7, 1, 'w')
         # self.board[7][2] = Bishop(7, 2, 'w')
@@ -145,7 +145,7 @@ class Board:
 
 
     def move_piece(self, oi, oj, ni, nj, color_current):
-        original_check_status = self.board[oi][oj].check
+
         piece_was_not_able_to_move = False
 
         if type(self.board[oi][oj]) == type(self.check_pawn):
@@ -242,10 +242,6 @@ class Board:
             self.board[oi][oj] = self.board[ni][nj]
             self.board[ni][nj] = 0
 
-
-        if original_check_status:
-            self.board[oi][oj].check = True
-
         # FINALLY MOVING PIECES
         if self.update_old_piece:
             self.board[oi][oj].move(ni, nj)
@@ -257,6 +253,19 @@ class Board:
         self.remove_old_piece = True
         self.move_old_piece = True
         self.update_old_piece = True
+
+        # AFTER CHECKING ALL THE CONDITIONS AND MOVING THE PIECE CHECK KING STATUS
+        # IF IT IS STILL IN CHECK TURN THE CHECK_STATUS TO TRUE
+        if self.check(color_current):
+            position = 0, 0
+            for i in range(self.rows):
+                for j in range(self.columns):
+                    if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(
+                            self.board[i][j], King):
+                        position = i, j
+            self.board[position[0]][position[1]].check = True
+
+
 
         return piece_was_not_able_to_move
 
@@ -424,25 +433,24 @@ class Board:
         rect2 = pygame.Rect(1100/4 + 10, 900/4 + 20 + 900/8, 1100/2 - 20, 900/8)
         rect3 = pygame.Rect(1100/4 + 10, 900/4 + 30 + 900/4, 1100/2 - 20, 900/8)
         rect4 = pygame.Rect(1100/4 + 10, 900/4 + 40 + 900/8 + 900/4, 1100/2 - 20, 900/8)
-        text1 = my_font.render('QUEEN', True, 'white')
-        text2 = my_font.render('BISHOP', True, 'white')
-        text3 = my_font.render('ROOK', True, 'white')
-        text4 = my_font.render('KNIGHT', True, 'white')
-
+        text1 = my_font.render('QUEEN', True, 'black')
+        text2 = my_font.render('BISHOP', True, 'black')
+        text3 = my_font.render('ROOK', True, 'black')
+        text4 = my_font.render('KNIGHT', True, 'black')
+        color = (155, 250, 0)
         while True:
             clock.tick(60)
             mpos = pygame.mouse.get_pos()
-
             pygame.draw.rect(self.screen, 'black', (1100/4, 900/4, 1100/2, 900/2 + 50), 0)
-            pygame.draw.rect(self.screen, 'red', rect1, 0)
-            pygame.draw.rect(self.screen, 'red', rect2, 0)
-            pygame.draw.rect(self.screen, 'red', rect3, 0)
-            pygame.draw.rect(self.screen, 'red', rect4, 0)
+            pygame.draw.rect(self.screen, color, rect1, 0)
+            pygame.draw.rect(self.screen, color, rect2, 0)
+            pygame.draw.rect(self.screen, color, rect3, 0)
+            pygame.draw.rect(self.screen, color, rect4, 0)
 
-            self.screen.blit(text1, (1100/4 + 200, 900/4 + 50))
-            self.screen.blit(text2, (1100/4 + 200, 900/4 + 60 + 900/8))
-            self.screen.blit(text3, (1100/4 + 200, 900/4 + 70 + 900/4))
-            self.screen.blit(text4, (1100/4 + 200, 900/4 + 80 + 900/8 + 900/4))
+            self.screen.blit(text1, (1100/4 + 150, 900/4 + 40))
+            self.screen.blit(text2, (1100/4 + 150, 900/4 + 50 + 900/8))
+            self.screen.blit(text3, (1100/4 + 150, 900/4 + 60 + 900/4))
+            self.screen.blit(text4, (1100/4 + 150, 900/4 + 70 + 900/8 + 900/4))
 
 
             for event in pygame.event.get():

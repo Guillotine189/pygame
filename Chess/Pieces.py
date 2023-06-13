@@ -69,7 +69,7 @@ class pieces:
 
         # BLOCK THAT DENOTES CHECK
         if self.check:
-            pygame.draw.rect(screen, 'red', (self.column * self.width, self.row * self.height, self.width + 5, self.height + 5), 0)
+            pygame.draw.rect(screen, (110, 0, 0), (self.column * self.width + 1, self.row * self.height, self.width + 6, self.height + 5), 0)
 
         # PIECE IMAGE
         screen.blit(self.drawimage, (self.column * self.width + 2, self.row * self.height))
@@ -80,9 +80,9 @@ class pieces:
             if len(possible_moves):
                 for d in possible_moves:
                     center = d[1]*self.width + self.width/2, d[0]*self.height + self.height/2
-                    pygame.draw.circle(screen, 'red', center, 15, 0)
+                    pygame.draw.circle(screen, (250, 150, 0), center, 15, 0)
 
-            pygame.draw.rect(screen, 'red', (self.column * self.width + self.column, self.row * self.height + 2, self.width + 2, self.height), 6)
+            pygame.draw.rect(screen, (250, 150, 0), (self.column * self.width + 1, self.row * self.height, self.width + 6, self.height + 5), 6)
 
 
     def move(self, new_row, new_column):

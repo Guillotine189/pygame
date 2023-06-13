@@ -8,13 +8,12 @@ pygame.font.init()
 font_ = pygame.font.SysFont('monospace', 70)
 
 # 139, 110 - size of block
-        # self.board[4][4] = King(4, 4, 'b')
 
 WIDTH = 1100
 HEIGHT = 900
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-board_image = pygame.image.load('./images/board2.png')
+board_image = pygame.image.load('./images/board5.png')
 board_image = pygame.transform.scale(board_image, (WIDTH, HEIGHT))
 
 
