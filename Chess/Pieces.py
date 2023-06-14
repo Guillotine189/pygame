@@ -240,7 +240,7 @@ class Queen(pieces):
                     moves.append((i, first_obs))
 
         # left
-        if i > 0:
+        if j > 0:
             # finding all the obstacle
             # arr will have positions(row) in increasing order
             arr = []
