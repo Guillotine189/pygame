@@ -6,17 +6,20 @@ from Pieces import King
 from Pieces import Queen
 from Pieces import Rook
 from Pieces import Knight
-from pygame import mixer
+
+# INITIALIZE PYGAME
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
 my_font = pygame.font.SysFont('monospace', 70)
 
+# ADD SOUNDS
 check_sound = pygame.mixer.Sound('./sounds/move-check.mp3')
 promote_sound = pygame.mixer.Sound('./sounds/promote.mp3')
 notify_sound = pygame.mixer.Sound('./sounds/notify.mp3')
+capture_sound = pygame.mixer.Sound('./sounds/capture.mp3')
 
-
+# VARIABLES ONLY FOR COMPARISON
 check_list = []
 check_tup = ()
 
@@ -49,15 +52,20 @@ class Board:
         self.rows = rows
         self.columns = columns
         self.board = [[0 for x in range(8)] for _ in range(self.rows)]
-        self.temp_var = self.board[0][0]
-        self.status = False
-        self.king_status = True
-        self.check_pawn = Pawn(0, 0, 'b')
-        self.check_king = King(0, 0, 'w')
+
+        self.temp_var = self.board[0][0]  # THIS STORES THE SELECTED PIECE WHILE DRAWING
+        self.status = False  # FOR THE SELECTED PIECE
+
+        self.check_pawn = Pawn(0, 0, 'b')  # ONLY FOR COMPARISON , BUT USE ISINSTANCE() MOST OF THE TIME
+        self.check_king = King(0, 0, 'w')  # ONLY FOR COMPARISON
         self.screen = screen
+
+        # THE VARIABLE THAT AFTER CHECKING ALL THE CONDITION ACTUALLY UPDATE THE BOARD
         self.remove_old_piece = True
         self.move_old_piece = True
         self.update_old_piece = True
+
+        # ADDING PIECES TO THE BOARD
 
         self.board[0][0] = Rook(0, 0, 'b')
         self.board[0][1] = Knight(0, 1, 'b')
@@ -77,12 +85,11 @@ class Board:
         self.board[1][6] = Pawn(1, 6, 'b')
         self.board[1][7] = Pawn(1, 7, 'b')
 
-        # self.board[3][4] = King(3, 4, 'w')
+
+
+        # self.board[2][0] = Pawn(2, 0, 'w')
+        # self.board[7][3] = Queen(7, 3, 'b')
         # self.board[4][4] = King(4, 4, 'b')
-        # self.board[2][6] = Pawn(2, 6, 'w')
-        # self.board[5][6] = Pawn(5, 6, 'b')
-
-
 
         self.board[7][0] = Rook(7, 0, 'w')
         self.board[7][1] = Knight(7, 1, 'w')
@@ -102,41 +109,51 @@ class Board:
         self.board[6][6] = Pawn(6, 6, 'w')
         self.board[6][7] = Pawn(6, 7, 'w')
 
+
+    # THIS DRAWS THE BOARD
     def draw(self, screen):
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.board[i][j] != 0:
                     if self.board[i][j].selected:
+                        # IF A PIECE IS SELECTED DON'T DRAW IT YET
                         self.temp_var = self.board[i][j]
                         self.status = True
                     else:
                         self.board[i][j].draw(screen, self.board)
+
+        # AFTER EVERY OTHER PIECE HAS FINISHED DRAWING, THE DRAW THE SELECTED PIECE
         if self.status:
             self.temp_var.draw(screen, self.board)
             self.status = False
 
+    # THIS FUNCTIONS SELECT OR DESELECT A GIVEN PIECE
     def selected(self, k, l):
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.board[i][j] != 0:
+                    # IF THE PIECE IS THE PIECE PASSES THROUGH, DON'T DO ANYTHING
                     if i == k and j == l:
                         pass
+                    # DESELECT ALL OTHER PIECES
                     else:
                         self.board[i][j].selected = False
-
+                        
+        # IF THE PASSES PIECE IS SELECTED, DESELECT IT AND VISE-VERSA
         if self.board[k][l] != 0:
             if self.board[k][l].selected:
                 self.board[k][l].selected = False
             else:
                 self.board[k][l].selected = True
 
-
+    # DESELECT EVERY PIECE ON BOARD
     def deselect_all(self):
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.board[i][j] != 0:
                     self.board[i][j].selected = False
 
+    # RETURNS TRUE IF ANY PIECE ON BOARD IS SELECTED
     def check_any_selected(self):
         for i in range(self.rows):
             for j in range(self.columns):
@@ -146,16 +163,22 @@ class Board:
 
         return False
 
-
-
+    # FUNCTION THAT CHECKS WEATHER A PIECE SHOULD MOVE OR NOT
+    # AND THEN MOVE IT IF VALID
+    # THIS FUNCITION WILL ONLY BE CALLED WHEN THE NEW POSITION FALLS UNDER 'POSSIBLE MOVES'
     def move_piece(self, oi, oj, ni, nj, color_current):
 
+        # INITIALLY SET THAT THE PIECE WILL MOVE
         piece_was_not_able_to_move = False
 
-        if type(self.board[oi][oj]) == type(self.check_pawn):
-
+        # SPECIAL CASE
+        if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
             if self.board[oi][oj].color == 'w':
                 if ni == 0:
+
+                    # IF THE ORIGINAL POSITION HAD A WHITE PAWN
+                    # AND THE NEW POSITION IS ROW 0
+                    # PROMOTE THE PAWN AFTER CHECKING THAT THE KING IS NOT CHECKED
                     new_piece = self.change_piece()
                     if new_piece == 'Q':
                         self.board[ni][nj] = Queen(ni, nj, 'w')
@@ -193,7 +216,9 @@ class Board:
                     self.move_old_piece = False
                     promote_sound.play()
 
+        # FOR EVERY OTHER CASE
         # CHECKING IF THE CURRENT MOVE WILL RESULT IN CHECK FOR CURRENT PLAYER
+
         # IF NEW POSITION HAS A PIECE
         if self.board[ni][nj] != 0:
             piece_at_new_pos = self.board[ni][nj]
@@ -251,6 +276,10 @@ class Board:
         if self.update_old_piece:
             self.board[oi][oj].move(ni, nj)
         if self.move_old_piece:
+            # CHECK IF A PIECE WAS CAPTURED
+            if self.board[ni][nj] != 0 and self.board[ni][nj].color != self.board[oi][oj].color:
+                capture_sound.play()
+                print("CAPTURED")
             self.board[ni][nj] = self.board[oi][oj]
         if self.remove_old_piece:
             self.board[oi][oj] = 0
@@ -278,16 +307,20 @@ class Board:
             if self.check('w'):
                 check_sound.play()
 
-
         return piece_was_not_able_to_move
 
+    # THIS TAKES IN THE OLD AND NEW COORDINATES AND THE COLOR OF CURRENT PLAYER
+    # IT CHECKS WEATHER AFTER THE PIECE HAS MOVED TO A NEW POSITION
+    # THE CURRENT PLAYER WILL GET CHECKED , IF YES THEN IT RETURNS FALSE, ELSE RETURNS TRUE
+    def check_valid_move(self, oi, oj, ni, nj, color_current):
 
-    def check_valid_moves(self, oi, oj, ni, nj, color_current):
+        # IF NEW POSITION HAS A PIECE(WHEN TAKING A PIECE)
         if self.board[ni][nj] != 0:
-            piece_at_new_pos = self.board[ni][nj]
-            self.board[ni][nj] = self.board[oi][oj]  # new position
-            self.board[oi][oj] = 0
+            piece_at_new_pos = self.board[ni][nj]  # SAVE THE PIECE PRESENT AT NEW POSITION
+            self.board[ni][nj] = self.board[oi][oj]  # NEW POSITION HAS OLD PIECE
+            self.board[oi][oj] = 0  # OLD PIECE HAS NO PIECE
 
+            # NOW THE MOVE HAS TAKEN PLACE
             if self.check(color_current):
                 # FINDING KINGS POSITION
                 position = 0, 0
@@ -304,6 +337,7 @@ class Board:
                 return False
 
             else:
+                # IF NOT TRUE THEN RETURN TRUE(VALID MOVE)
                 self.board[oi][oj] = self.board[ni][nj]
                 self.board[ni][nj] = piece_at_new_pos
                 return True
@@ -330,17 +364,19 @@ class Board:
                 self.board[ni][nj] = 0
                 return True
 
-
-
+    # THIS FUNCTION RETURNS ALL THE PLACES ON BOARD WHERE THE KING CANNOT MOVE
+    # THIS TAKES KINGS COORDINATES
     def king_danger_moves(self, k, l):
         danger_moves = []
 
+        # FOR EVERY ENEMY PIECE ON THE BOARD
+        # APPEND ALL POSSIBLE MOVES THAT CAN BE DONE BY ENEMY PLAYER AT CURRENT STATE
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.board[i][j] != 0:
                     if self.board[i][j].color != self.board[k][l].color:
 
-                        # ONLY CHECK THE LEFT AND RIGHT FOR PAWN
+                        # ONLY CHECK THE LEFT AND RIGHT FOR PAWN BECAUSE PAWN CANNOT TAKE KING IF KING IS IN FRONT OF PAWN
                         if type(self.board[i][j]) == type(self.check_pawn):
                             if self.board[i][j].color == 'b':
                                 if j < 7:
@@ -354,22 +390,24 @@ class Board:
                                 if j > 0:
                                     danger_moves.append((i - 1, j - 1))
 
+                        # ENEMY KINGS POSSIBLE MOVES ARE OF NO THREAT
                         elif isinstance(self.board[i][j], King):
                             pass
 
+                        # FOR EVEY OTHER ENEMY PIECE APPEND ALL THE POSSIBLE MOVES
                         else:
                             danger_moves.append(self.board[i][j].return_possible_moves(self.board))
 
         return danger_moves
 
-
-
+    # THIS FUNCTION PASSES ALL THE POSSIBLE MOVES THAT CAN BE MADE BY A PIECE
+    # MADE SPECIFICALLY FOR FILE GAME.PY
     def return_valid(self, i, j):
         return self.board[i][j].return_possible_moves(self.board)
 
-
-
+    # THIS FUNCTIONS CHECK WEATHER THE KING OF COLOR THAT IS PASSED IS IN CHECK OR NOT
     def check(self, for_color):
+        # FIND KINGS POSITION
         position = 0, 0
         for i in range(self.rows):
             for j in range(self.columns):
@@ -378,6 +416,8 @@ class Board:
                     break
 
         enemy_moves = self.king_danger_moves(position[0], position[1])
+
+        # IF THE KINGS POSITION IS UNDER enemy_moves, THE KING IS IN CHECK
         if check_element_in_arr((position[0], position[1]), enemy_moves):
             self.board[position[0]][position[1]].check = True
             return True
@@ -385,18 +425,20 @@ class Board:
             self.board[position[0]][position[1]].check = False
             return False
 
+    # CHECKS FOR CHECKMATE FOR A GIVEN COLOR
     def checkmate(self, for_color):
 
+        # FIRST CHECK IF THE PIECE OF GIVEN COLOR IS IN CHECK
         if self.check(for_color):
             # IF KING IN CHECK
-
             for i in range(8):
                 for j in range(8):
                     if self.board[i][j] != 0:
                         if self.board[i][j].color == for_color:
+                            # FOR EVERY PIECE GET ALL POSSIBLE MOVES
                             all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
                             for move in all_possible_moves_for_a_piece:
-                                if self.check_valid_moves(i, j, move[0], move[1], for_color):  # TRUE FOR VALID
+                                if self.check_valid_move(i, j, move[0], move[1], for_color):  # TRUE FOR VALID
                                     # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETURN NOT CHECKMATE
                                     return 0
                                 else:
@@ -405,6 +447,7 @@ class Board:
             # SUCH THAT A CHECK WAS NOT PRODUCED
             # BECAUSE THE KING IS ALREADY IN CHECK RETURN 1
 
+            # TURN THE CHECK FOR KING TO BE TRUE 
             position = 0, 0
             for i in range(self.rows):
                 for j in range(self.columns):
@@ -418,26 +461,26 @@ class Board:
         else:
             return 0
 
-
-
+    # RETURNS TRUE IF STALEMATE
+    # THIS IS CALLED AFTER CHECKMATE SO NO NEED TO SEE IF THE KING IS IN CHECK OR NOT
     def stalemate(self, for_color):
-
         for i in range(8):
             for j in range(8):
                 if self.board[i][j] != 0:
                     if self.board[i][j].color == for_color:
                         all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
                         for move in all_possible_moves_for_a_piece:
-                            if self.check_valid_moves(i, j, move[0], move[1], for_color): # TRUE FOR VALID
-                                # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETUEN NOT STALEMATE IE 0
+                            if self.check_valid_move(i, j, move[0], move[1], for_color): # TRUE FOR VALID
+                                # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETURN NOT STALEMATE IE 0
                                 return 0
                             else:
                                 pass
-        
+
         return 1
-
+    
+    # WHEN THE PAWN IS PROMOTED, THIS FUNCTION IS CALLED
+    # THIS RETURNS THE PIECE PLAYER WANTS TO REPLACE PAWN WITH
     def change_piece(self):
-
         return_piece = 'Q'
 
         clock = pygame.time.Clock()
@@ -450,6 +493,7 @@ class Board:
         text3 = my_font.render('ROOK', True, 'black')
         text4 = my_font.render('KNIGHT', True, 'black')
         color = (155, 250, 0)
+        
         while True:
             clock.tick(60)
             mpos = pygame.mouse.get_pos()
@@ -463,7 +507,6 @@ class Board:
             self.screen.blit(text2, (1100/4 + 150, 900/4 + 50 + 900/8))
             self.screen.blit(text3, (1100/4 + 150, 900/4 + 60 + 900/4))
             self.screen.blit(text4, (1100/4 + 150, 900/4 + 70 + 900/8 + 900/4))
-
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -483,8 +526,7 @@ class Board:
                 return_piece = "K"
                 break
 
-
-
             pygame.display.update()
 
         return return_piece
+    
