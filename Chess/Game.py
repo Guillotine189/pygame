@@ -226,8 +226,6 @@ while True:
                         bo.check('w')
                         bo.check('b')
 
-                        print("MOVED")
-
                 # IF THE NEW POSITION SELECTED IF THE ORIGINAL POSITION
                 elif (i, j) == (start_row, start_col):
                     move = 0

@@ -279,7 +279,6 @@ class Board:
             # CHECK IF A PIECE WAS CAPTURED
             if self.board[ni][nj] != 0 and self.board[ni][nj].color != self.board[oi][oj].color:
                 capture_sound.play()
-                print("CAPTURED")
             self.board[ni][nj] = self.board[oi][oj]
         if self.remove_old_piece:
             self.board[oi][oj] = 0
