@@ -87,9 +87,14 @@ class Board:
 
 
 
-        # self.board[2][0] = Pawn(2, 0, 'w')
-        # self.board[7][3] = Queen(7, 3, 'b')
-        # self.board[4][4] = King(4, 4, 'b')
+
+
+
+        # self.board[2][5] = Rook(2, 5, 'b')
+        # self.board[5][5] = Rook(5, 5, 'b')
+        # self.board[6][6] = Rook(6, 6, 'w')
+        # self.board[6][7] = King(6, 7, 'w')
+        # self.board[7][4] = Rook(7, 4, 'w')
 
         self.board[7][0] = Rook(7, 0, 'w')
         self.board[7][1] = Knight(7, 1, 'w')
@@ -163,6 +168,13 @@ class Board:
 
         return False
 
+    # THIS FUNCTION PASSES ALL THE POSSIBLE MOVES THAT CAN BE MADE BY A PIECE
+    # MADE SPECIFICALLY FOR FILE GAME.PY
+    def return_valid(self, i, j):
+        return self.board[i][j].return_possible_moves(self.board)
+
+
+
     # FUNCTION THAT CHECKS WEATHER A PIECE SHOULD MOVE OR NOT
     # AND THEN MOVE IT IF VALID
     # THIS FUNCITION WILL ONLY BE CALLED WHEN THE NEW POSITION FALLS UNDER 'POSSIBLE MOVES'
@@ -171,7 +183,40 @@ class Board:
         # INITIALLY SET THAT THE PIECE WILL MOVE
         piece_was_not_able_to_move = False
 
-        # SPECIAL CASE
+
+        # SCPECIAL CASE 1 CASTLING
+
+        if isinstance(self.board[oi][oj], King) and isinstance(self.board[ni][nj], Rook) and self.board[oi][oj].color == self.board[ni][nj].color:
+            self.update_old_piece = False
+            self.remove_old_piece = False
+            self.move_old_piece = False
+
+            if nj == 7:
+                # FOR RIGHT ROOK
+                if self.check_valid_move(oi, oj, oi, oj + 2, color_current) and self.check_valid_move(oi, oj, oi, oj + 1, color_current):
+                    self.board[oi][oj + 2] = self.board[oi][oj]  # KING AT NEW POSITION
+                    self.board[oi][oj + 1] = self.board[ni][nj]  # ROOK WAS MOVED
+                    self.board[oi][oj].move(oi, oj + 2)  # KING MOVED IN IMAGE
+                    self.board[ni][nj].move(ni, nj - 2)  # ROOK MOVED IN IMAGE
+                    self.board[ni][nj] = 0  # OLD ROOK IS REMOVED
+                    self.board[oi][oj] = 0  # OLD KING REMOVED
+                else:
+                    piece_was_not_able_to_move = True
+
+            elif nj == 0:
+                # FOR LEFT ROOK
+                if self.check_valid_move(oi, oj, oi, oj - 2, color_current) and self.check_valid_move(oi, oj, oi, oj - 1, color_current):
+                    self.board[oi][oj - 2] = self.board[oi][oj]  # KING AT NEW POSITION
+                    self.board[oi][oj - 1] = self.board[ni][nj]  # ROOK WAS MOVED
+                    self.board[oi][oj].move(oi, oj - 2)  # KING MOVED IN IMAGE
+                    self.board[ni][nj].move(ni, nj + 3)  # ROOK MOVED IN IMAGE
+                    self.board[ni][nj] = 0  # OLD ROOK IS REMOVED
+                    self.board[oi][oj] = 0  # OLD KING REMOVED
+                else:
+                    piece_was_not_able_to_move = True
+
+
+        # SPECIAL CASE 2 PROMOTION
         if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
             if self.board[oi][oj].color == 'w':
                 if ni == 0:
@@ -293,8 +338,7 @@ class Board:
             position = 0, 0
             for i in range(self.rows):
                 for j in range(self.columns):
-                    if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(
-                            self.board[i][j], King):
+                    if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
                         position = i, j
             self.board[position[0]][position[1]].check = True
 
@@ -313,55 +357,61 @@ class Board:
     # THE CURRENT PLAYER WILL GET CHECKED , IF YES THEN IT RETURNS FALSE, ELSE RETURNS TRUE
     def check_valid_move(self, oi, oj, ni, nj, color_current):
 
-        # IF NEW POSITION HAS A PIECE(WHEN TAKING A PIECE)
-        if self.board[ni][nj] != 0:
-            piece_at_new_pos = self.board[ni][nj]  # SAVE THE PIECE PRESENT AT NEW POSITION
-            self.board[ni][nj] = self.board[oi][oj]  # NEW POSITION HAS OLD PIECE
-            self.board[oi][oj] = 0  # OLD PIECE HAS NO PIECE
-
-            # NOW THE MOVE HAS TAKEN PLACE
-            if self.check(color_current):
-                # FINDING KINGS POSITION
-                position = 0, 0
-                for i in range(self.rows):
-                    for j in range(self.columns):
-                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
-                            position = i, j
-                            break
-                # CHANGING CHECK STATUS TO FALSE BECAUSE WHEN CHECK() FUNC IN USED IT TURNS IT TRUE IF KING WAS CHECKED
-                self.board[position[0]][position[1]].check = False
-                self.board[oi][oj] = self.board[ni][nj]
-                self.board[ni][nj] = piece_at_new_pos
-                # THIS PRODUCES CHECK SO RETURN NOT A VALID MOVE
-                return False
-
-            else:
-                # IF NOT TRUE THEN RETURN TRUE(VALID MOVE)
-                self.board[oi][oj] = self.board[ni][nj]
-                self.board[ni][nj] = piece_at_new_pos
-                return True
-
-            # IF NEW POSITION DOES NOT HAVE A PIECE
+        # BECAUSE CASTLING CHECK IS DIFFERENT DONT USE STANDARD ALGO
+        if isinstance(self.board[oi][oj], King) and isinstance(self.board[ni][nj], Rook) and self.board[oi][oj].color == self.board[ni][nj].color:
+            return True
         else:
-            self.board[ni][nj] = self.board[oi][oj]  # new position
-            self.board[oi][oj] = 0
 
-            if self.check(color_current):
-                position = 0, 0
-                for i in range(self.rows):
-                    for j in range(self.columns):
-                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
-                            position = i, j
-                            break
+            # IF NEW POSITION HAS A PIECE(WHEN TAKING A PIECE)
+            if self.board[ni][nj] != 0:
+                piece_at_new_pos = self.board[ni][nj]  # SAVE THE PIECE PRESENT AT NEW POSITION
+                self.board[ni][nj] = self.board[oi][oj]  # NEW POSITION HAS OLD PIECE
+                self.board[oi][oj] = 0  # OLD PIECE HAS NO PIECE
 
-                self.board[position[0]][position[1]].check = False
-                self.board[oi][oj] = self.board[ni][nj]
-                self.board[ni][nj] = 0
-                return False
+                # NOW THE MOVE HAS TAKEN PLACE
+                if self.check(color_current):
+                    # FINDING KINGS POSITION
+                    position = 0, 0
+                    for i in range(self.rows):
+                        for j in range(self.columns):
+                            if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
+                                position = i, j
+                                break
+
+                    # CHANGING CHECK STATUS TO FALSE BECAUSE WHEN CHECK() FUNC IN USED IT TURNS IT TRUE IF KING WAS CHECKED
+                    self.board[position[0]][position[1]].check = False
+                    self.board[oi][oj] = self.board[ni][nj]
+                    self.board[ni][nj] = piece_at_new_pos
+                    # THIS PRODUCES CHECK SO RETURN NOT A VALID MOVE
+                    return False
+
+                else:
+                    # IF NOT TRUE THEN RETURN TRUE(VALID MOVE)
+                    self.board[oi][oj] = self.board[ni][nj]
+                    self.board[ni][nj] = piece_at_new_pos
+                    return True
+
+                # IF NEW POSITION DOES NOT HAVE A PIECE
             else:
-                self.board[oi][oj] = self.board[ni][nj]
-                self.board[ni][nj] = 0
-                return True
+                self.board[ni][nj] = self.board[oi][oj]  # new position
+                self.board[oi][oj] = 0
+
+                if self.check(color_current):
+                    position = 0, 0
+                    for i in range(self.rows):
+                        for j in range(self.columns):
+                            if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
+                                position = i, j
+                                break
+
+                    self.board[position[0]][position[1]].check = False
+                    self.board[oi][oj] = self.board[ni][nj]
+                    self.board[ni][nj] = 0
+                    return False
+                else:
+                    self.board[oi][oj] = self.board[ni][nj]
+                    self.board[ni][nj] = 0
+                    return True
 
     # THIS FUNCTION RETURNS ALL THE PLACES ON BOARD WHERE THE KING CANNOT MOVE
     # THIS TAKES KINGS COORDINATES
@@ -399,11 +449,6 @@ class Board:
 
         return danger_moves
 
-    # THIS FUNCTION PASSES ALL THE POSSIBLE MOVES THAT CAN BE MADE BY A PIECE
-    # MADE SPECIFICALLY FOR FILE GAME.PY
-    def return_valid(self, i, j):
-        return self.board[i][j].return_possible_moves(self.board)
-
     # THIS FUNCTIONS CHECK WEATHER THE KING OF COLOR THAT IS PASSED IS IN CHECK OR NOT
     def check(self, for_color):
         # FIND KINGS POSITION
@@ -413,6 +458,7 @@ class Board:
                 if self.board[i][j] != 0 and self.board[i][j].color == for_color and isinstance(self.board[i][j], King):
                     position = i, j
                     break
+
 
         enemy_moves = self.king_danger_moves(position[0], position[1])
 
@@ -437,11 +483,16 @@ class Board:
                             # FOR EVERY PIECE GET ALL POSSIBLE MOVES
                             all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
                             for move in all_possible_moves_for_a_piece:
-                                if self.check_valid_move(i, j, move[0], move[1], for_color):  # TRUE FOR VALID
-                                    # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETURN NOT CHECKMATE
-                                    return 0
-                                else:
+                                # THE CASTLING ADD 0, 0 TO POSSIBLE MOVES FOR KING
+                                # WHEN THIS PART READ IT GIVES ERROR SO THIS WAS IMP
+                                if type(move) == type(1):
                                     pass
+                                else:
+                                    if self.check_valid_move(i, j, move[0], move[1], for_color):  # TRUE FOR VALID
+                                        # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETURN NOT CHECKMATE
+                                        return 0
+                                    else:
+                                        pass
             # IF FOR EVERY POSSIBLE MOVES FOR EVERY PIECE NO POSITION WAS FOUND
             # SUCH THAT A CHECK WAS NOT PRODUCED
             # BECAUSE THE KING IS ALREADY IN CHECK RETURN 1
@@ -476,6 +527,7 @@ class Board:
                                 pass
 
         return 1
+
     
     # WHEN THE PAWN IS PROMOTED, THIS FUNCTION IS CALLED
     # THIS RETURNS THE PIECE PLAYER WANTS TO REPLACE PAWN WITH

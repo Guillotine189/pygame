@@ -79,8 +79,9 @@ class pieces:
             possible_moves = self.possible_moves(board)
             if len(possible_moves):
                 for d in possible_moves:
-                    center = d[1]*self.width + self.width/2, d[0]*self.height + self.height/2
-                    pygame.draw.circle(screen, (250, 150, 0), center, 15, 0)
+                    if d != 0:
+                        center = d[1]*self.width + self.width/2, d[0]*self.height + self.height/2
+                        pygame.draw.circle(screen, (250, 150, 0), center, 15, 0)
 
             pygame.draw.rect(screen, (250, 150, 0), (self.column * self.width + 1, self.row * self.height, self.width + 6, self.height + 5), 6)
 
@@ -355,8 +356,9 @@ class Bishop(pieces):
 
 class King(pieces):
     image = 1
+    moves = 0
     check = False
-
+    
     def possible_moves(self, board):
         moves = []
         i = self.row
@@ -435,7 +437,44 @@ class King(pieces):
                 if p.color != self.color and not isinstance(p, King):
                     moves.append((i + 1, j + 1))
 
+        castle_moves = self.castling(board)
+        moves.append(castle_moves[0])
+        moves.append(castle_moves[1])
         return moves
+
+    def castling(self, board):
+        oi = self.row
+        oj = self.column
+        ni = oi
+
+        color_current = self.color
+        right_castle_move = 0
+        left_castle_move = 0
+        if self.moves == 0 and (oi == 0 or oi == 7):
+            # KING HAS ZERO MOVES
+            # CHECKING OF THE POSITION BETWEEN THE KING AND ROOK FOR CHECK IS DONE IN board.py
+            if not self.check:
+                # FOR RIGHT ROOK
+                if board[ni][7] != 0:
+                    if isinstance(board[ni][7], Rook) and board[ni][7].color == color_current:
+                        # THE NEW POSITION HAS ROOK OF SAME COLOR
+                        if board[ni][7].moves == 0:
+                            # MOVES OF ROOK ARE ZERO
+                            if board[oi][oj + 1] == 0 and board[oi][oj + 2] == 0:
+                                # SPACE BETWEEN THEM IS EMPTY
+                                    right_castle_move = (ni, 7)
+
+                # FOR LEFT ROOK
+                if board[ni][0] != 0:
+                    if isinstance(board[ni][0], Rook) and board[ni][0].color == color_current:
+                        # THE NEW POSITION HAS ROOK OF SAME COLOR
+                        if board[ni][0].moves == 0:
+                            # MOVES OF ROOK ARE ZERO
+                            if board[oi][1] == 0 and board[oi][2] == 0 and board[oi][3] == 0 :
+                                # SPACE BETWEEN THEM IS EMPTY
+                                left_castle_move = (ni, 0)
+
+        return right_castle_move, left_castle_move
 
 
 class Knight(pieces):
@@ -520,8 +559,10 @@ class Knight(pieces):
         return moves
 
 
+
 class Rook(pieces):
     image = 3
+    moves = 0
 
     def possible_moves(self, board):
         moves = []

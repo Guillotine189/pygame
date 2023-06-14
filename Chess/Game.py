@@ -2,6 +2,8 @@ import sys
 from board import Board
 import pygame
 from Pieces import Pawn
+from Pieces import King
+from Pieces import Rook
 
 
 # LOADING PYGAME
@@ -32,6 +34,10 @@ clock = pygame.time.Clock()
 # MAKING A BOARD
 bo = Board(8, 8, screen)
 
+# VARIABLES ONLY FOR COMPARISON
+check_list = []
+check_tup = ()
+
 
 # THIS TAKES THE POSITION I AND J AND CHECK IF THAT POSITION HAS A PIECE SAME AS THE CURRENT PLAYER COLOR
 def check_current_player_by_color(bo, i, j):
@@ -43,12 +49,26 @@ def check_current_player_by_color(bo, i, j):
 
 
 # GENERIC FUNCTION TO THAT CHECKS IF AN ELEMENT IS IN AN ARRAY OR NOT
-def check_element_in_arr(element, arr):
-    for i in arr:
-        if i == element:
-            return True
-    return False
 
+def check_element_in_arr(element, arr):
+    # print(arr)
+    for i in arr:
+        # print(i, element)
+        if type(i) == type(check_tup):
+            # THIS IS A TUPLE
+            if element == i:
+                return True
+        elif type(i) == type(check_list) and len(i) > 0:
+            # THE TUPLES ARE IN A LIST
+            for j in i:
+                # print(j, element)
+                if element == j:
+                    return True
+        else:
+            # ZERO LENGTH LIST
+            pass
+
+    return False
 
 # THIS FUNCTION RETURN THE X AND Y COORDINATE FOR THE BOARD
 def click(mpos):
@@ -147,12 +167,20 @@ while True:
             # bo.selected(i, j) FUNCTIONS SELECTS A PIECE AND DESELECTS IF IT'S ALREADY SELECTED
 
             elif bo.check_any_selected() and move == 1:
+
+                # CHECK KING FOR CASTLING
+                if isinstance(bo.board[start_row][start_col], King):
+                    pass
+
                 # GET ALL THE POSSIBLE MOVES FOR  THAT PIECE
                 valid_moves = bo.return_valid(start_row, start_col)
 
+
+                # TODO  check if this does anything (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color)
                 # CHECK IF THE NEW POSITION SELECTED IS EMPTY(ZERO), OR HAS A DIFFERENT COLOR PIECE
                 # THEN CHECK WEATHER THAT NEW POSITION IS IN THE VALID MOVES LIST
-                if (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color) and check_element_in_arr((i, j), valid_moves):
+
+                if check_element_in_arr((i, j), valid_moves):
                     move = 0
                     # THIS FUNCTIONS TAKES THE OLD AND NEW POSITION
                     # CHECKS WEATHER IT CAN MOVE THE PIECE TO THE NEW POSITION OR NOT
@@ -173,10 +201,16 @@ while True:
                         else:
                             current_player_color = 'w'
 
-                        # AFTER THE PIECE HAS MOVED, CHECK IF THE PIECE WAS PAWN
-                        # AND CHANGE THE VARIABLE THAT CHANGES THE VALID MOVES FOR PAWN
+                        # AFTER THE PIECE HAS MOVED, CHECK IF THE PIECE WAS PAWN, ROOK OR KING
+                        # AND CHANGE THE VARIABLE THAT CHANGES THE VALID MOVES FOR THEM
                         if isinstance(bo.board[i][j], Pawn):
                             bo.board[i][j].times_moved = 1
+
+                        if isinstance(bo.board[i][j], King):
+                            bo.board[i][j].moves = 1
+
+                        if isinstance(bo.board[i][j], Rook):
+                            bo.board[i][j].moves = 1
 
                         # CHECK FOR TIE
                         count = 0
@@ -206,6 +240,7 @@ while True:
                             bo.draw(screen)
                             pygame.display.update()
                             loosing_screen('WHITE')
+
 
                         # CHECK FOR STALEMATE
                         a = bo.stalemate('w')
@@ -242,7 +277,7 @@ while True:
                     start_row = i
                     start_col = j
             else:
-                # IF THE SELECTED IS NOT ANY OF THE ABOVE
+                # IF NO PIECE IS SELECTED, JUST CLICKING BLANK SPOTS
                 check_sound.play()
                 move = 0
 
