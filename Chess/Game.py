@@ -4,7 +4,8 @@ import pygame
 from Pieces import Pawn
 from Pieces import King
 from Pieces import Rook
-
+from Pieces import Bishop
+from Pieces import Knight
 
 # LOADING PYGAME
 pygame.init()
@@ -29,7 +30,6 @@ board_image = pygame.transform.scale(board_image, (WIDTH, HEIGHT))
 
 # CLOCK
 clock = pygame.time.Clock()
-
 
 # MAKING A BOARD
 bo = Board(8, 8, screen)
@@ -70,13 +70,6 @@ def check_element_in_arr(element, arr):
 
     return False
 
-# THIS FUNCTION RETURN THE X AND Y COORDINATE FOR THE BOARD
-def click(mpos):
-    y_co = int(mpos[0]/(WIDTH/8))
-    x_co = int(mpos[1]/(HEIGHT/8))
-    return x_co, y_co
-
-
 # INITIALIZING GAME VARIABLES
 move = 0
 start_row = 0
@@ -87,8 +80,14 @@ start_col = 0
 current_player_color = 'w'
 
 
+# THIS FUNCTION RETURN THE X AND Y COORDINATE FOR THE BOARD
+def click(mpos):
+    y_co = int(mpos[0]/(WIDTH/8))
+    x_co = int(mpos[1]/(HEIGHT/8))
+    return x_co, y_co
+
+
 def loosing_screen(text):
-    print(text, ' WON')
     text = text + ' WON'
     text_ = font_.render(text, True, 'black')
     text_rect = text_.get_rect()
@@ -112,7 +111,6 @@ def loosing_screen(text):
 
 
 def stalemate_screen(text):
-    print("STALEMATE")
     text_ = font_.render(text, True, 'black')
     text_rect = text_.get_rect()
     back_rect = text_rect
@@ -195,6 +193,27 @@ while True:
                     else:
                         move_sound.play()
 
+                        # CHANGE THE EN_PASSANT STATUS OF ALL PAWN OF SAME COLOR TO BE FALSE
+                        for ti in range(8):
+                            for tj in range(8):
+                                if bo.board[ti][tj] != 0 and isinstance(bo.board[ti][tj], Pawn) and bo.board[ti][tj].color == current_player_color:
+                                    if bo.board[ti][tj].en_passant_left_status or bo.board[ti][tj].en_passant_right_status:
+                                        bo.board[ti][tj].en_passant_left_status = False
+                                        bo.board[ti][tj].en_passant_right_status = False
+
+                        # TURNING EN_PASSANT STATUS OF ENEMY PAWN TRUE
+                        if isinstance(bo.board[i][j], Pawn) and abs(start_row - i) == 2:
+                            # FOR ENEMY PAWN ON LEFT
+                            if j > 0:
+                                if bo.board[i][j-1] != 0 and isinstance(bo.board[i][j-1], Pawn) and bo.board[i][j-1].color != current_player_color:
+                                    bo.board[i][j - 1].en_passant_right_status = True
+
+                            # FOR ENEMY PAWN ON RIGHT
+                            if j < 7:
+                                if bo.board[i][j+1] != 0 and isinstance(bo.board[i][j+1], Pawn) and bo.board[i][j+1].color != current_player_color:
+                                    bo.board[i][j + 1].en_passant_left_status = True
+
+
                         # CHANGE THE CURRENT PLAYER COLOR
                         if current_player_color == 'w':
                             current_player_color = 'b'
@@ -224,7 +243,15 @@ while True:
                             screen.blit(board_image, (0, 0))
                             bo.draw(screen)
                             pygame.display.update()
-                            stalemate_screen('STALEMATE')
+                            stalemate_screen('DRAW')
+                        if count == 61:
+                            for i in range(8):
+                                for j in range(8):
+                                    if bo.board[i][j] != 0 and (isinstance(bo.board[i][j], Knight) or isinstance(bo.board[i][j], Bishop)):
+                                        screen.blit(board_image, (0, 0))
+                                        bo.draw(screen)
+                                        pygame.display.update()
+                                        stalemate_screen('DRAW')
 
                         # CHECK FOR CHECKMATE
                         a = bo.checkmate('w')

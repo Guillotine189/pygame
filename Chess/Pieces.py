@@ -371,7 +371,7 @@ class King(pieces):
                 moves.append((i-1, j-1))
             else:
                 # IF THE OTHER PLAYER IS NOT THE SAME COLOR AND NOT A KING
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i - 1, j - 1))
 
         # top middle
@@ -380,7 +380,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i-1, j))
             else:
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i - 1, j))
 
         # top right
@@ -389,7 +389,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i-1, j+1))
             else:
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i-1, j+1))
 
         # middle right
@@ -398,7 +398,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i, j+1))
             else:
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i, j + 1))
 
         # middle left
@@ -407,7 +407,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i, j-1))
             else:
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i, j - 1))
 
         # bottom left
@@ -416,7 +416,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i+1, j-1))
             else:
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i + 1, j - 1))
 
         # bottom middle
@@ -425,7 +425,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i+1, j))
             else:
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i + 1, j))
 
         # bottom right
@@ -434,7 +434,7 @@ class King(pieces):
             if p == 0:
                 moves.append((i+1, j+1))
             else:
-                if p.color != self.color and not isinstance(p, King):
+                if p.color != self.color:
                     moves.append((i + 1, j + 1))
 
         castle_moves = self.castling(board)
@@ -462,7 +462,7 @@ class King(pieces):
                             # MOVES OF ROOK ARE ZERO
                             if board[oi][oj + 1] == 0 and board[oi][oj + 2] == 0:
                                 # SPACE BETWEEN THEM IS EMPTY
-                                    right_castle_move = (ni, 7)
+                                    right_castle_move = (ni, 6)
 
                 # FOR LEFT ROOK
                 if board[ni][0] != 0:
@@ -470,9 +470,9 @@ class King(pieces):
                         # THE NEW POSITION HAS ROOK OF SAME COLOR
                         if board[ni][0].moves == 0:
                             # MOVES OF ROOK ARE ZERO
-                            if board[oi][1] == 0 and board[oi][2] == 0 and board[oi][3] == 0 :
+                            if board[oi][1] == 0 and board[oi][2] == 0 and board[oi][3] == 0:
                                 # SPACE BETWEEN THEM IS EMPTY
-                                left_castle_move = (ni, 0)
+                                left_castle_move = (ni, 2)
 
         return right_castle_move, left_castle_move
 
@@ -557,7 +557,6 @@ class Knight(pieces):
                     moves.append((i-1, j-2))
 
         return moves
-
 
 
 class Rook(pieces):
@@ -650,6 +649,8 @@ class Pawn(pieces):
     image = 5
     times_moved = 0
     has_changed = False
+    en_passant_left_status = False
+    en_passant_right_status = False
     
     def possible_moves(self, board):
         moves = []
@@ -692,6 +693,23 @@ class Pawn(pieces):
                         if p.color != self.color:
                             moves.append((i - 1, j - 1))
 
+                # EN_PASSANT MOVES
+                if self.en_passant_left_status:
+                    # FOR LEFT PAWN
+                    if self.column > 0:
+                        # OF DIFFERENT COLOR
+                        if board[i][j - 1] != 0:
+                            if board[i][j-1].color != self.color:
+                                moves.append((i-1, j-1))
+
+                if self.en_passant_right_status:
+                    # FOR RIGHT PAWN
+                    if self.column < 7:
+                        # OF DIFFERENT COLOR
+                        if board[i][j + 1] != 0:
+                            if board[i][j+1].color != self.color:
+                                moves.append((i-1, j+1))
+
             return moves
 
         elif self.color == "b":
@@ -721,5 +739,22 @@ class Pawn(pieces):
                     if p != 0:
                         if p.color != self.color:
                             moves.append((i + 1, j - 1))
+
+                # EN PASSANT MOVES
+                if self.en_passant_left_status:
+                    # FOR LEFT PAWN
+                    if self.column > 0:
+                        # OF DIFFERENT COLOR
+                        if board[i][j - 1] != 0:
+                            if board[i][j - 1].color != self.color:
+                                moves.append((i + 1, j - 1))
+
+                if self.en_passant_right_status:
+                    # FOR RIGHT PAWN
+                    if self.column < 7:
+                        # OF DIFFERENT COLOR
+                        if board[i][j + 1] != 0:
+                            if board[i][j + 1].color != self.color:
+                                moves.append((i + 1, j + 1))
 
             return moves
