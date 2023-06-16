@@ -33,6 +33,7 @@ clock = pygame.time.Clock()
 
 # MAKING A BOARD
 bo = Board(8, 8, screen)
+total_moves = 0
 
 # VARIABLES ONLY FOR COMPARISON
 check_list = []
@@ -192,6 +193,7 @@ while True:
                         pass
                     else:
                         move_sound.play()
+                        total_moves += 1
 
                         # CHANGE THE EN_PASSANT STATUS OF ALL PAWN OF SAME COLOR TO BE FALSE
                         for ti in range(8):
@@ -232,6 +234,13 @@ while True:
                             bo.board[i][j].moves = 1
 
                         # CHECK FOR TIE
+                        if total_moves >= 100:
+                            screen.blit(board_image, (0, 0))
+                            bo.draw(screen)
+                            pygame.display.update()
+                            stalemate_screen('DRAW')
+
+
                         count = 0
                         for i in range(8):
                             for j in range(8):
