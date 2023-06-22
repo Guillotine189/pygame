@@ -18,4 +18,10 @@ class Network:
         except Exception as e:
             print(e)
 
-
+    def send(self, message):
+        try:
+            self.client.send(message.encode(self.format))
+            message = self.client.recv(1024).decode(self.format)
+            return message
+        except Exception as e:
+            print(e)
