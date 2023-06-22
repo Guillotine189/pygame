@@ -30,7 +30,6 @@ b.append(rook_black)  # 3
 b.append(knight_black)  # 4
 b.append(pawn_black)  # 5
 
-
 A = []
 B = []
 
@@ -38,10 +37,10 @@ WIDTH = 1100
 HEIGHT = 900
 
 for i in range(6):
-    A.append(pygame.transform.scale(a[i], (int(WIDTH/8), int(HEIGHT/8))))
+    A.append(pygame.transform.scale(a[i], (int(WIDTH / 8), int(HEIGHT / 8))))
 
 for i in range(6):
-    B.append(pygame.transform.scale(b[i], (int(WIDTH/8), int(HEIGHT/8))))
+    B.append(pygame.transform.scale(b[i], (int(WIDTH / 8), int(HEIGHT / 8))))
 
 
 class pieces:
@@ -51,8 +50,8 @@ class pieces:
         self.color = color
         self.selected = False
         self.drawimage = None
-        self.width = int(1100/8)
-        self.height = int(900/8)
+        self.width = int(1100 / 8)
+        self.height = int(900 / 8)
         self.check = False
 
     def my_color(self):
@@ -69,7 +68,8 @@ class pieces:
 
         # BLOCK THAT DENOTES CHECK
         if self.check:
-            pygame.draw.rect(screen, (110, 0, 0), (self.column * self.width + 1, self.row * self.height, self.width + 6, self.height + 5), 0)
+            pygame.draw.rect(screen, (110, 0, 0),
+                             (self.column * self.width + 1, self.row * self.height, self.width + 6, self.height + 5), 0)
 
         # PIECE IMAGE
         screen.blit(self.drawimage, (self.column * self.width + 2, self.row * self.height))
@@ -80,10 +80,11 @@ class pieces:
             if len(possible_moves):
                 for d in possible_moves:
                     if d != 0:
-                        center = d[1]*self.width + self.width/2, d[0]*self.height + self.height/2
+                        center = d[1] * self.width + self.width / 2, d[0] * self.height + self.height / 2
                         pygame.draw.circle(screen, (250, 150, 0), center, 15, 0)
 
-            pygame.draw.rect(screen, (250, 150, 0), (self.column * self.width + 1, self.row * self.height, self.width + 6, self.height + 5), 6)
+            pygame.draw.rect(screen, (250, 150, 0),
+                             (self.column * self.width + 1, self.row * self.height, self.width + 6, self.height + 5), 6)
 
     def move(self, new_row, new_column):
         self.row = new_row
@@ -109,17 +110,17 @@ class Queen(pieces):
             ti = i
             tj = j
             while ti > 0 and tj < 7:
-                p = board[ti-1][tj+1]
+                p = board[ti - 1][tj + 1]
                 if p == 0:
-                    moves.append((ti-1, tj+1))
+                    moves.append((ti - 1, tj + 1))
                     if ti - 1 > 0 and tj + 1 < 7:
-                        if board[ti-2][tj+2] != 0:
-                            if board[ti-2][tj+2].color != self.color:
+                        if board[ti - 2][tj + 2] != 0:
+                            if board[ti - 2][tj + 2].color != self.color:
                                 moves.append((ti - 2, tj + 2))
                             break
                 else:
                     if p.color != self.color:
-                        moves.append((ti-1, tj+1))
+                        moves.append((ti - 1, tj + 1))
                     break
                 ti -= 1
                 tj += 1
@@ -129,17 +130,17 @@ class Queen(pieces):
             ti = i
             tj = j
             while ti > 0 and tj > 0:
-                p = board[ti-1][tj-1]
+                p = board[ti - 1][tj - 1]
                 if p == 0:
-                    moves.append((ti-1, tj-1))
+                    moves.append((ti - 1, tj - 1))
                     if ti - 1 > 0 and tj - 1 > 0:
-                        if board[ti-2][tj-2] != 0:
-                            if board[ti-2][tj-2].color != self.color:
+                        if board[ti - 2][tj - 2] != 0:
+                            if board[ti - 2][tj - 2].color != self.color:
                                 moves.append((ti - 2, tj - 2))
                             break
                 else:
                     if p.color != self.color:
-                        moves.append((ti-1, tj-1))
+                        moves.append((ti - 1, tj - 1))
                     break
                 ti -= 1
                 tj -= 1
@@ -149,12 +150,12 @@ class Queen(pieces):
             ti = i
             tj = j
             while ti < 7 and tj < 7:
-                p = board[ti+1][tj+1]
+                p = board[ti + 1][tj + 1]
                 if p == 0:
-                    moves.append((ti+1, tj+1))
+                    moves.append((ti + 1, tj + 1))
                     if ti + 1 < 7 and tj + 1 < 7:
-                        if board[ti+2][tj+2] != 0:
-                            if board[ti+2][tj+2].color != self.color:
+                        if board[ti + 2][tj + 2] != 0:
+                            if board[ti + 2][tj + 2].color != self.color:
                                 moves.append((ti + 2, tj + 2))
                             break
                 else:
@@ -169,12 +170,12 @@ class Queen(pieces):
             ti = i
             tj = j
             while ti < 7 and tj > 0:
-                p = board[ti+1][tj-1]
+                p = board[ti + 1][tj - 1]
                 if p == 0:
-                    moves.append((ti+1, tj-1))
+                    moves.append((ti + 1, tj - 1))
                     if ti + 1 < 7 and tj - 1 > 0:
-                        if board[ti+2][tj-2] != 0:
-                            if board[ti+2][tj-2].color != self.color:
+                        if board[ti + 2][tj - 2] != 0:
+                            if board[ti + 2][tj - 2].color != self.color:
                                 moves.append((ti + 2, tj - 2))
                             break
                 else:
@@ -210,7 +211,7 @@ class Queen(pieces):
         if i < 7:
             # if while going down !=0 , then that coordinate is the first obstacle coordinate
             first_obs = 8
-            for x in range(i+1, 8):
+            for x in range(i + 1, 8):
                 p = board[x][j]
                 if p != 0:
                     first_obs = x
@@ -226,7 +227,7 @@ class Queen(pieces):
         # right
         if j < 7:
             first_obs = 8
-            for x in range(j+1, 8):
+            for x in range(j + 1, 8):
                 p = board[i][x]
                 if p != 0:
                     first_obs = x
@@ -276,17 +277,17 @@ class Bishop(pieces):
             ti = i
             tj = j
             while ti > 0 and tj < 7:
-                p = board[ti-1][tj+1]
+                p = board[ti - 1][tj + 1]
                 if p == 0:
-                    moves.append((ti-1, tj+1))
+                    moves.append((ti - 1, tj + 1))
                     if ti - 1 > 0 and tj + 1 < 7:
-                        if board[ti-2][tj+2] != 0:
-                            if board[ti-2][tj+2].color != self.color:
+                        if board[ti - 2][tj + 2] != 0:
+                            if board[ti - 2][tj + 2].color != self.color:
                                 moves.append((ti - 2, tj + 2))
                             break
                 else:
                     if p.color != self.color:
-                        moves.append((ti-1, tj+1))
+                        moves.append((ti - 1, tj + 1))
                     break
                 ti -= 1
                 tj += 1
@@ -296,17 +297,17 @@ class Bishop(pieces):
             ti = i
             tj = j
             while ti > 0 and tj > 0:
-                p = board[ti-1][tj-1]
+                p = board[ti - 1][tj - 1]
                 if p == 0:
-                    moves.append((ti-1, tj-1))
+                    moves.append((ti - 1, tj - 1))
                     if ti - 1 > 0 and tj - 1 > 0:
-                        if board[ti-2][tj-2] != 0:
-                            if board[ti-2][tj-2].color != self.color:
+                        if board[ti - 2][tj - 2] != 0:
+                            if board[ti - 2][tj - 2].color != self.color:
                                 moves.append((ti - 2, tj - 2))
                             break
                 else:
                     if p.color != self.color:
-                        moves.append((ti-1, tj-1))
+                        moves.append((ti - 1, tj - 1))
                     break
                 ti -= 1
                 tj -= 1
@@ -316,12 +317,12 @@ class Bishop(pieces):
             ti = i
             tj = j
             while ti < 7 and tj < 7:
-                p = board[ti+1][tj+1]
+                p = board[ti + 1][tj + 1]
                 if p == 0:
-                    moves.append((ti+1, tj+1))
+                    moves.append((ti + 1, tj + 1))
                     if ti + 1 < 7 and tj + 1 < 7:
-                        if board[ti+2][tj+2] != 0:
-                            if board[ti+2][tj+2].color != self.color:
+                        if board[ti + 2][tj + 2] != 0:
+                            if board[ti + 2][tj + 2].color != self.color:
                                 moves.append((ti + 2, tj + 2))
                             break
                 else:
@@ -336,12 +337,12 @@ class Bishop(pieces):
             ti = i
             tj = j
             while ti < 7 and tj > 0:
-                p = board[ti+1][tj-1]
+                p = board[ti + 1][tj - 1]
                 if p == 0:
-                    moves.append((ti+1, tj-1))
+                    moves.append((ti + 1, tj - 1))
                     if ti + 1 < 7 and tj - 1 > 0:
-                        if board[ti+2][tj-2] != 0:
-                            if board[ti+2][tj-2].color != self.color:
+                        if board[ti + 2][tj - 2] != 0:
+                            if board[ti + 2][tj - 2].color != self.color:
                                 moves.append((ti + 2, tj - 2))
                             break
                 else:
@@ -358,7 +359,7 @@ class King(pieces):
     image = 1
     moves = 0
     check = False
-    
+
     def possible_moves(self, board, online=False):
         moves = []
         i = self.row
@@ -366,9 +367,9 @@ class King(pieces):
 
         # top left
         if i > 0 and j > 0:
-            p = board[i-1][j-1]
+            p = board[i - 1][j - 1]
             if p == 0:
-                moves.append((i-1, j-1))
+                moves.append((i - 1, j - 1))
             else:
                 # IF THE OTHER PLAYER IS NOT THE SAME COLOR AND NOT A KING
                 if p.color != self.color:
@@ -376,63 +377,63 @@ class King(pieces):
 
         # top middle
         if i > 0:
-            p = board[i-1][j]
+            p = board[i - 1][j]
             if p == 0:
-                moves.append((i-1, j))
+                moves.append((i - 1, j))
             else:
                 if p.color != self.color:
                     moves.append((i - 1, j))
 
         # top right
         if i > 0 and j < 7:
-            p = board[i-1][j+1]
+            p = board[i - 1][j + 1]
             if p == 0:
-                moves.append((i-1, j+1))
+                moves.append((i - 1, j + 1))
             else:
                 if p.color != self.color:
-                    moves.append((i-1, j+1))
+                    moves.append((i - 1, j + 1))
 
         # middle right
         if j < 7:
-            p = board[i][j+1]
+            p = board[i][j + 1]
             if p == 0:
-                moves.append((i, j+1))
+                moves.append((i, j + 1))
             else:
                 if p.color != self.color:
                     moves.append((i, j + 1))
 
         # middle left
         if j > 0:
-            p = board[i][j-1]
+            p = board[i][j - 1]
             if p == 0:
-                moves.append((i, j-1))
+                moves.append((i, j - 1))
             else:
                 if p.color != self.color:
                     moves.append((i, j - 1))
 
         # bottom left
         if i < 7 and j > 0:
-            p = board[i+1][j-1]
+            p = board[i + 1][j - 1]
             if p == 0:
-                moves.append((i+1, j-1))
+                moves.append((i + 1, j - 1))
             else:
                 if p.color != self.color:
                     moves.append((i + 1, j - 1))
 
         # bottom middle
         if i < 7:
-            p = board[i+1][j]
+            p = board[i + 1][j]
             if p == 0:
-                moves.append((i+1, j))
+                moves.append((i + 1, j))
             else:
                 if p.color != self.color:
                     moves.append((i + 1, j))
 
         # bottom right
         if i < 7 and j < 7:
-            p = board[i+1][j+1]
+            p = board[i + 1][j + 1]
             if p == 0:
-                moves.append((i+1, j+1))
+                moves.append((i + 1, j + 1))
             else:
                 if p.color != self.color:
                     moves.append((i + 1, j + 1))
@@ -462,7 +463,7 @@ class King(pieces):
                             # MOVES OF ROOK ARE ZERO
                             if board[oi][oj + 1] == 0 and board[oi][oj + 2] == 0:
                                 # SPACE BETWEEN THEM IS EMPTY
-                                    right_castle_move = (ni, 6)
+                                right_castle_move = (ni, 6)
 
                 # FOR LEFT ROOK
                 if board[ni][0] != 0:
@@ -487,74 +488,74 @@ class Knight(pieces):
 
         # point bottom right
         if i < 6 and j < 7:
-            p = board[i+2][j+1]
+            p = board[i + 2][j + 1]
             if p == 0:
-                moves.append((i + 2, j+1))
+                moves.append((i + 2, j + 1))
             else:
                 if p.color != self.color:
-                    moves.append((i+2, j+1))
+                    moves.append((i + 2, j + 1))
 
         # point bottom left
         if i < 6 and j > 0:
-            p = board[i+2][j-1]
+            p = board[i + 2][j - 1]
             if p == 0:
-                moves.append((i+2, j-1))
+                moves.append((i + 2, j - 1))
             else:
                 if p.color != self.color:
-                    moves.append((i+2, j-1))
+                    moves.append((i + 2, j - 1))
 
         # point right-down
         if i < 7 and j < 6:
-            p = board[i+1][j+2]
+            p = board[i + 1][j + 2]
             if p == 0:
-                moves.append((i+1, j+2))
+                moves.append((i + 1, j + 2))
             else:
                 if p.color != self.color:
-                    moves.append((i+1, j+2))
+                    moves.append((i + 1, j + 2))
 
         # point left-down
         if i < 7 and j > 1:
-            p = board[i+1][j-2]
+            p = board[i + 1][j - 2]
             if p == 0:
-                moves.append((i+1, j-2))
+                moves.append((i + 1, j - 2))
             else:
                 if p.color != self.color:
-                    moves.append((i+1, j-2))
+                    moves.append((i + 1, j - 2))
 
         # point top right
         if i > 1 and j < 7:
-            p = board[i-2][j+1]
+            p = board[i - 2][j + 1]
             if p == 0:
                 moves.append((i - 2, j + 1))
             else:
                 if p.color != self.color:
-                    moves.append((i-2, j+1))
+                    moves.append((i - 2, j + 1))
 
         # point top left
         if i > 1 and j > 0:
-            p = board[i-2][j-1]
+            p = board[i - 2][j - 1]
             if p == 0:
                 moves.append((i - 2, j - 1))
             else:
                 if p.color != self.color:
-                    moves.append((i-2, j-1))
+                    moves.append((i - 2, j - 1))
         # point right top
         if i > 0 and j < 6:
-            p = board[i-1][j+2]
+            p = board[i - 1][j + 2]
             if p == 0:
                 moves.append((i - 1, j + 2))
             else:
                 if p.color != self.color:
-                    moves.append((i-1, j+2))
+                    moves.append((i - 1, j + 2))
 
         # point left top
         if i > 0 and j > 1:
-            p = board[i-1][j-2]
+            p = board[i - 1][j - 2]
             if p == 0:
                 moves.append((i - 1, j - 2))
             else:
                 if p.color != self.color:
-                    moves.append((i-1, j-2))
+                    moves.append((i - 1, j - 2))
 
         return moves
 
@@ -592,7 +593,7 @@ class Rook(pieces):
         if i < 7:
             # if while going down !=0 , then that coordinate is the first obstacle coordinate
             first_obs = 8
-            for x in range(i+1, 8):
+            for x in range(i + 1, 8):
                 p = board[x][j]
                 if p != 0:
                     first_obs = x
@@ -608,7 +609,7 @@ class Rook(pieces):
         # right
         if j < 7:
             first_obs = 8
-            for x in range(j+1, 8):
+            for x in range(j + 1, 8):
                 p = board[i][x]
                 if p != 0:
                     first_obs = x
@@ -651,7 +652,7 @@ class Pawn(pieces):
     has_changed = False
     en_passant_left_status = False
     en_passant_right_status = False
-    
+
     def possible_moves(self, board, online=False):
         moves = []
         i = self.row
@@ -664,7 +665,7 @@ class Pawn(pieces):
             border_w = i - 1
             border_b = i + 1
 
-        if online:
+        if self.color == "w" or online:
             if self.row > 0:
                 arr = []
                 for x in range(border_w, i):
@@ -699,65 +700,16 @@ class Pawn(pieces):
                     if self.column > 0:
                         # OF DIFFERENT COLOR
                         if board[i][j - 1] != 0:
-                            if board[i][j-1].color != self.color:
-                                moves.append((i-1, j-1))
+                            if board[i][j - 1].color != self.color:
+                                moves.append((i - 1, j - 1))
 
                 if self.en_passant_right_status:
                     # FOR RIGHT PAWN
                     if self.column < 7:
                         # OF DIFFERENT COLOR
                         if board[i][j + 1] != 0:
-                            if board[i][j+1].color != self.color:
-                                moves.append((i-1, j+1))
-
-            return moves
-
-
-        if self.color == "w":
-            if self.row > 0:
-                arr = []
-                for x in range(border_w, i):
-                    p = board[x][j]
-                    if p != 0:
-                        arr.append(x)
-
-                # FOR FORWARDS
-                if len(arr) == 0:
-                    for k in range(border_w, i):
-                        moves.append((k, j))
-
-                else:
-                    for k in range(arr[len(arr) - 1] + 1, i):
-                        moves.append((k, j))
-
-                # FOR SIDES
-                if j < 7:
-                    p = board[i - 1][j + 1]
-                    if p != 0:
-                        if p.color != self.color:
-                            moves.append((i - 1, j + 1))
-                if j > 0:
-                    p = board[i - 1][j - 1]
-                    if p != 0:
-                        if p.color != self.color:
-                            moves.append((i - 1, j - 1))
-
-                # EN_PASSANT MOVES
-                if self.en_passant_left_status:
-                    # FOR LEFT PAWN
-                    if self.column > 0:
-                        # OF DIFFERENT COLOR
-                        if board[i][j - 1] != 0:
-                            if board[i][j-1].color != self.color:
-                                moves.append((i-1, j-1))
-
-                if self.en_passant_right_status:
-                    # FOR RIGHT PAWN
-                    if self.column < 7:
-                        # OF DIFFERENT COLOR
-                        if board[i][j + 1] != 0:
-                            if board[i][j+1].color != self.color:
-                                moves.append((i-1, j+1))
+                            if board[i][j + 1].color != self.color:
+                                moves.append((i - 1, j + 1))
 
             return moves
 

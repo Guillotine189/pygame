@@ -1,7 +1,9 @@
 import socket
 import threading
+from board import Board
+from Pieces import *
 
-HOST, PORT = '10.0.0.238', 9998
+HOST, PORT = '10.0.0.238', 9999
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -11,10 +13,17 @@ FORMAT = 'utf-8'
 current_player_color = 'w'
 other_player_color = 'b'
 
-status = [0, 0]  # player 1 and 2 online status
 
+# GAME VARIABLES
+status = [0, 0]  # player 1 and 2 online status
 has_played_move = 0
 move_played = 0, 0, 0, 0
+total_moves = 0
+
+
+# GAME
+bo = Board(8, 8, 0, 'w')
+
 
 
 def make_moves(tup):
@@ -51,18 +60,6 @@ def receive(client, pl_no):
 
             if message == 'current_player':
                 client.send(current_player_color.encode(FORMAT))
-
-            if message == 'moved':
-                has_played_move = 1
-                client.send("send co".encode(FORMAT))
-                coordinates = client.recv(1024).decode(FORMAT)
-
-                move_played = read_moves(coordinates)
-                has_played_move = 1
-
-                temp = current_player_color
-                current_player_color = other_player_color
-                other_player_color = temp
 
             if message == 'played?':
                 client.send(str(has_played_move).encode(FORMAT))

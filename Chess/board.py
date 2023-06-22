@@ -48,6 +48,7 @@ def check_element_in_arr(element, arr):
 
 class Board:
 
+
     def __init__(self, rows, columns, screen, color):
         self.rows = rows
         self.columns = columns
@@ -149,7 +150,6 @@ class Board:
             self.board[6][6] = Pawn(6, 6, 'b')
             self.board[6][7] = Pawn(6, 7, 'b')
 
-
     # THIS DRAWS THE BOARD
     def draw(self, screen):
         for i in range(self.rows):
@@ -206,7 +206,7 @@ class Board:
     # THIS FUNCTION PASSES ALL THE POSSIBLE MOVES THAT CAN BE MADE BY A PIECE
     # MADE SPECIFICALLY FOR FILE GAME.PY
     def return_valid(self, i, j):
-        return self.board[i][j].return_possible_moves(self.board, self.isonline)
+        return self.board[i][j].return_possible_moves(self.board)
 
     # FUNCTION THAT CHECKS WEATHER A PIECE SHOULD MOVE OR NOT
     # AND THEN MOVE IT IF VALID
@@ -482,7 +482,7 @@ class Board:
 
                         # FOR EVEY OTHER ENEMY PIECE APPEND ALL THE POSSIBLE MOVES
                         else:
-                            danger_moves.append(self.board[i][j].return_possible_moves(self.board, self.isonline))
+                            danger_moves.append(self.board[i][j].return_possible_moves(self.board))
 
         return danger_moves
 
@@ -517,7 +517,7 @@ class Board:
                     if self.board[i][j] != 0:
                         if self.board[i][j].color == for_color:
                             # FOR EVERY PIECE GET ALL POSSIBLE MOVES
-                            all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board, self.isonline)
+                            all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
                             for move in all_possible_moves_for_a_piece:
                                 # THE CASTLING ADD 0, 0 TO POSSIBLE MOVES FOR KING
                                 # WHEN THIS PART READ IT GIVES ERROR, SO THIS WAS IMP
@@ -533,7 +533,7 @@ class Board:
             # SUCH THAT A CHECK WAS NOT PRODUCED
             # BECAUSE THE KING IS ALREADY IN CHECK RETURN 1
 
-            # TURN THE CHECK FOR KING TO BE TRUE 
+            # TURN THE CHECK FOR KING TO BE TRUE
             position = 0, 0
             for i in range(self.rows):
                 for j in range(self.columns):
@@ -554,7 +554,7 @@ class Board:
             for j in range(8):
                 if self.board[i][j] != 0:
                     if self.board[i][j].color == for_color:
-                        all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board, self.isonline)
+                        all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
                         for move in all_possible_moves_for_a_piece:
                             if type(move) == type(1):
                                 pass
