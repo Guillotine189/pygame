@@ -3,7 +3,7 @@ import threading
 from board import Board
 from Pieces import *
 
-HOST, PORT = '10.0.0.238', 9999
+HOST, PORT = '10.0.0.238', 9988
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -50,6 +50,7 @@ def receive(client, pl_no):
             message = client.recv(1024).decode(FORMAT)
 
             if message == 'init':
+                status[pl_no] = 1
                 client.send(my_color.encode(FORMAT))
 
             if message == 'con_stat':
@@ -61,6 +62,32 @@ def receive(client, pl_no):
             if message == 'current_player':
                 client.send(current_player_color.encode(FORMAT))
 
+            if message == 'MOVED':
+                client.send('ok'.encode(FORMAT))
+                moves = client.recv(1024).decode(FORMAT)
+                moves = read_moves(moves)
+                piece_was_not_able_to_move = bo.move_piece(moves[0], moves[1], moves[2], moves[3], current_player_color)
+
+                if piece_was_not_able_to_move:
+                    client.send("1".encode(FORMAT))
+                else:
+                    client.send("0".encode(FORMAT))
+
+            # if message == 'new_board':
+            #     payload = ''
+            #     for i in range(8):
+            #         for j in range(8):
+            #             payload += str(bo.board[i][j])
+            #             payload += ' '
+            #
+            #
+            #     # payload = f'{bo.board[0]}'
+            #     print(payload)
+            #     client.send(payload.encode(FORMAT))
+
+
+
+            #  UNUSED
             if message == 'played?':
                 client.send(str(has_played_move).encode(FORMAT))
                 if has_played_move:
@@ -70,10 +97,12 @@ def receive(client, pl_no):
                 payload = make_moves(move_played)
                 client.send(payload.encode(FORMAT))
 
+            #  DISCONNECTION
             if message == '!D':
                 status[pl_no] = 0
                 print(f"PLAYER {pl_no} DISCONNECTED")
                 player_no -= 1
+                status[pl_no] = 0
                 break
 
             if not message:

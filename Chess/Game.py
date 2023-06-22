@@ -7,6 +7,9 @@ from Pieces import Rook
 from Pieces import Bishop
 from Pieces import Knight
 from client import Network
+import json
+import ast
+
 
 # LOADING PYGAME
 pygame.init()
@@ -236,6 +239,21 @@ def read_moves(moves):
     moves_ = moves.split(" ")
     return int(moves_[0]), int(moves_[1]), int(moves_[2]), int(moves_[3])
 
+def make_moves(tup):
+    return str(tup[0]) + " " + str(tup[1]) + " " + str(tup[2]) + " " + str(tup[3])
+
+
+
+def read_board(board):
+    return_element = []
+    board_new = board.split(" ")
+    print(board_new)
+    for i in range(64):
+        return_element += board_new[i]
+    return return_element
+
+
+
 def online_game(Player, my_color):
     pygame.display.set_caption('CHESS ONLINE')
 
@@ -244,17 +262,94 @@ def online_game(Player, my_color):
     else:
         bo = Board(8, 8, screen, 'b')
 
+    move = 0
+    start_row = 0
+    start_col = 0
+    current_player_color = 'w'
+
     while True:
+        mpos = pygame.mouse.get_pos()
         screen.fill((0, 0, 0))
         screen.blit(board_image, (0, 0))
         bo.draw(screen)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                Player.client.send("!D".encode(Player.format))
-                pygame.quit()
-                sys.exit()
 
-        pygame.display.update()
+        pl_2_stat = Player.send('con_stat')
+        if int(pl_2_stat):
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    Player.client.send("!D".encode(Player.format))
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if move == 0:
+                        current_player_color = Player.send('current_player')
+
+                    #  MY TURN CONFIRMED
+                    if current_player_color == my_color:
+                        i, j = click(mpos)
+
+                        if move == 0:
+                            bo.selected(i, j)
+                            start_row = i
+                            start_col = j
+
+                        if bo.check_any_selected() and move == 0:
+                            move += 1
+
+                        # IF THE NEW POSITION SELECTED IS THE ORIGINAL POSITION
+                        elif (i, j) == (start_row, start_col):
+                            move = 0
+                            bo.deselect_all()
+
+                        # IF PLAYER SELECTED ANOTHER PIECE
+                        elif bo.board[i][j] != 0 or check_current_player_by_color(bo, i, j, current_player_color):
+                            bo.selected(i, j)
+                            start_row = i
+                            start_col = j
+
+                        # WHEN 2ND TIME MOUSE IS PRESSED
+                        elif bo.check_any_selected() and move == 1:
+                            valid_moves = bo.return_valid(start_row, start_col)
+
+                            if check_element_in_arr((i, j), valid_moves):
+                                payload = start_row, start_col, i, j
+                                payload = make_moves(payload)
+                                move = 0
+                                # NOW THE NEW POSITION COMES INSIDE THE POSSIBLE MOVES
+                                # SEND THIS TO SERVER TO FIND IF ITS VALID OR NOT
+                                garbage = Player.send('MOVED')
+                                piece_was_not_able_to_move = Player.send(payload)
+
+                                if int(piece_was_not_able_to_move):
+                                    check_sound.play()
+                                else:
+                                    # new_board = Player.send('new_board')
+                                    # board_tuple = read_board(new_board)
+                                    # print(board_tuple)
+                                    # print(type(board_tuple))
+                                    
+                                    #  garbage because we know the piece will move
+                                    garbage = bo.move_piece(start_row, start_col, i, j, current_player_color)
+
+
+                        else:
+                            #
+                            check_sound.play()
+                            move = 0
+
+                    else:
+                        # IF NOT MY CHANCE
+                        check_sound.play()
+
+
+            pygame.display.update()
+
+
+        else:
+            # P2 NOT ONLONE
+            Player.client.send('!D'.encode(Player.format))
+            disconnect_screen()
 
 
 def disconnect_screen():
@@ -265,8 +360,8 @@ def disconnect_screen():
 
     while True:
         screen.fill((0, 0, 0))
-        screen.blit(starting_screen_image, (-10, 95))
-        screen.blit(text, (50, 150))
+        screen.blit(starting_screen_image, (0, 95))
+        screen.blit(text, (25, 250))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
