@@ -66,7 +66,7 @@ class Board:
         self.update_old_piece = True
         self.castling = False
         self.promoting = False
-
+        self.isonline = False
         # ADDING PIECES TO THE BOARD
 
         if color == 'w':
@@ -206,7 +206,7 @@ class Board:
     # THIS FUNCTION PASSES ALL THE POSSIBLE MOVES THAT CAN BE MADE BY A PIECE
     # MADE SPECIFICALLY FOR FILE GAME.PY
     def return_valid(self, i, j):
-        return self.board[i][j].return_possible_moves(self.board)
+        return self.board[i][j].return_possible_moves(self.board, self.isonline)
 
     # FUNCTION THAT CHECKS WEATHER A PIECE SHOULD MOVE OR NOT
     # AND THEN MOVE IT IF VALID
@@ -482,7 +482,7 @@ class Board:
 
                         # FOR EVEY OTHER ENEMY PIECE APPEND ALL THE POSSIBLE MOVES
                         else:
-                            danger_moves.append(self.board[i][j].return_possible_moves(self.board))
+                            danger_moves.append(self.board[i][j].return_possible_moves(self.board, self.isonline))
 
         return danger_moves
 
@@ -517,7 +517,7 @@ class Board:
                     if self.board[i][j] != 0:
                         if self.board[i][j].color == for_color:
                             # FOR EVERY PIECE GET ALL POSSIBLE MOVES
-                            all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
+                            all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board, self.isonline)
                             for move in all_possible_moves_for_a_piece:
                                 # THE CASTLING ADD 0, 0 TO POSSIBLE MOVES FOR KING
                                 # WHEN THIS PART READ IT GIVES ERROR, SO THIS WAS IMP
@@ -554,7 +554,7 @@ class Board:
             for j in range(8):
                 if self.board[i][j] != 0:
                     if self.board[i][j].color == for_color:
-                        all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
+                        all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board, self.isonline)
                         for move in all_possible_moves_for_a_piece:
                             if type(move) == type(1):
                                 pass

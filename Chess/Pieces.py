@@ -58,7 +58,7 @@ class pieces:
     def my_color(self):
         return self.color
 
-    def possible_moves(self, board):
+    def possible_moves(self, board, online=False):
         pass
 
     def draw(self, screen, board):
@@ -96,7 +96,7 @@ class pieces:
 class Queen(pieces):
     image = 2
 
-    def possible_moves(self, board):
+    def possible_moves(self, board, online=False):
         moves = []
         i = self.row
         j = self.column
@@ -266,7 +266,7 @@ class Queen(pieces):
 class Bishop(pieces):
     image = 0
 
-    def possible_moves(self, board):
+    def possible_moves(self, board, online=False):
         moves = []
         i = self.row
         j = self.column
@@ -359,7 +359,7 @@ class King(pieces):
     moves = 0
     check = False
     
-    def possible_moves(self, board):
+    def possible_moves(self, board, online=False):
         moves = []
         i = self.row
         j = self.column
@@ -480,7 +480,7 @@ class King(pieces):
 class Knight(pieces):
     image = 4
 
-    def possible_moves(self, board):
+    def possible_moves(self, board, online=False):
         moves = []
         i = self.row
         j = self.column
@@ -563,7 +563,7 @@ class Rook(pieces):
     image = 3
     moves = 0
 
-    def possible_moves(self, board):
+    def possible_moves(self, board, online=False):
         moves = []
         i = self.row
         j = self.column
@@ -652,7 +652,7 @@ class Pawn(pieces):
     en_passant_left_status = False
     en_passant_right_status = False
     
-    def possible_moves(self, board):
+    def possible_moves(self, board, online=False):
         moves = []
         i = self.row
         j = self.column
@@ -663,6 +663,55 @@ class Pawn(pieces):
         else:
             border_w = i - 1
             border_b = i + 1
+
+        if online:
+            if self.row > 0:
+                arr = []
+                for x in range(border_w, i):
+                    p = board[x][j]
+                    if p != 0:
+                        arr.append(x)
+
+                # FOR FORWARDS
+                if len(arr) == 0:
+                    for k in range(border_w, i):
+                        moves.append((k, j))
+
+                else:
+                    for k in range(arr[len(arr) - 1] + 1, i):
+                        moves.append((k, j))
+
+                # FOR SIDES
+                if j < 7:
+                    p = board[i - 1][j + 1]
+                    if p != 0:
+                        if p.color != self.color:
+                            moves.append((i - 1, j + 1))
+                if j > 0:
+                    p = board[i - 1][j - 1]
+                    if p != 0:
+                        if p.color != self.color:
+                            moves.append((i - 1, j - 1))
+
+                # EN_PASSANT MOVES
+                if self.en_passant_left_status:
+                    # FOR LEFT PAWN
+                    if self.column > 0:
+                        # OF DIFFERENT COLOR
+                        if board[i][j - 1] != 0:
+                            if board[i][j-1].color != self.color:
+                                moves.append((i-1, j-1))
+
+                if self.en_passant_right_status:
+                    # FOR RIGHT PAWN
+                    if self.column < 7:
+                        # OF DIFFERENT COLOR
+                        if board[i][j + 1] != 0:
+                            if board[i][j+1].color != self.color:
+                                moves.append((i-1, j+1))
+
+            return moves
+
 
         if self.color == "w":
             if self.row > 0:
