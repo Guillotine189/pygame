@@ -24,24 +24,57 @@ WIDTH = 1100
 HEIGHT = 900
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# INITIALIZING BOARD IMAGE
+# INITIALIZING IMAGES
 board_image = pygame.image.load('./images/board5.png')
 board_image = pygame.transform.scale(board_image, (WIDTH, HEIGHT))
+starting_screen_image = pygame.transform.scale(pygame.image.load('./images/starting_screen.png'), (1100, 650))
 
 # CLOCK
 clock = pygame.time.Clock()
-
-# MAKING A BOARD
-bo = Board(8, 8, screen)
-total_moves = 0
 
 # VARIABLES ONLY FOR COMPARISON
 check_list = []
 check_tup = ()
 
 
+class Button:
+    def __init__(self, text, x, y, w, h):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+
+    def draw(self):
+        button_text = font_.render(self.text, True, 'black')
+        button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
+        if self.check_hover():
+            pygame.draw.rect(screen, (255, 255, 255), button_rect, 0, 5)
+        else:
+            pygame.draw.rect(screen, 'grey', button_rect, 0, 5)
+
+        screen.blit(button_text, (self.x + 15, self.y))
+
+    def check_click(self):
+        left_button = pygame.mouse.get_pressed()[0]
+        button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
+        mouse_pos = pygame.mouse.get_pos()
+        if left_button and button_rect.collidepoint(mouse_pos):
+            return 1
+        else:
+            return 0
+
+    def check_hover(self):
+        mouse_pos = pygame.mouse.get_pos()
+        button_rect = pygame.rect.Rect((self.x, self.y), (self.w, self.h))
+        if button_rect.collidepoint(mouse_pos):
+            return 1
+        else:
+            return 0
+
+
 # THIS TAKES THE POSITION I AND J AND CHECK IF THAT POSITION HAS A PIECE SAME AS THE CURRENT PLAYER COLOR
-def check_current_player_by_color(bo, i, j):
+def check_current_player_by_color(bo, i, j, current_player_color):
     if bo.board[i][j] != 0:
         if bo.board[i][j].my_color() == current_player_color:
             return True
@@ -70,15 +103,6 @@ def check_element_in_arr(element, arr):
             pass
 
     return False
-
-# INITIALIZING GAME VARIABLES
-move = 0
-start_row = 0
-start_col = 0
-
-
-# SETTING CURRENT PLAYER COLOR
-current_player_color = 'w'
 
 
 # THIS FUNCTION RETURN THE X AND Y COORDINATE FOR THE BOARD
@@ -132,190 +156,233 @@ def stalemate_screen(text):
         pygame.display.update()
 
 
-while True:
+def starting_screen():
 
-    mpos = pygame.mouse.get_pos()
-    screen.fill("black")
-    screen.blit(board_image, (0, 0))
-    bo.draw(screen)
+    online_button = Button("ONLINE", 150, 400, 270, 70)
+    offline_button = Button("OFFLINE", 640, 400, 320, 70)
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+    while True:
+        screen.fill((0, 0, 0))
+        screen.blit(starting_screen_image, (0, 125))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if offline_button.check_click():
+                    offline_game()
 
-            # GET THE ROW AND COLUMN OF THE CLICKED POSITION
-            i, j = click(mpos)
-
-            # MOVE IS ZERO WHEN NO PIECE IS SELECTED
-            if move == 0 and check_current_player_by_color(bo, i, j):
-                bo.selected(i, j)
-                start_row = i
-                start_col = j
-
-            if bo.check_any_selected() and move == 0:
-                move += 1
-
-            # WHEN MOVE IS 1, THAT MEANS A PIECE IS SELECTED
-            # CHECK IF ANY PIECE WAS SELECTED
-            # bo.selected(i, j) FUNCTIONS SELECTS A PIECE AND DESELECTS IF IT'S ALREADY SELECTED
-
-            elif bo.check_any_selected() and move == 1:
-
-                # CHECK KING FOR CASTLING
-                if isinstance(bo.board[start_row][start_col], King):
-                    pass
-
-                # GET ALL THE POSSIBLE MOVES FOR  THAT PIECE
-                valid_moves = bo.return_valid(start_row, start_col)
+        online_button.draw()
+        offline_button.draw()
+        pygame.display.update()
 
 
-                # TODO  check if this does anything (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color)
-                # CHECK IF THE NEW POSITION SELECTED IS EMPTY(ZERO), OR HAS A DIFFERENT COLOR PIECE
-                # THEN CHECK WEATHER THAT NEW POSITION IS IN THE VALID MOVES LIST
+def offline_game():
 
-                if check_element_in_arr((i, j), valid_moves):
-                    move = 0
-                    # THIS FUNCTIONS TAKES THE OLD AND NEW POSITION
-                    # CHECKS WEATHER IT CAN MOVE THE PIECE TO THE NEW POSITION OR NOT
-                    piece_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
+    # global total_moves, move, start_row, start_col, bo, current_player_color
 
-                    # WEATHER THE PIECE WAS MOVED OR NOT DESELECT EVERYTHING
-                    bo.deselect_all()
+    # MAKING A BOARD
+    bo = Board(8, 8, screen)
+    total_moves = 0
 
-                    if piece_was_not_able_to_move:
-                        check_sound.play()
-                        pass
-                    else:
-                        move_sound.play()
-                        total_moves += 1
+    # INITIALIZING GAME VARIABLES
+    move = 0
+    start_row = 0
+    start_col = 0
 
-                        # CHANGE THE EN_PASSANT STATUS OF ALL PAWN OF SAME COLOR TO BE FALSE
-                        for ti in range(8):
-                            for tj in range(8):
-                                if bo.board[ti][tj] != 0 and isinstance(bo.board[ti][tj], Pawn) and bo.board[ti][tj].color == current_player_color:
-                                    if bo.board[ti][tj].en_passant_left_status or bo.board[ti][tj].en_passant_right_status:
-                                        bo.board[ti][tj].en_passant_left_status = False
-                                        bo.board[ti][tj].en_passant_right_status = False
+    # SETTING CURRENT PLAYER COLOR
+    current_player_color = 'w'
 
-                        # TURNING EN_PASSANT STATUS OF ENEMY PAWN TRUE
-                        if isinstance(bo.board[i][j], Pawn) and abs(start_row - i) == 2:
-                            # FOR ENEMY PAWN ON LEFT
-                            if j > 0:
-                                if bo.board[i][j-1] != 0 and isinstance(bo.board[i][j-1], Pawn) and bo.board[i][j-1].color != current_player_color:
-                                    bo.board[i][j - 1].en_passant_right_status = True
+    while True:
 
-                            # FOR ENEMY PAWN ON RIGHT
-                            if j < 7:
-                                if bo.board[i][j+1] != 0 and isinstance(bo.board[i][j+1], Pawn) and bo.board[i][j+1].color != current_player_color:
-                                    bo.board[i][j + 1].en_passant_left_status = True
+        mpos = pygame.mouse.get_pos()
+        screen.fill("black")
+        screen.blit(board_image, (0, 0))
+        bo.draw(screen)
 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    starting_screen()
+            if event.type == pygame.MOUSEBUTTONDOWN:
 
-                        # CHANGE THE CURRENT PLAYER COLOR
-                        if current_player_color == 'w':
-                            current_player_color = 'b'
-                        else:
-                            current_player_color = 'w'
+                # GET THE ROW AND COLUMN OF THE CLICKED POSITION
+                i, j = click(mpos)
 
-                        # AFTER THE PIECE HAS MOVED, CHECK IF THE PIECE WAS PAWN, ROOK OR KING
-                        # AND CHANGE THE VARIABLE THAT CHANGES THE VALID MOVES FOR THEM
-                        if isinstance(bo.board[i][j], Pawn):
-                            bo.board[i][j].times_moved = 1
-
-                        if isinstance(bo.board[i][j], King):
-                            bo.board[i][j].moves = 1
-
-                        if isinstance(bo.board[i][j], Rook):
-                            bo.board[i][j].moves = 1
-
-                        # CHECK FOR TIE
-                        if total_moves >= 100:
-                            screen.blit(board_image, (0, 0))
-                            bo.draw(screen)
-                            pygame.display.update()
-                            stalemate_screen('DRAW')
-
-
-                        count = 0
-                        for i in range(8):
-                            for j in range(8):
-                                if bo.board[i][j] == 0:
-                                    count += 1
-
-                        # IF ONLY THE 2 PIECES ARE LEFT, THEY ARE KINGS THEN
-                        if count == 62:
-                            screen.blit(board_image, (0, 0))
-                            bo.draw(screen)
-                            pygame.display.update()
-                            stalemate_screen('DRAW')
-                        if count == 61:
-                            for i in range(8):
-                                for j in range(8):
-                                    if bo.board[i][j] != 0 and (isinstance(bo.board[i][j], Knight) or isinstance(bo.board[i][j], Bishop)):
-                                        screen.blit(board_image, (0, 0))
-                                        bo.draw(screen)
-                                        pygame.display.update()
-                                        stalemate_screen('DRAW')
-
-                        # CHECK FOR CHECKMATE
-                        a = bo.checkmate('w')
-                        b = bo.checkmate('b')
-
-                        if a:
-                            screen.blit(board_image, (0, 0))
-                            bo.draw(screen)
-                            pygame.display.update()
-                            loosing_screen('BLACK')
-                        if b:
-                            screen.blit(board_image, (0, 0))
-                            bo.draw(screen)
-                            pygame.display.update()
-                            loosing_screen('WHITE')
-
-
-                        # CHECK FOR STALEMATE
-                        a = bo.stalemate('w')
-                        b = bo.stalemate('b')
-
-                        if a:
-                            screen.blit(board_image, (0, 0))
-                            bo.draw(screen)
-                            pygame.display.update()
-                            stalemate_screen('STALEMATE')
-                        if b:
-                            screen.blit(board_image, (0, 0))
-                            bo.draw(screen)
-                            pygame.display.update()
-                            stalemate_screen('STALEMATE')
-
-                        # CHECK FOR NORMAL CHECK
-                        bo.check('w')
-                        bo.check('b')
-
-                # IF THE NEW POSITION SELECTED IF THE ORIGINAL POSITION
-                elif (i, j) == (start_row, start_col):
-                    move = 0
-                    bo.deselect_all()
-
-                # IF THE NEW POSITION HAS NO PIECE BUT IS ALSO NOT IN THE VALID MOVES LIST
-                elif bo.board[i][j] == 0:
-                    move = 0
-                    bo.deselect_all()
-
-                # IF THE NEW POSITION HAS THE SAME COLOR PLAYER AS CURRENT PLAYER
-                elif bo.board[i][j] != 0 and check_current_player_by_color(bo, i, j):
+                # MOVE IS ZERO WHEN NO PIECE IS SELECTED
+                if move == 0 and check_current_player_by_color(bo, i, j, current_player_color):
                     bo.selected(i, j)
                     start_row = i
                     start_col = j
-            else:
-                # IF NO PIECE IS SELECTED, JUST CLICKING BLANK SPOTS
-                check_sound.play()
-                move = 0
 
-    pygame.display.update()
-    clock.tick(60)
+                if bo.check_any_selected() and move == 0:
+                    move += 1
+
+                # WHEN MOVE IS 1, THAT MEANS A PIECE IS SELECTED
+                # CHECK IF ANY PIECE WAS SELECTED
+                # bo.selected(i, j) FUNCTIONS SELECTS A PIECE AND DESELECTS IF IT'S ALREADY SELECTED
+
+                elif bo.check_any_selected() and move == 1:
+
+                    # CHECK KING FOR CASTLING
+                    if isinstance(bo.board[start_row][start_col], King):
+                        pass
+
+                    # GET ALL THE POSSIBLE MOVES FOR  THAT PIECE
+                    valid_moves = bo.return_valid(start_row, start_col)
+
+                    # TODO  check if this does anything (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color)
+                    # CHECK IF THE NEW POSITION SELECTED IS EMPTY(ZERO), OR HAS A DIFFERENT COLOR PIECE
+                    # THEN CHECK WEATHER THAT NEW POSITION IS IN THE VALID MOVES LIST
+
+                    if check_element_in_arr((i, j), valid_moves):
+                        move = 0
+                        # THIS FUNCTIONS TAKES THE OLD AND NEW POSITION
+                        # CHECKS WEATHER IT CAN MOVE THE PIECE TO THE NEW POSITION OR NOT
+                        piece_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
+
+                        # WEATHER THE PIECE WAS MOVED OR NOT DESELECT EVERYTHING
+                        bo.deselect_all()
+
+                        if piece_was_not_able_to_move:
+                            check_sound.play()
+                            pass
+                        else:
+                            move_sound.play()
+                            total_moves += 1
+
+                            # CHANGE THE EN_PASSANT STATUS OF ALL PAWN OF SAME COLOR TO BE FALSE
+                            for ti in range(8):
+                                for tj in range(8):
+                                    if bo.board[ti][tj] != 0 and isinstance(bo.board[ti][tj], Pawn) and bo.board[ti][tj].color == current_player_color:
+                                        if bo.board[ti][tj].en_passant_left_status or bo.board[ti][tj].en_passant_right_status:
+                                            bo.board[ti][tj].en_passant_left_status = False
+                                            bo.board[ti][tj].en_passant_right_status = False
+
+                            # TURNING EN_PASSANT STATUS OF ENEMY PAWN TRUE
+                            if isinstance(bo.board[i][j], Pawn) and abs(start_row - i) == 2:
+                                # FOR ENEMY PAWN ON LEFT
+                                if j > 0:
+                                    if bo.board[i][j-1] != 0 and isinstance(bo.board[i][j-1], Pawn) and bo.board[i][j-1].color != current_player_color:
+                                        bo.board[i][j - 1].en_passant_right_status = True
+
+                                # FOR ENEMY PAWN ON RIGHT
+                                if j < 7:
+                                    if bo.board[i][j+1] != 0 and isinstance(bo.board[i][j+1], Pawn) and bo.board[i][j+1].color != current_player_color:
+                                        bo.board[i][j + 1].en_passant_left_status = True
+
+
+                            # CHANGE THE CURRENT PLAYER COLOR
+                            if current_player_color == 'w':
+                                current_player_color = 'b'
+                            else:
+                                current_player_color = 'w'
+
+                            # AFTER THE PIECE HAS MOVED, CHECK IF THE PIECE WAS PAWN, ROOK OR KING
+                            # AND CHANGE THE VARIABLE THAT CHANGES THE VALID MOVES FOR THEM
+                            if isinstance(bo.board[i][j], Pawn):
+                                bo.board[i][j].times_moved = 1
+
+                            if isinstance(bo.board[i][j], King):
+                                bo.board[i][j].moves = 1
+
+                            if isinstance(bo.board[i][j], Rook):
+                                bo.board[i][j].moves = 1
+
+                            # CHECK FOR TIE
+                            if total_moves >= 100:
+                                screen.blit(board_image, (0, 0))
+                                bo.draw(screen)
+                                pygame.display.update()
+                                stalemate_screen('DRAW')
+
+
+                            count = 0
+                            for i in range(8):
+                                for j in range(8):
+                                    if bo.board[i][j] == 0:
+                                        count += 1
+
+                            # IF ONLY THE 2 PIECES ARE LEFT, THEY ARE KINGS THEN
+                            if count == 62:
+                                screen.blit(board_image, (0, 0))
+                                bo.draw(screen)
+                                pygame.display.update()
+                                stalemate_screen('DRAW')
+                            if count == 61:
+                                for i in range(8):
+                                    for j in range(8):
+                                        if bo.board[i][j] != 0 and (isinstance(bo.board[i][j], Knight) or isinstance(bo.board[i][j], Bishop)):
+                                            screen.blit(board_image, (0, 0))
+                                            bo.draw(screen)
+                                            pygame.display.update()
+                                            stalemate_screen('DRAW')
+
+                            # CHECK FOR CHECKMATE
+                            a = bo.checkmate('w')
+                            b = bo.checkmate('b')
+
+                            if a:
+                                screen.blit(board_image, (0, 0))
+                                bo.draw(screen)
+                                pygame.display.update()
+                                loosing_screen('BLACK')
+                            if b:
+                                screen.blit(board_image, (0, 0))
+                                bo.draw(screen)
+                                pygame.display.update()
+                                loosing_screen('WHITE')
+
+
+                            # CHECK FOR STALEMATE
+                            a = bo.stalemate('w')
+                            b = bo.stalemate('b')
+
+                            if a:
+                                screen.blit(board_image, (0, 0))
+                                bo.draw(screen)
+                                pygame.display.update()
+                                stalemate_screen('STALEMATE')
+                            if b:
+                                screen.blit(board_image, (0, 0))
+                                bo.draw(screen)
+                                pygame.display.update()
+                                stalemate_screen('STALEMATE')
+
+                            # CHECK FOR NORMAL CHECK
+                            bo.check('w')
+                            bo.check('b')
+
+                    # IF THE NEW POSITION SELECTED IF THE ORIGINAL POSITION
+                    elif (i, j) == (start_row, start_col):
+                        move = 0
+                        bo.deselect_all()
+
+                    # IF THE NEW POSITION HAS NO PIECE BUT IS ALSO NOT IN THE VALID MOVES LIST
+                    elif bo.board[i][j] == 0:
+                        move = 0
+                        bo.deselect_all()
+
+                    # IF THE NEW POSITION HAS THE SAME COLOR PLAYER AS CURRENT PLAYER
+                    elif bo.board[i][j] != 0 and check_current_player_by_color(bo, i, j, current_player_color):
+                        bo.selected(i, j)
+                        start_row = i
+                        start_col = j
+                else:
+                    # IF NO PIECE IS SELECTED, JUST CLICKING BLANK SPOTS
+                    check_sound.play()
+                    move = 0
+
+        pygame.display.update()
+        clock.tick(60)
+
+
+starting_screen()
