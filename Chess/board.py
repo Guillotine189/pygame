@@ -72,9 +72,9 @@ class Board:
 
         if color == 'w':
             self.board[0][0] = Rook(0, 0, 'b')
-            self.board[0][1] = Knight(0, 1, 'b')
-            self.board[0][2] = Bishop(0, 2, 'b')
-            self.board[0][3] = Queen(0, 3, 'b')
+            # self.board[0][1] = Knight(0, 1, 'b')
+            # self.board[0][2] = Bishop(0, 2, 'b')
+            # self.board[0][3] = Queen(0, 3, 'b')
             self.board[0][4] = King(0, 4, 'b')
             self.board[0][5] = Bishop(0, 5, 'b')
             self.board[0][6] = Knight(0, 6, 'b')
@@ -113,10 +113,49 @@ class Board:
             self.board[6][6] = Pawn(6, 6, 'w')
             self.board[6][7] = Pawn(6, 7, 'w')
         else:
+            # self.board[0][0] = Rook(0, 0, 'w')
+            # self.board[0][1] = Knight(0, 1, 'w')
+            # self.board[0][2] = Bishop(0, 2, 'w')
+            # self.board[0][3] = Queen(0, 3, 'w')
+            # self.board[0][4] = King(0, 4, 'w')
+            # self.board[0][5] = Bishop(0, 5, 'w')
+            # self.board[0][6] = Knight(0, 6, 'w')
+            # self.board[0][7] = Rook(0, 7, 'w')
+            #
+            # self.board[1][0] = Pawn(1, 0, 'w')
+            # self.board[1][1] = Pawn(1, 1, 'w')
+            # self.board[1][2] = Pawn(1, 2, 'w')
+            # self.board[1][3] = Pawn(1, 3, 'w')
+            # self.board[1][4] = Pawn(1, 4, 'w')
+            # self.board[1][5] = Pawn(1, 5, 'w')
+            # self.board[1][6] = Pawn(1, 6, 'w')
+            # self.board[1][7] = Pawn(1, 7, 'w')
+            #
+            #
+            # self.board[7][0] = Rook(7, 0, 'b')
+            # self.board[7][1] = Knight(7, 1, 'b')
+            # self.board[7][2] = Bishop(7, 2, 'b')
+            # self.board[7][3] = Queen(7, 3, 'b')
+            # self.board[7][4] = King(7, 4, 'b')
+            # self.board[7][5] = Bishop(7, 5, 'b')
+            # self.board[7][6] = Knight(7, 6, 'b')
+            # self.board[7][7] = Rook(7, 7, 'b')
+            #
+            # self.board[6][0] = Pawn(6, 0, 'b')
+            # self.board[6][1] = Pawn(6, 1, 'b')
+            # self.board[6][2] = Pawn(6, 2, 'b')
+            # self.board[6][3] = Pawn(6, 3, 'b')
+            # self.board[6][4] = Pawn(6, 4, 'b')
+            # self.board[6][5] = Pawn(6, 5, 'b')
+            # self.board[6][6] = Pawn(6, 6, 'b')
+            # self.board[6][7] = Pawn(6, 7, 'b')
+
+
+
             self.board[0][0] = Rook(0, 0, 'w')
-            self.board[0][1] = Knight(0, 1, 'w')
-            self.board[0][2] = Bishop(0, 2, 'w')
-            self.board[0][3] = Queen(0, 3, 'w')
+            # self.board[0][1] = Knight(0, 1, 'w')
+            # self.board[0][2] = Bishop(0, 2, 'w')
+            # self.board[0][3] = Queen(0, 3, 'w')
             self.board[0][4] = King(0, 4, 'w')
             self.board[0][5] = Bishop(0, 5, 'w')
             self.board[0][6] = Knight(0, 6, 'w')
@@ -131,14 +170,61 @@ class Board:
             self.board[1][6] = Pawn(1, 6, 'w')
             self.board[1][7] = Pawn(1, 7, 'w')
 
+            # self.board[2][5] = Rook(2, 5, 'b')
+            # self.board[5][5] = Rook(5, 5, 'b')
+            # self.board[6][6] = Rook(6, 6, 'w')
+            # self.board[6][7] = King(6, 7, 'w')
+            # self.board[7][4] = Rook(7, 4, 'w')
+
+            self.board[7][0] = Rook(7, 0, 'w')
+            # self.board[7][1] = Knight(7, 1, 'w')
+            # self.board[7][2] = Bishop(7, 2, 'w')
+            # self.board[7][3] = Queen(7, 3, 'w')
+            self.board[7][4] = King(7, 4, 'w')
+            # self.board[7][5] = Bishop(7, 5, 'w')
+            # self.board[7][6] = Knight(7, 6, 'w')
+            self.board[7][7] = Rook(7, 7, 'w')
+
+            self.board[6][0] = Pawn(6, 0, 'w')
+            self.board[6][1] = Pawn(6, 1, 'w')
+            self.board[6][2] = Pawn(6, 2, 'w')
+            self.board[6][3] = Pawn(6, 3, 'w')
+            self.board[6][4] = Pawn(6, 4, 'w')
+            self.board[6][5] = Pawn(6, 5, 'w')
+            self.board[6][6] = Pawn(6, 6, 'w')
+            self.board[6][7] = Pawn(6, 7, 'w')
+
+            ## TESTING ############################
+            # self.board[0][1] = Knight(0, 1, 'b')
+            # self.board[0][2] = Bishop(0, 2, 'b')
+            # self.board[0][3] = Queen(0, 3, 'b')
+            self.board[0][4] = King(0, 4, 'b')
+            self.board[0][5] = Bishop(0, 5, 'b')
+            self.board[0][6] = Knight(0, 6, 'b')
+            self.board[0][7] = Rook(0, 7, 'b')
+
+            self.board[1][0] = Pawn(1, 0, 'b')
+            self.board[1][1] = Pawn(1, 1, 'b')
+            self.board[1][2] = Pawn(1, 2, 'b')
+            self.board[1][3] = Pawn(1, 3, 'b')
+            self.board[1][4] = Pawn(1, 4, 'b')
+            self.board[1][5] = Pawn(1, 5, 'b')
+            self.board[1][6] = Pawn(1, 6, 'b')
+            self.board[1][7] = Pawn(1, 7, 'b')
+
+            # self.board[2][5] = Rook(2, 5, 'b')
+            # self.board[5][5] = Rook(5, 5, 'b')
+            # self.board[6][6] = Rook(6, 6, 'w')
+            # self.board[6][7] = King(6, 7, 'w')
+            # self.board[7][4] = Rook(7, 4, 'w')
 
             self.board[7][0] = Rook(7, 0, 'b')
-            self.board[7][1] = Knight(7, 1, 'b')
-            self.board[7][2] = Bishop(7, 2, 'b')
-            self.board[7][3] = Queen(7, 3, 'b')
+            # self.board[7][1] = Knight(7, 1, 'b')
+            # self.board[7][2] = Bishop(7, 2, 'b')
+            # self.board[7][3] = Queen(7, 3, 'b')
             self.board[7][4] = King(7, 4, 'b')
-            self.board[7][5] = Bishop(7, 5, 'b')
-            self.board[7][6] = Knight(7, 6, 'b')
+            # self.board[7][5] = Bishop(7, 5, 'b')
+            # self.board[7][6] = Knight(7, 6, 'b')
             self.board[7][7] = Rook(7, 7, 'b')
 
             self.board[6][0] = Pawn(6, 0, 'b')
@@ -149,6 +235,10 @@ class Board:
             self.board[6][5] = Pawn(6, 5, 'b')
             self.board[6][6] = Pawn(6, 6, 'b')
             self.board[6][7] = Pawn(6, 7, 'b')
+
+
+
+
 
     # THIS DRAWS THE BOARD
     def draw(self, screen):
@@ -205,8 +295,8 @@ class Board:
 
     # THIS FUNCTION PASSES ALL THE POSSIBLE MOVES THAT CAN BE MADE BY A PIECE
     # MADE SPECIFICALLY FOR FILE GAME.PY
-    def return_valid(self, i, j):
-        return self.board[i][j].return_possible_moves(self.board)
+    def return_valid(self, i, j, online=False):
+        return self.board[i][j].return_possible_moves(self.board, online)
 
     # FUNCTION THAT CHECKS WEATHER A PIECE SHOULD MOVE OR NOT
     # AND THEN MOVE IT IF VALID
@@ -252,7 +342,12 @@ class Board:
                     self.board[ni][0] = 0  # OLD ROOK IS REMOVED
                     self.board[oi][oj] = 0  # OLD KING REMOVED
                     if online:
-                        payload += f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj-1}].moves=1 bo.board[{oi}][{oj}-2]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj-1}]=bo.board[{ni}][0] bo.board[{oi}][{oj}].move({oi},{oj-2}) bo.board[{ni}][0].move({ni},{oj-1}) ' \
+
+                        if color_current == 'b':
+                            payload += f'bo.board[{7-oi}][{oj}].moves=1 bo.board[{7-ni}][{nj - 2}].moves=1 bo.board[{7-oi}][{oj - 2}]=bo.board[{7-oi}][{oj}] bo.board[{7-oi}][{oj - 1}]=bo.board[{7-ni}][0] bo.board[{7-oi}][{oj}].move({7-oi},{oj - 2}) bo.board[{7-ni}][0].move({7-ni},{oj - 1}) ' \
+                                       f'bo.board[{7-ni}][0]=0 bo.board[{7-oi}][{oj}]=0'
+                        else:
+                            payload += f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj-2}].moves=1 bo.board[{oi}][{oj-2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj-1}]=bo.board[{ni}][0] bo.board[{oi}][{oj}].move({oi},{oj-2}) bo.board[{ni}][0].move({ni},{oj-1}) ' \
                               f'bo.board[{ni}][0]=0 bo.board[{oi}][{oj}]=0'
                 else:
                     piece_was_not_able_to_move = True
@@ -308,11 +403,17 @@ class Board:
             if color_current == 'w':
                 self.board[ni+1][nj] = 0  # REMOVING THE PAWN THE NEW PAWN WILL TAKE
                 if online:
-                    payload += f'bo.board[{ni+1}][{nj}] = 0'
+                    if color_current == 'b':
+                        payload += f'bo.board[{7-ni + 1}][{nj}] = 0'
+                    else:
+                        payload += f'bo.board[{ni+1}][{nj}] = 0'
             else:
                 self.board[ni-1][nj] = 0
                 if online:
-                    payload += f'bo.board[{ni-1}][{nj}] = 0'
+                    if color_current == 'b':
+                        payload += f'bo.board[{7-ni-1}][{nj}] = 0'
+                    else:
+                        payload += f'bo.board[{ni-1}][{nj}] = 0'
 
         # FOR EVERY OTHER CASE
         # CHECKING IF THE CURRENT MOVE WILL RESULT IN CHECK FOR CURRENT PLAYER
@@ -374,18 +475,27 @@ class Board:
         if self.update_old_piece:
             self.board[oi][oj].move(ni, nj)
             if online:
-                payload += f'bo.board[{oi}][{oj}].moves=1  bo.board[{oi}][{oj}].move({ni},{nj})'
+                if color_current == 'b':
+                    payload += f'bo.board[{7-oi}][{oj}].moves=1  bo.board[{7-oi}][{oj}].move({7-ni},{nj})'
+                else:
+                    payload += f'bo.board[{oi}][{oj}].moves=1  bo.board[{oi}][{oj}].move({ni},{nj})'
         if self.move_old_piece:
             # CHECK IF A PIECE WAS CAPTURED
             if self.board[ni][nj] != 0 and self.board[ni][nj].color != self.board[oi][oj].color:
                 capture_sound.play()
             self.board[ni][nj] = self.board[oi][oj]
             if online:
-                payload += f' bo.board[{ni}][{nj}]=bo.board[{oi}][{oj}]'
+                if color_current == 'b':
+                    payload += f' bo.board[{7-ni}][{nj}]=bo.board[{7-oi}][{oj}]'
+                else:
+                    payload += f' bo.board[{ni}][{nj}]=bo.board[{oi}][{oj}]'
         if self.remove_old_piece:
             self.board[oi][oj] = 0
             if online:
-                payload += f' bo.board[{oi}][{oj}]=0'
+                if color_current == 'b':
+                    payload += f' bo.board[{7-oi}][{oj}]=0'
+                else:
+                    payload += f' bo.board[{oi}][{oj}]=0'
 
         self.remove_old_piece = True
         self.move_old_piece = True

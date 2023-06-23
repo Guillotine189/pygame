@@ -69,15 +69,37 @@ def receive(client, pl_no):
                 client.send('ok'.encode(FORMAT))
                 moves = client.recv(1024).decode(FORMAT)
                 moves = read_moves(moves)
-                piece_was_not_able_to_move, temp_move = bo.move_piece(moves[0], moves[1], moves[2], moves[3], current_player_color, 1)
+                print(moves)
+                # for white new_moves are same moves
+                new_moves = moves
+                # FOR WHITE moves are all good but for black you need to change it then
+                # check it then send back the commands accordingly
+
+                if current_player_color == 'b':
+                    new_moves = [i for i in moves]
+                    print(new_moves)
+                    new_moves[0] = 7 - new_moves[0]  # row of original move
+                    new_moves[2] = 7 - new_moves[2]  # row of new move
+                    print(new_moves)
+                    # NOW analise the move on servers board
+                    # temp_move will contain the modified coordinate bor black or original for white
+                piece_was_not_able_to_move, temp_move = bo.move_piece(new_moves[0], new_moves[1], new_moves[2], new_moves[3], current_player_color, 1)
 
                 if piece_was_not_able_to_move:
                     client.send("1".encode(FORMAT))
                 else:
+                    # CHANGE PLAYER
+                    if current_player_color == 'w':
+                        current_player_color = 'b'
+                        other_player_color = 'w'
+                    else:
+                        current_player_color = 'w'
+                        other_player_color = 'b'
                     client.send("0".encode(FORMAT))
 
             if message == 'new_board':
                 payload = temp_move
+
                 # payload = f'{bo.board[0]}'
                 print(payload)
                 client.send(payload.encode(FORMAT))

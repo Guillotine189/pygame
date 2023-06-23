@@ -7,8 +7,6 @@ from Pieces import Rook
 from Pieces import Bishop
 from Pieces import Knight
 from client import Network
-import json
-import ast
 
 
 # LOADING PYGAME
@@ -40,6 +38,11 @@ clock = pygame.time.Clock()
 check_list = []
 check_tup = ()
 
+# ADD SOUNDS
+check_sound = pygame.mixer.Sound('./sounds/move-check.mp3')
+promote_sound = pygame.mixer.Sound('./sounds/promote.mp3')
+notify_sound = pygame.mixer.Sound('./sounds/notify.mp3')
+capture_sound = pygame.mixer.Sound('./sounds/capture.mp3')
 
 class Button:
     def __init__(self, text, x, y, w, h):
@@ -286,13 +289,13 @@ def online_game(Player, my_color):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if move == 0:
                         current_player_color = Player.send('current_player')
+                        print(current_player_color)
 
                     #  MY TURN CONFIRMED
                     if current_player_color == my_color:
                         i, j = click(mpos)
 
                         if move == 0 and bo.board[i][j] != 0 and bo.board[i][j].color == current_player_color:
-                            print(bo.board[i][j].color, current_player_color)
                             bo.selected(i, j)
                             start_row = i
                             start_col = j
@@ -313,7 +316,7 @@ def online_game(Player, my_color):
 
                         # WHEN 2ND TIME MOUSE IS PRESSED
                         elif bo.check_any_selected() and move == 1:
-                            valid_moves = bo.return_valid(start_row, start_col)
+                            valid_moves = bo.return_valid(start_row, start_col, True)
 
                             if check_element_in_arr((i, j), valid_moves):
                                 payload = start_row, start_col, i, j
@@ -327,6 +330,7 @@ def online_game(Player, my_color):
                                 if int(piece_was_not_able_to_move):
                                     check_sound.play()
                                 else:
+                                    move_sound.play()
                                     commands = Player.send('new_board')
                                     # print(exec(new_board))
                                     commands = commands.split(' ')
@@ -345,6 +349,7 @@ def online_game(Player, my_color):
 
                     else:
                         # IF NOT MY CHANCE
+                        move = 0
                         check_sound.play()
                         bo.deselect_all()
 
@@ -445,7 +450,7 @@ def offline_game():
                         move = 0
                         # THIS FUNCTIONS TAKES THE OLD AND NEW POSITION
                         # CHECKS WEATHER IT CAN MOVE THE PIECE TO THE NEW POSITION OR NOT
-                        piece_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
+                        piece_was_not_able_to_move, online_garbage = bo.move_piece(start_row, start_col, i, j, current_player_color)
                         # WEATHER THE PIECE WAS MOVED OR NOT DESELECT EVERYTHING
                         bo.deselect_all()
 

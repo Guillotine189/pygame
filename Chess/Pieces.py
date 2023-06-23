@@ -90,8 +90,8 @@ class pieces:
         self.row = new_row
         self.column = new_column
 
-    def return_possible_moves(self, board):
-        return self.possible_moves(board)
+    def return_possible_moves(self, board, online=False):
+        return self.possible_moves(board, online)
 
 
 class Queen(pieces):
@@ -666,6 +666,8 @@ class Pawn(pieces):
         else:
             border_w = i - 1
             border_b = i + 1
+
+        print(online)
 
         if self.color == "w" or online:
             if self.row > 0:
