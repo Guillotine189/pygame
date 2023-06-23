@@ -279,7 +279,7 @@ def online_game(Player, my_color):
         mpos = pygame.mouse.get_pos()
         screen.fill((0, 0, 0))
         screen.blit(board_image, (0, 0))
-        bo.draw(screen)
+        bo.draw(screen, 1)
 
         pl_2_stat = Player.send('con_stat')
         if int(pl_2_stat):
@@ -293,10 +293,7 @@ def online_game(Player, my_color):
                     count += 1
                     last_move = Player.send('last_move')
                     last_move = last_move.split(' ')
-                    print(last_move)
-                    print("ENDED")
                     for i in last_move:
-                        print(i)
                         exec(i)
 
             for event in pygame.event.get():
@@ -305,9 +302,6 @@ def online_game(Player, my_color):
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # if move == 0:
-                        # current_player_color = Player.send('current_player')
-                        # print(current_player_color)
 
                     #  MY TURN CONFIRMED
                     if current_player_color == my_color:
@@ -347,12 +341,12 @@ def online_game(Player, my_color):
 
                                 if int(piece_was_not_able_to_move):
                                     check_sound.play()
+                                    bo.deselect_all()
                                 else:
                                     move_sound.play()
                                     commands = Player.send('new_board')
                                     commands = commands.split(' ')
                                     for command in commands:
-                                        print(command)
                                         exec(command)
                                     bo.deselect_all()
 

@@ -3,7 +3,7 @@ import threading
 from board import Board
 from Pieces import *
 
-HOST, PORT = '10.0.0.238', 9991
+HOST, PORT = '10.0.0.238', 9999
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,7 +71,7 @@ def receive(client, pl_no):
                 client.send('ok'.encode(FORMAT))
                 moves = client.recv(1024).decode(FORMAT)
                 moves = read_moves(moves)
-                print(moves)
+                print(moves, "ORIGINAL MOVES RECV")
                 # for white new_moves are same moves
                 new_moves = moves
                 # FOR WHITE moves are all good but for black you need to change it then
@@ -81,8 +81,10 @@ def receive(client, pl_no):
                     new_moves = [i for i in moves]
                     print(new_moves)
                     new_moves[0] = 7 - new_moves[0]  # row of original move
+                    new_moves[1] = 7 - new_moves[1]
                     new_moves[2] = 7 - new_moves[2]  # row of new move
-                    print(new_moves)
+                    new_moves[3] = 7 - new_moves[3]
+                    print(new_moves,  " PASSING MOVEs")
                     # NOW analise the move on servers board
                     # temp_move will contain the modified coordinate bor black or original for white
                 piece_was_not_able_to_move, temp_move = bo.move_piece(new_moves[0], new_moves[1], new_moves[2], new_moves[3], current_player_color, 1)
@@ -112,6 +114,8 @@ def receive(client, pl_no):
                 if current_player_color == my_color:
                     modified_last_move = last_move.replace('d[', 'd[7-')
                     modified_last_move = modified_last_move.replace('ve(', 've(7-')
+                    modified_last_move = modified_last_move.replace('][', '][7-')
+                    modified_last_move = modified_last_move.replace(',', ',7-')
                     print(modified_last_move, "MODIFIED")
                     client.send(modified_last_move.encode(FORMAT))
                     last_move = '0'

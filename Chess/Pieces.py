@@ -60,7 +60,7 @@ class pieces:
     def possible_moves(self, board, online=False):
         pass
 
-    def draw(self, screen, board):
+    def draw(self, screen, board, online=False):
         if self.color == 'w':
             self.drawimage = A[self.image]
         else:
@@ -76,7 +76,7 @@ class pieces:
 
         # IF SELECTED DRAW THE RECTANGLE AND DOTS
         if self.selected:
-            possible_moves = self.possible_moves(board)
+            possible_moves = self.possible_moves(board, online)
             if len(possible_moves):
                 for d in possible_moves:
                     if d != 0:
@@ -667,9 +667,56 @@ class Pawn(pieces):
             border_w = i - 1
             border_b = i + 1
 
-        # print(online)
+        if self.color == 'b' and online:
+            if self.row > 0:
+                arr = []
+                for x in range(border_w, i):
+                    p = board[x][j]
+                    if p != 0:
+                        arr.append(x)
 
-        if self.color == "w" or online:
+                # FOR FORWARDS
+                if len(arr) == 0:
+                    for k in range(border_w, i):
+                        moves.append((k, j))
+
+                else:
+                    for k in range(arr[len(arr) - 1] + 1, i):
+                        moves.append((k, j))
+
+                # FOR SIDES
+                if j < 7:
+                    p = board[i - 1][j + 1]
+                    if p != 0:
+                        if p.color != self.color:
+                            moves.append((i - 1, j + 1))
+                if j > 0:
+                    p = board[i - 1][j - 1]
+                    if p != 0:
+                        if p.color != self.color:
+                            moves.append((i - 1, j - 1))
+
+                # EN_PASSANT MOVES
+                if self.en_passant_left_status:
+                    # FOR LEFT PAWN
+                    if self.column > 0:
+                        # OF DIFFERENT COLOR
+                        if board[i][j - 1] != 0:
+                            if board[i][j - 1].color != self.color:
+                                moves.append((i - 1, j - 1))
+
+                if self.en_passant_right_status:
+                    # FOR RIGHT PAWN
+                    if self.column < 7:
+                        # OF DIFFERENT COLOR
+                        if board[i][j + 1] != 0:
+                            if board[i][j + 1].color != self.color:
+                                moves.append((i - 1, j + 1))
+            return moves
+
+
+
+        if self.color == "w":
             if self.row > 0:
                 arr = []
                 for x in range(border_w, i):
