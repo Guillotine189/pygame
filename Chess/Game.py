@@ -272,6 +272,9 @@ def online_game(Player, my_color):
     start_col = 0
     current_player_color = 'w'
 
+    count = 0
+
+
     while True:
         mpos = pygame.mouse.get_pos()
         screen.fill((0, 0, 0))
@@ -281,15 +284,30 @@ def online_game(Player, my_color):
         pl_2_stat = Player.send('con_stat')
         if int(pl_2_stat):
 
+            current_player_color = Player.send('current_player')
+            # print(current_player_color)
+            if current_player_color != my_color:
+                count = 0
+            else:
+                if count == 0:
+                    count += 1
+                    last_move = Player.send('last_move')
+                    last_move = last_move.split(' ')
+                    print(last_move)
+                    print("ENDED")
+                    for i in last_move:
+                        print(i)
+                        exec(i)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     Player.client.send("!D".encode(Player.format))
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if move == 0:
-                        current_player_color = Player.send('current_player')
-                        print(current_player_color)
+                    # if move == 0:
+                        # current_player_color = Player.send('current_player')
+                        # print(current_player_color)
 
                     #  MY TURN CONFIRMED
                     if current_player_color == my_color:
@@ -332,7 +350,6 @@ def online_game(Player, my_color):
                                 else:
                                     move_sound.play()
                                     commands = Player.send('new_board')
-                                    # print(exec(new_board))
                                     commands = commands.split(' ')
                                     for command in commands:
                                         print(command)

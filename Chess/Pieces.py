@@ -667,7 +667,7 @@ class Pawn(pieces):
             border_w = i - 1
             border_b = i + 1
 
-        print(online)
+        # print(online)
 
         if self.color == "w" or online:
             if self.row > 0:
