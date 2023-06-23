@@ -96,12 +96,12 @@ class Board:
             # self.board[7][4] = Rook(7, 4, 'w')
 
             self.board[7][0] = Rook(7, 0, 'w')
-            self.board[7][1] = Knight(7, 1, 'w')
-            self.board[7][2] = Bishop(7, 2, 'w')
-            self.board[7][3] = Queen(7, 3, 'w')
+            # self.board[7][1] = Knight(7, 1, 'w')
+            # self.board[7][2] = Bishop(7, 2, 'w')
+            # self.board[7][3] = Queen(7, 3, 'w')
             self.board[7][4] = King(7, 4, 'w')
-            self.board[7][5] = Bishop(7, 5, 'w')
-            self.board[7][6] = Knight(7, 6, 'w')
+            # self.board[7][5] = Bishop(7, 5, 'w')
+            # self.board[7][6] = Knight(7, 6, 'w')
             self.board[7][7] = Rook(7, 7, 'w')
 
             self.board[6][0] = Pawn(6, 0, 'w')
@@ -211,10 +211,12 @@ class Board:
     # FUNCTION THAT CHECKS WEATHER A PIECE SHOULD MOVE OR NOT
     # AND THEN MOVE IT IF VALID
     # THIS FUNCITION WILL ONLY BE CALLED WHEN THE NEW POSITION FALLS UNDER 'POSSIBLE MOVES'
-    def move_piece(self, oi, oj, ni, nj, color_current):
+    def move_piece(self, oi, oj, ni, nj, color_current, online=False):
 
         # INITIALLY SET THAT THE PIECE WILL MOVE
         piece_was_not_able_to_move = False
+
+        payload = ''
 
         # SPECIAL CASE 1 CASTLING
         if isinstance(self.board[oi][oj], King) and (nj == oj + 2 or nj == oj - 2):
@@ -232,6 +234,10 @@ class Board:
                     self.board[ni][7].move(ni, 5)  # ROOK MOVED IN IMAGE
                     self.board[ni][7] = 0  # OLD ROOK IS REMOVED
                     self.board[oi][oj] = 0  # OLD KING REMOVED
+                    if online:
+                        payload += f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj+1}].moves=1 bo.board[{oi}][{oj+2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj+1}]=bo.board[{ni}][7] bo.board[{oi}][{oj}].move({oi},{oj+2}) bo.board[{ni}][7].move({ni},5)' \
+                                     f' bo.board[{ni}][7]=0 bo.board[{oi}][{oj}]=0'
+
                 else:
                     piece_was_not_able_to_move = True
 
@@ -245,6 +251,9 @@ class Board:
                     self.board[ni][0].move(ni, oj - 1)  # ROOK MOVED IN IMAGE
                     self.board[ni][0] = 0  # OLD ROOK IS REMOVED
                     self.board[oi][oj] = 0  # OLD KING REMOVED
+                    if online:
+                        payload += f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj-1}].moves=1 bo.board[{oi}][{oj}-2]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj-1}]=bo.board[{ni}][0] bo.board[{oi}][{oj}].move({oi},{oj-2}) bo.board[{ni}][0].move({ni},{oj-1}) ' \
+                              f'bo.board[{ni}][0]=0 bo.board[{oi}][{oj}]=0'
                 else:
                     piece_was_not_able_to_move = True
 
@@ -298,8 +307,12 @@ class Board:
         if isinstance(self.board[oi][oj], Pawn) and (self.board[oi][oj].en_passant_left_status or self.board[oi][oj].en_passant_right_status) and nj != oj:
             if color_current == 'w':
                 self.board[ni+1][nj] = 0  # REMOVING THE PAWN THE NEW PAWN WILL TAKE
+                if online:
+                    payload += f'bo.board[{ni+1}][{nj}] = 0'
             else:
                 self.board[ni-1][nj] = 0
+                if online:
+                    payload += f'bo.board[{ni-1}][{nj}] = 0'
 
         # FOR EVERY OTHER CASE
         # CHECKING IF THE CURRENT MOVE WILL RESULT IN CHECK FOR CURRENT PLAYER
@@ -360,13 +373,19 @@ class Board:
         # FINALLY MOVING PIECES
         if self.update_old_piece:
             self.board[oi][oj].move(ni, nj)
+            if online:
+                payload += f'bo.board[{oi}][{oj}].moves=1  bo.board[{oi}][{oj}].move({ni},{nj})'
         if self.move_old_piece:
             # CHECK IF A PIECE WAS CAPTURED
             if self.board[ni][nj] != 0 and self.board[ni][nj].color != self.board[oi][oj].color:
                 capture_sound.play()
             self.board[ni][nj] = self.board[oi][oj]
+            if online:
+                payload += f' bo.board[{ni}][{nj}]=bo.board[{oi}][{oj}]'
         if self.remove_old_piece:
             self.board[oi][oj] = 0
+            if online:
+                payload += f' bo.board[{oi}][{oj}]=0'
 
         self.remove_old_piece = True
         self.move_old_piece = True
@@ -394,7 +413,7 @@ class Board:
             if self.check('w'):
                 check_sound.play()
 
-        return piece_was_not_able_to_move
+        return piece_was_not_able_to_move, online*(payload)
 
     # THIS TAKES IN THE OLD AND NEW COORDINATES AND THE COLOR OF CURRENT PLAYER
     # IT CHECKS WEATHER AFTER THE PIECE HAS MOVED TO A NEW POSITION

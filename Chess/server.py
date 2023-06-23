@@ -3,7 +3,8 @@ import threading
 from board import Board
 from Pieces import *
 
-HOST, PORT = '10.0.0.238', 9988
+HOST, PORT = '10.0.0.238', 9990
+
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -45,6 +46,8 @@ def receive(client, pl_no):
     else:
         my_color = 'b'
 
+    temp_move = ''
+
     while True:
         try:
             message = client.recv(1024).decode(FORMAT)
@@ -66,24 +69,18 @@ def receive(client, pl_no):
                 client.send('ok'.encode(FORMAT))
                 moves = client.recv(1024).decode(FORMAT)
                 moves = read_moves(moves)
-                piece_was_not_able_to_move = bo.move_piece(moves[0], moves[1], moves[2], moves[3], current_player_color)
+                piece_was_not_able_to_move, temp_move = bo.move_piece(moves[0], moves[1], moves[2], moves[3], current_player_color, 1)
 
                 if piece_was_not_able_to_move:
                     client.send("1".encode(FORMAT))
                 else:
                     client.send("0".encode(FORMAT))
 
-            # if message == 'new_board':
-            #     payload = ''
-            #     for i in range(8):
-            #         for j in range(8):
-            #             payload += str(bo.board[i][j])
-            #             payload += ' '
-            #
-            #
-            #     # payload = f'{bo.board[0]}'
-            #     print(payload)
-            #     client.send(payload.encode(FORMAT))
+            if message == 'new_board':
+                payload = temp_move
+                # payload = f'{bo.board[0]}'
+                print(payload)
+                client.send(payload.encode(FORMAT))
 
 
 
@@ -136,6 +133,7 @@ while True:
 
         has_played_move = 0
         move_played = 0, 0, 0, 0
+        bo = Board(8, 8, 0, 'w')
     thread = threading.Thread(target=receive, args=(client, player_no))
     thread.start()
     player_no += 1

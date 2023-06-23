@@ -4,7 +4,7 @@ import socket
 class Network:
     def __init__(self):
         self.host = '10.0.0.238'
-        self.port = 9988
+        self.port = 9990
         self.format = 'utf-8'
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.first_message = self.connect()

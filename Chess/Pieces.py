@@ -96,6 +96,7 @@ class pieces:
 
 class Queen(pieces):
     image = 2
+    moves = 0
 
     def possible_moves(self, board, online=False):
         moves = []
@@ -266,7 +267,7 @@ class Queen(pieces):
 
 class Bishop(pieces):
     image = 0
-
+    moves = 0
     def possible_moves(self, board, online=False):
         moves = []
         i = self.row
@@ -480,6 +481,7 @@ class King(pieces):
 
 class Knight(pieces):
     image = 4
+    moves = 0
 
     def possible_moves(self, board, online=False):
         moves = []
@@ -648,7 +650,7 @@ class Rook(pieces):
 
 class Pawn(pieces):
     image = 5
-    times_moved = 0
+    moves = 0
     has_changed = False
     en_passant_left_status = False
     en_passant_right_status = False
@@ -658,7 +660,7 @@ class Pawn(pieces):
         i = self.row
         j = self.column
 
-        if self.times_moved == 0:
+        if self.moves == 0:
             border_w = i - 2
             border_b = i + 2
         else:

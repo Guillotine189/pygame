@@ -196,6 +196,8 @@ def waiting_screen():
     Player = Network()
     print(Player.first_message)
 
+    if not Player.first_message:
+        starting_screen()
     my_color = Player.send('init')
 
     pygame.display.set_caption('WAITING..')
@@ -289,7 +291,8 @@ def online_game(Player, my_color):
                     if current_player_color == my_color:
                         i, j = click(mpos)
 
-                        if move == 0:
+                        if move == 0 and bo.board[i][j] != 0 and bo.board[i][j].color == current_player_color:
+                            print(bo.board[i][j].color, current_player_color)
                             bo.selected(i, j)
                             start_row = i
                             start_col = j
@@ -303,7 +306,7 @@ def online_game(Player, my_color):
                             bo.deselect_all()
 
                         # IF PLAYER SELECTED ANOTHER PIECE
-                        elif bo.board[i][j] != 0 or check_current_player_by_color(bo, i, j, current_player_color):
+                        elif move == 1 and (bo.board[i][j] != 0 and bo.board[i][j].color == current_player_color):
                             bo.selected(i, j)
                             start_row = i
                             start_col = j
@@ -324,23 +327,26 @@ def online_game(Player, my_color):
                                 if int(piece_was_not_able_to_move):
                                     check_sound.play()
                                 else:
-                                    # new_board = Player.send('new_board')
-                                    # board_tuple = read_board(new_board)
-                                    # print(board_tuple)
-                                    # print(type(board_tuple))
-                                    
-                                    #  garbage because we know the piece will move
-                                    garbage = bo.move_piece(start_row, start_col, i, j, current_player_color)
+                                    commands = Player.send('new_board')
+                                    # print(exec(new_board))
+                                    commands = commands.split(' ')
+                                    for command in commands:
+                                        print(command)
+                                        exec(command)
+                                    bo.deselect_all()
+
 
 
                         else:
                             #
                             check_sound.play()
+                            bo.deselect_all()
                             move = 0
 
                     else:
                         # IF NOT MY CHANCE
                         check_sound.play()
+                        bo.deselect_all()
 
 
             pygame.display.update()
@@ -440,7 +446,6 @@ def offline_game():
                         # THIS FUNCTIONS TAKES THE OLD AND NEW POSITION
                         # CHECKS WEATHER IT CAN MOVE THE PIECE TO THE NEW POSITION OR NOT
                         piece_was_not_able_to_move = bo.move_piece(start_row, start_col, i, j, current_player_color)
-
                         # WEATHER THE PIECE WAS MOVED OR NOT DESELECT EVERYTHING
                         bo.deselect_all()
 
@@ -481,7 +486,7 @@ def offline_game():
                             # AFTER THE PIECE HAS MOVED, CHECK IF THE PIECE WAS PAWN, ROOK OR KING
                             # AND CHANGE THE VARIABLE THAT CHANGES THE VALID MOVES FOR THEM
                             if isinstance(bo.board[i][j], Pawn):
-                                bo.board[i][j].times_moved = 1
+                                bo.board[i][j].moves = 1
 
                             if isinstance(bo.board[i][j], King):
                                 bo.board[i][j].moves = 1
