@@ -9,7 +9,6 @@ class Network:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.first_message = self.connect()
 
-
     def connect(self):
         try:
             self.client.connect((self.host, self.port))

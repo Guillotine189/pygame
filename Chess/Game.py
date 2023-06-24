@@ -1,4 +1,7 @@
 import sys
+
+import pygame
+
 from board import Board
 from Pieces import *
 from client import Network
@@ -10,6 +13,7 @@ pygame.init()
 pygame.font.init()
 pygame.mixer.init()
 font_ = pygame.font.SysFont('monospace', 70)
+font2 = pygame.font.SysFont('monospace', 33)
 
 # ADDING SOUNDS
 move_sound = pygame.mixer.Sound('./sounds/move-self.mp3')
@@ -105,6 +109,11 @@ def check_element_in_arr(element, arr):
 
     return False
 
+def EXIT():
+    print("EXITING..")
+    pygame.quit()
+    sys.exit()
+
 
 # THIS FUNCTION RETURN THE X AND Y COORDINATE FOR THE BOARD
 def click(mpos):
@@ -131,8 +140,7 @@ def loosing_screen(text, Player=False):
         screen.blit(text_, text_rect)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                EXIT()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     starting_screen()
@@ -154,8 +162,7 @@ def stalemate_screen(text, Player=False):
         screen.blit(text_, text_rect)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                EXIT()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     starting_screen()
@@ -167,8 +174,21 @@ def starting_screen():
     print("STARTING SCREEN")
     pygame.display.set_caption('STARTING SCREEN')
 
+    color = (85, 100, 175)
     online_button = Button("ONLINE", 150, 400, 270, 70)
     offline_button = Button("OFFLINE", 640, 400, 320, 70)
+    exit_button = Button("EXIT", 440, 570, 190, 70)
+    back = pygame.Surface((320, 40), 0)
+    back.fill(color)
+    text = font2.render('Player vs Player', True, 'black').convert_alpha()
+    text_rect = text.get_rect()
+    text_rect.topleft = 640, 470
+
+    back2 = pygame.Surface((400, 40), 0).convert_alpha()
+    back2.fill(color)
+    text2 = font2.render('AGAINST OTHER PLAYER', True, 'black')
+    text2_rect = text2.get_rect()
+    text2_rect.topleft = 80, 470
 
     while True:
         screen.fill((0, 0, 0))
@@ -176,20 +196,25 @@ def starting_screen():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                EXIT()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    EXIT()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if offline_button.check_click():
                     offline_game()
                 if online_button.check_click():
                     waiting_screen()
+                if exit_button.check_click():
+                    EXIT()
 
+            screen.blit(back, (640, 470))
+            screen.blit(back2, (80, 470))
+            screen.blit(text, text_rect)
+            screen.blit(text2, text2_rect)
             online_button.draw()
             offline_button.draw()
+            exit_button.draw()
             pygame.display.update()
 
 
@@ -225,8 +250,7 @@ def waiting_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 Player.client.send("!D".encode(Player.format))
-                pygame.quit()
-                sys.exit()
+                EXIT()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if menu_button.check_click():
                     Player.client.send("!D".encode(Player.format))
@@ -335,8 +359,7 @@ def online_game(Player, my_color):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     Player.client.send("!D".encode(Player.format))
-                    pygame.quit()
-                    sys.exit()
+                    EXIT()
                 if event.type == pygame.MOUSEBUTTONDOWN:
 
                     #  MY TURN CONFIRMED
@@ -498,8 +521,7 @@ def change_piece():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                EXIT()
 
         if rect1.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
             return_piece = 'Q'
@@ -532,8 +554,7 @@ def disconnect_screen():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                EXIT()
             if menu_button.check_click():
                 starting_screen()
             if event.type == pygame.KEYDOWN:
@@ -546,7 +567,7 @@ def disconnect_screen():
 
 
 def offline_game():
-
+    print("OFFLINE GAME")
     pygame.display.set_caption('OFFLINE CHESS')
 
     # MAKING A BOARD
@@ -570,11 +591,13 @@ def offline_game():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                EXIT()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    starting_screen()
+                    pause_stat = True
+                    while pause_stat:
+                        pause()
+                        pause_stat = False
             if event.type == pygame.MOUSEBUTTONDOWN:
 
                 # GET THE ROW AND COLUMN OF THE CLICKED POSITION
@@ -741,6 +764,42 @@ def offline_game():
 
         pygame.display.update()
         clock.tick(20)
+
+def pause():
+    color = 'grey'
+    text2 = font_.render('ALL PROGRESS WILL BE LOST', True, 'black')
+    go_back_button = Button('GO BACK TO START MENU', 80, 400, 900, 70)
+    status = False
+    text2_rect = text2.get_rect(topleft=(30, 300))
+    sure_button = Button('ARE YOU SURE', 250, 500, 530, 70)
+    yes_button = Button('YES', 170, 600, 150, 70)
+    no_button = Button('NO', 750, 600, 130, 70)
+    surface2 = pygame.Surface((text2_rect.w, text2_rect.h), 0)
+    surface2.fill(color)
+    run = True
+    while run:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                EXIT()
+            if yes_button.check_click() and status:
+                starting_screen()
+            if no_button.check_click() and status:
+                run = False
+            if go_back_button.check_click():
+                status = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run = False
+
+        go_back_button.draw()
+        if status:
+            sure_button.draw()
+            yes_button.draw()
+            no_button.draw()
+            screen.blit(surface2, text2_rect)
+            screen.blit(text2, text2_rect)
+        pygame.display.update()
 
 
 starting_screen()
