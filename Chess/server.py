@@ -3,7 +3,7 @@ import threading
 from board import Board
 from Pieces import *
 
-HOST, PORT = '192.168.1.18', 9992
+HOST, PORT = '10.0.0.238', 9999
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,7 +20,10 @@ status = [0, 0]  # player 1 and 2 online status
 has_played_move = 0
 move_played = 0, 0, 0, 0
 total_moves = 0
-
+last_move = '0'
+new_moves = '0'
+end = '0'
+end_payload = ''
 
 # GAME
 bo = Board(8, 8, 0, 'w')
@@ -34,13 +37,10 @@ def read_moves(moves):
     moves_ = moves.split(" ")
     return int(moves_[0]), int(moves_[1]), int(moves_[2]), int(moves_[3])
 
-last_move = '0'
-new_moves = '0'
-
 
 def receive(client, pl_no):
 
-    global status, player_no, current_player_color, other_player_color, move_played, has_played_move, last_move, new_moves
+    global status, player_no, current_player_color, other_player_color, move_played, has_played_move, last_move, new_moves, end_payload, end, total_moves
 
     status[pl_no] = 1
 
@@ -126,42 +126,60 @@ def receive(client, pl_no):
             if message == 'new_board':
                 payload = temp_move
 
-                if payload == 'bo.board.change_piece()':
+                if payload == 'change_piece()':
                     client.send(payload.encode(FORMAT))
                     new_piece = client.recv(8).decode(FORMAT)
 
                     if current_player_color == 'w':
                         if new_piece == 'Q':
-                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Queen({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Queen(new_moves[2], new_moves[3], current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Queen({new_moves[2]},{new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
                         if new_piece == 'B':
-                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Bishop({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Bishop(new_moves[2], new_moves[3], current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Bishop({new_moves[2]},{new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
                         if new_piece == 'R':
-                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Rook({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Rook(new_moves[2], new_moves[3], current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Rook({new_moves[2]},{new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
                         if new_piece == 'K':
-                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Knight({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Knight(new_moves[2], new_moves[3], current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Knight({new_moves[2]},{new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
 
                     else:
                         if new_piece == 'Q':
-                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Queen({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Queen(new_moves[2], new_moves[3],current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Queen({7-new_moves[2]},{7-new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
                         if new_piece == 'B':
-                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Bishop({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Bishop(new_moves[2], new_moves[3], current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Bishop({7-new_moves[2]},{7-new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
                         if new_piece == 'R':
-                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Rook({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Rook(new_moves[2], new_moves[3], current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Rook({7-new_moves[2]},{7-new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
                         if new_piece == 'K':
-                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Knight({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            bo.board[new_moves[2]][new_moves[3]] = Knight(new_moves[2], new_moves[3], current_player_color)
+                            bo.board[new_moves[0]][new_moves[1]] = 0
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Knight({7-new_moves[2]},{7-new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
 
 
                 last_move = payload
                 print(payload)
                 client.send(payload.encode(FORMAT))
+                total_moves += 1
+
                 # CHANGE PLAYER
                 if current_player_color == 'w':
                     current_player_color = 'b'
@@ -170,6 +188,53 @@ def receive(client, pl_no):
                     current_player_color = 'w'
                     other_player_color = 'b'
 
+                # CHECK FOR CHECKMATE
+                a = bo.checkmate('w')
+                b = bo.checkmate('b')
+
+                if a:
+                    end_payload = 'loosing_screen("BLACK")'
+                    end = '1'
+                elif b:
+                    end_payload = 'loosing_screen("WHITE")'
+                    end = '1'
+                # CHECK FOR STALEMATE
+                c = bo.stalemate('w')
+                d = bo.stalemate('b')
+
+                if not a and not b:
+                    if c:
+                        end_payload = 'stalemate_screen("STALEMATE") '
+                        end = '1'
+                        print(1)
+                    elif d:
+                        end_payload = 'stalemate_screen("STALEMATE")'
+                        end = '1'
+                        print(2)
+                    if total_moves >= 100:
+                        end = '1'
+                        end_payload = 'stalemate_screen("STALEMATE")'
+                        print(3)
+                    if not c and not d:
+                        count = 0
+                        for i in range(8):
+                            for j in range(8):
+                                if bo.board[i][j] == 0:
+                                    count += 1
+
+                        # IF ONLY THE 2 PIECES ARE LEFT, THEY ARE KINGS THEN
+                        if count == 62:
+                            end = '1'
+                            end_payload = 'stalemate_screen("STALEMATE")'
+                            print(4)
+                        elif count == 61:
+                            for i in range(8):
+                                for j in range(8):
+                                    if bo.board[i][j] != 0 and (isinstance(bo.board[i][j], Knight) or isinstance(bo.board[i][j], Bishop)):
+                                        end = '1'
+                                        end_payload = 'stalemate_screen("STALEMATE")'
+                                        print(5)
+
 
             if message == 'last_move':
                 if current_player_color == my_color:
@@ -177,11 +242,31 @@ def receive(client, pl_no):
                     modified_last_move = modified_last_move.replace('ve(', 've(7-')
                     modified_last_move = modified_last_move.replace('][', '][7-')
                     modified_last_move = modified_last_move.replace(',', ',7-')
+                    modified_last_move = modified_last_move.replace('7-"w"', '"w"')
+                    modified_last_move = modified_last_move.replace('7-"b"', '"b"')
+                    modified_last_move = modified_last_move.replace('n(', 'n(7-')
+                    modified_last_move = modified_last_move.replace('k(', 'k(7-')
+                    modified_last_move = modified_last_move.replace('p(', 'p(7-')
+                    modified_last_move = modified_last_move.replace('t(', 't(7-')
                     print(modified_last_move, "MODIFIED")
                     client.send(modified_last_move.encode(FORMAT))
                     last_move = '0'
                 else:
                     client.send('0'.encode(FORMAT))
+
+
+            if message == 'end':
+                client.send(end.encode(FORMAT))
+
+            if message == 'winner':
+                final_payload = ''
+                final_payload += ' screen.fill((0,0,0))'
+                final_payload += ' screen.blit(board_image,(0,0))'
+                final_payload += ' bo.draw(screen,1)'
+                final_payload += ' pygame.display.update() '
+                final_payload += end_payload
+                print(end_payload)
+                client.send(final_payload.encode(FORMAT))
 
             #  UNUSED
             if message == 'played?':
@@ -230,11 +315,14 @@ while True:
 
         status = [0, 0]  # player 1 and 2 online status
 
+        total_moves = 0
         has_played_move = 0
         move_played = 0, 0, 0, 0
         bo = Board(8, 8, 0, 'w')
         last_move = '0'
         new_moves = '0'
+        end = '0'
+        end_payload = ''
     thread = threading.Thread(target=receive, args=(client, player_no))
     thread.start()
     player_no += 1

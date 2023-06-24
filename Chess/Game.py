@@ -1,12 +1,9 @@
 import sys
 from board import Board
 import pygame
-from Pieces import Pawn
-from Pieces import King
-from Pieces import Rook
-from Pieces import Bishop
-from Pieces import Knight
+from Pieces import *
 from client import Network
+
 
 
 # LOADING PYGAME
@@ -263,8 +260,10 @@ def online_game(Player, my_color):
     pygame.display.set_caption('CHESS ONLINE')
 
     if my_color == 'w':
+        other_player_color = 'b'
         bo = Board(8, 8, screen, 'w')
     else:
+        other_player_color = 'w'
         bo = Board(8, 8, screen, 'b')
 
     move = 0
@@ -296,7 +295,45 @@ def online_game(Player, my_color):
                     last_move = Player.send('last_move')
                     last_move = last_move.split(' ')
                     for i in last_move:
+                        print(last_move)
                         exec(i)
+
+
+
+                    # AFTER THE LAST MOVE DONE BY OTHER PLAYER
+                    # CHECK FOR CHECK MY COLOR
+                    if bo.check(my_color):
+                        check_sound.play()
+                        position = 0, 0
+                        for i in range(8):
+                            for j in range(8):
+                                if bo.board[i][j] != 0 and bo.board[i][j].color == my_color and isinstance(bo.board[i][j], King):
+                                    position = i, j
+                                    break
+
+                        bo.board[position[0]][position[1]].check = True
+
+                    # AFTER ENEMY MOVE IF THEIR KING IS NOT IN CHECK
+                    # TURN CHECK OFF
+                    if not bo.check(other_player_color):
+                        position = 0, 0
+                        for i in range(8):
+                            for j in range(8):
+                                if bo.board[i][j] != 0 and bo.board[i][j].color == other_player_color and isinstance(
+                                        bo.board[i][j], King):
+                                    position = i, j
+                                    break
+
+                        bo.board[position[0]][position[1]].check = False
+
+            # ASK IF THE GAME HAS ENDED
+            end = Player.send('end')
+            if end != '0':
+                final = Player.send('winner')
+                print(final)
+                final = final.split(' ')
+                for command in final:
+                    exec(command)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -358,28 +395,62 @@ def online_game(Player, my_color):
 
                                     move_sound.play()
                                     commands = Player.send('new_board')
-                                    commands = commands.split(' ')
                                     print(commands, "COMM recv")
-                                    print(commands[0], "COMM{0}")
-                                    if commands[0] == 'change_piece()':
+                                    if commands == 'change_piece()':
                                         new_piece = change_piece()
                                         print(new_piece)
                                         if new_piece == 'Q':
                                             commands = Player.send(new_piece)
+                                            print("sent")
                                         if new_piece == 'B':
                                             commands = Player.send(new_piece)
+                                            print("sent")
                                         if new_piece == 'R':
                                             commands = Player.send(new_piece)
+                                            print("sent")
                                         if new_piece == 'K':
                                             commands = Player.send(new_piece)
+                                            print("sent")
 
-
+                                    print(commands)
+                                    commands = commands.split(' ')
                                     for command in commands:
                                         print(command)
                                         exec(command)
                                     bo.deselect_all()
 
+                                    ## AFTER MY MOVE IF OTHER PLAYER HAS CHECK
+                                    ## TURN CHECK STATUS ON
+                                    if bo.check(other_player_color):
+                                        check_sound.play()
+                                        position = 0, 0
+                                        for i in range(8):
+                                            for j in range(8):
+                                                if bo.board[i][j] != 0 and bo.board[i][j].color == other_player_color and isinstance(bo.board[i][j], King):
+                                                    position = i, j
+                                                    break
 
+                                        bo.board[position[0]][position[1]].check = True
+
+                                    # AFTER MY MOVE IF MY KING IS NOT IN CHECK
+                                    # TURN CHECK STATUS OFF
+                                    if not bo.check(my_color):
+                                        position = 0, 0
+                                        for i in range(8):
+                                            for j in range(8):
+                                                if bo.board[i][j] != 0 and bo.board[i][j].color == my_color and isinstance(bo.board[i][j], King):
+                                                    position = i, j
+                                                    break
+
+                                        bo.board[position[0]][position[1]].check = False
+
+                                        end = Player.send('end')
+                                        if end != '0':
+                                            final = Player.send('winner')
+                                            print(final)
+                                            final = final.split(' ')
+                                            for command in final:
+                                                exec(command)
 
                         else:
                             #
