@@ -3,7 +3,7 @@ import threading
 from board import Board
 from Pieces import *
 
-HOST, PORT = '10.0.0.238', 9999
+HOST, PORT = '192.168.1.18', 9990
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -92,6 +92,33 @@ def receive(client, pl_no):
                 if piece_was_not_able_to_move:
                     client.send("1".encode(FORMAT))
                 else:
+
+                    # TURNING OFF EN PASANT STATUS OF ENEMY FALSE
+                    for ti in range(8):
+                        for tj in range(8):
+                            if bo.board[ti][tj] != 0 and isinstance(bo.board[ti][tj], Pawn) and bo.board[ti][tj].color == current_player_color:
+                                if bo.board[ti][tj].en_passant_left_status or bo.board[ti][tj].en_passant_right_status:
+                                    bo.board[ti][tj].en_passant_left_status = False
+                                    bo.board[ti][tj].en_passant_right_status = False
+
+                    # TURNING EN_PASSANT STATUS OF ENEMY PAWN TRUE
+                    if isinstance(bo.board[new_moves[2]][new_moves[3]], Pawn) and abs(new_moves[0] - new_moves[2]) == 2:
+                        # FOR ENEMY PAWN ON LEFT
+                        if new_moves[3] > 0:
+                            if bo.board[new_moves[2]][new_moves[3] - 1] != 0 and isinstance(
+                                    bo.board[new_moves[2]][new_moves[3] - 1], Pawn) and bo.board[new_moves[2]][new_moves[3] - 1].color != current_player_color:
+                                bo.board[new_moves[2]][new_moves[3] - 1].en_passant_right_status = True
+                                temp_move += f' bo.board[{7-new_moves[2]}][{7-(new_moves[3]-1)}].en_passant_right_status=True'
+
+                        # FOR ENEMY PAWN ON RIGHT
+                        if new_moves[3] < 7:
+                            if bo.board[new_moves[2]][new_moves[3] + 1] != 0 and isinstance(
+                                    bo.board[new_moves[2]][new_moves[3] + 1], Pawn) and bo.board[new_moves[2]][new_moves[3] + 1].color != current_player_color:
+                                bo.board[new_moves[2]][new_moves[3] + 1].en_passant_left_status = True
+                                temp_move += f' bo.board[{7-new_moves[2]}][{7-(new_moves[3]+1)}].en_passant_left_status=True'
+
+
+
                     client.send("0".encode(FORMAT))
 
             if message == 'new_board':

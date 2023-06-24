@@ -439,12 +439,12 @@ class King(pieces):
                 if p.color != self.color:
                     moves.append((i + 1, j + 1))
 
-        castle_moves = self.castling(board)
+        castle_moves = self.castling(board, online)
         moves.append(castle_moves[0])
         moves.append(castle_moves[1])
         return moves
 
-    def castling(self, board):
+    def castling(self, board, online):
         oi = self.row
         oj = self.column
         ni = oi
@@ -457,24 +457,47 @@ class King(pieces):
             # CHECKING OF THE POSITION BETWEEN THE KING AND ROOK FOR CHECK IS DONE IN board.py
             if not self.check:
                 # FOR RIGHT ROOK
-                if board[ni][7] != 0:
-                    if isinstance(board[ni][7], Rook) and board[ni][7].color == color_current:
-                        # THE NEW POSITION HAS ROOK OF SAME COLOR
-                        if board[ni][7].moves == 0:
-                            # MOVES OF ROOK ARE ZERO
-                            if board[oi][oj + 1] == 0 and board[oi][oj + 2] == 0:
-                                # SPACE BETWEEN THEM IS EMPTY
-                                right_castle_move = (ni, 6)
 
-                # FOR LEFT ROOK
-                if board[ni][0] != 0:
-                    if isinstance(board[ni][0], Rook) and board[ni][0].color == color_current:
-                        # THE NEW POSITION HAS ROOK OF SAME COLOR
-                        if board[ni][0].moves == 0:
-                            # MOVES OF ROOK ARE ZERO
-                            if board[oi][1] == 0 and board[oi][2] == 0 and board[oi][3] == 0:
-                                # SPACE BETWEEN THEM IS EMPTY
-                                left_castle_move = (ni, 2)
+                if online and self.color == 'b':
+                    # RIGHT ROOK
+                    if board[ni][7] != 0:
+                        if isinstance(board[ni][7], Rook) and board[ni][7].color == color_current:
+                            # THE NEW POSITION HAS ROOK OF SAME COLOR
+                            if board[ni][7].moves == 0:
+                                # MOVES OF ROOK ARE ZERO
+                                if board[oi][oj + 1] == 0 and board[oi][oj + 2] == 0 and board[oi][oj+3] == 0:
+                                    # SPACE BETWEEN THEM IS EMPTY
+                                    right_castle_move = (ni, 5)
+
+                    # FOR LEFT ROOK
+                    if board[ni][0] != 0:
+                        if isinstance(board[ni][0], Rook) and board[ni][0].color == color_current:
+                            # THE NEW POSITION HAS ROOK OF SAME COLOR
+                            if board[ni][0].moves == 0:
+                                # MOVES OF ROOK ARE ZERO
+                                if board[oi][1] == 0 and board[oi][2] == 0:
+                                    # SPACE BETWEEN THEM IS EMPTY
+                                    left_castle_move = (ni, 1)
+
+                else:
+                    if board[ni][7] != 0:
+                        if isinstance(board[ni][7], Rook) and board[ni][7].color == color_current:
+                            # THE NEW POSITION HAS ROOK OF SAME COLOR
+                            if board[ni][7].moves == 0:
+                                # MOVES OF ROOK ARE ZERO
+                                if board[oi][oj + 1] == 0 and board[oi][oj + 2] == 0:
+                                    # SPACE BETWEEN THEM IS EMPTY
+                                    right_castle_move = (ni, 6)
+
+                    # FOR LEFT ROOK
+                    if board[ni][0] != 0:
+                        if isinstance(board[ni][0], Rook) and board[ni][0].color == color_current:
+                            # THE NEW POSITION HAS ROOK OF SAME COLOR
+                            if board[ni][0].moves == 0:
+                                # MOVES OF ROOK ARE ZERO
+                                if board[oi][1] == 0 and board[oi][2] == 0 and board[oi][3] == 0:
+                                    # SPACE BETWEEN THEM IS EMPTY
+                                    left_castle_move = (ni, 2)
 
         return right_castle_move, left_castle_move
 

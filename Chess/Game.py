@@ -136,8 +136,7 @@ def loosing_screen(text):
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    starting_screen()
 
         pygame.display.update()
 
@@ -157,8 +156,7 @@ def stalemate_screen(text):
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    starting_screen()
 
         pygame.display.update()
 
@@ -208,9 +206,11 @@ def waiting_screen():
     text = font_.render('WAITING FOR PLAYER..', True, (255, 255, 255)).convert_alpha()
 
     while True:
+        clock.tick(10)
 
         # ASK FOR P2 CONNECTION STATUS
         status = Player.send('con_stat')
+
 
         screen.fill('black')
         screen.blit(starting_screen_image, (0, 125))
@@ -276,6 +276,8 @@ def online_game(Player, my_color):
 
 
     while True:
+        clock.tick(10)
+
         mpos = pygame.mouse.get_pos()
         screen.fill((0, 0, 0))
         screen.blit(board_image, (0, 0))
@@ -343,10 +345,22 @@ def online_game(Player, my_color):
                                     check_sound.play()
                                     bo.deselect_all()
                                 else:
+
+                                    ## TURN EN PASANT STATUS FOR ALL PIECE OFF
+                                    for ti in range(8):
+                                        for tj in range(8):
+                                            if bo.board[ti][tj] != 0 and isinstance(bo.board[ti][tj], Pawn) and \
+                                                    bo.board[ti][tj].color == current_player_color:
+                                                if bo.board[ti][tj].en_passant_left_status or bo.board[ti][tj].en_passant_right_status:
+                                                    bo.board[ti][tj].en_passant_left_status = False
+                                                    bo.board[ti][tj].en_passant_right_status = False
+
+
                                     move_sound.play()
                                     commands = Player.send('new_board')
                                     commands = commands.split(' ')
                                     for command in commands:
+                                        print(command)
                                         exec(command)
                                     bo.deselect_all()
 
@@ -595,7 +609,7 @@ def offline_game():
                     move = 0
 
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(20)
 
 
 starting_screen()

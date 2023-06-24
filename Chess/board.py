@@ -275,7 +275,7 @@ class Board:
             self.move_old_piece = False
 
             if nj == 6:
-                # FOR RIGHT ROOK
+                # FOR RIGHT ROOK IN ORIGINAL VIEW
                 if self.check_valid_move(oi, oj, oi, oj + 2, color_current) and self.check_valid_move(oi, oj, oi, oj + 1, color_current):
                     self.castling = True
                     self.board[oi][oj + 2] = self.board[oi][oj]  # KING AT NEW POSITION
@@ -286,7 +286,7 @@ class Board:
                     self.board[oi][oj] = 0  # OLD KING REMOVED
                     if online:
                         if color_current == 'b':
-                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-nj+1}].moves=1 bo.board[{7-oi}][{7-oj+2}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-oj+1}]=bo.board[{7-ni}][7-7] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-oj+2}) bo.board[{7-ni}][7-7].move({7-ni},7-5)' \
+                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj+1)}].moves=1 bo.board[{7-oi}][{7-(oj+2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj+1)}]=bo.board[{7-ni}][7-7] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj+2)}) bo.board[{7-ni}][7-7].move({7-ni},7-5)' \
                                      f' bo.board[{7-ni}][7-7]=0 bo.board[{7-oi}][{7-oj}]=0'
                         else:
                             payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj+1}].moves=1 bo.board[{oi}][{oj+2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj+1}]=bo.board[{ni}][7] bo.board[{oi}][{oj}].move({oi},{oj+2}) bo.board[{ni}][7].move({ni},5)' \
@@ -296,7 +296,7 @@ class Board:
                     piece_was_not_able_to_move = True
 
             elif nj == 2:
-                # FOR LEFT ROOK
+                # FOR LEFT ROOK IN ORIGINAL VIEW
                 if self.check_valid_move(oi, oj, oi, oj - 2, color_current) and self.check_valid_move(oi, oj, oi, oj - 1, color_current):
                     self.castling = True
                     self.board[oi][oj - 2] = self.board[oi][oj]  # KING AT NEW POSITION
@@ -307,7 +307,7 @@ class Board:
                     self.board[oi][oj] = 0  # OLD KING REMOVED
                     if online:
                         if color_current == 'b':
-                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-nj - 2}].moves=1 bo.board[{7-oi}][{7-oj - 2}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-oj - 1}]=bo.board[{7-ni}][7] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-oj - 2}) bo.board[{7-ni}][7-0].move({7-ni},{7-oj - 1}) ' \
+                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj - 2)}].moves=1 bo.board[{7-oi}][{7-(oj - 2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj - 1)}]=bo.board[{7-ni}][7] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj - 2)}) bo.board[{7-ni}][7-0].move({7-ni},{7-(oj - 1)}) ' \
                                        f'bo.board[{7-ni}][7-0]=0 bo.board[{7-oi}][{7-oj}]=0'
                         else:
                             payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj-2}].moves=1 bo.board[{oi}][{oj-2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj-1}]=bo.board[{ni}][0] bo.board[{oi}][{oj}].move({oi},{oj-2}) bo.board[{ni}][0].move({ni},{oj-1}) ' \
@@ -316,6 +316,8 @@ class Board:
                     piece_was_not_able_to_move = True
 
         # SPECIAL CASE 2 PROMOTION
+        # TODO check for check when promotion
+        # TODO it does not check for check when the pawn is at new position i think
         if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
             if self.board[oi][oj].color == 'w':
                 if ni == 0:
@@ -367,14 +369,14 @@ class Board:
                 self.board[ni+1][nj] = 0  # REMOVING THE PAWN THE NEW PAWN WILL TAKE
                 if online:
                     if color_current == 'b':
-                        payload += f'bo.board[{7-ni + 1}][{7-nj}]=0'
+                        payload += f'bo.board[{7-(ni + 1)}][{7-nj}]=0'
                     else:
                         payload += f'bo.board[{ni+1}][{nj}]=0'
             else:
                 self.board[ni-1][nj] = 0
                 if online:
                     if color_current == 'b':
-                        payload += f'bo.board[{7-ni-1}][{7-nj}]=0'
+                        payload += f'bo.board[{7-(ni-1)}][{7-nj}]=0'
                     else:
                         payload += f'bo.board[{ni-1}][{nj}]=0'
 
@@ -440,9 +442,9 @@ class Board:
 
             if online:
                 if color_current == 'b':
-                    payload += f'bo.board[{7-oi}][{7-oj}].moves=1  bo.board[{7-oi}][{7-oj}].move({7-ni},{7-nj})'
+                    payload += f' bo.board[{7-oi}][{7-oj}].moves=1  bo.board[{7-oi}][{7-oj}].move({7-ni},{7-nj})'
                 else:
-                    payload += f'bo.board[{oi}][{oj}].moves=1  bo.board[{oi}][{oj}].move({ni},{nj})'
+                    payload += f' bo.board[{oi}][{oj}].moves=1  bo.board[{oi}][{oj}].move({ni},{nj})'
 
         if self.move_old_piece:
             # CHECK IF A PIECE WAS CAPTURED
