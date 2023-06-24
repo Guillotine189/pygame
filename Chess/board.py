@@ -286,10 +286,10 @@ class Board:
                     self.board[oi][oj] = 0  # OLD KING REMOVED
                     if online:
                         if color_current == 'b':
-                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj+1)}].moves=1 bo.board[{7-oi}][{7-(oj+2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj+1)}]=bo.board[{7-ni}][7-7] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj+2)}) bo.board[{7-ni}][7-7].move({7-ni},7-5)' \
-                                     f' bo.board[{7-ni}][7-7]=0 bo.board[{7-oi}][{7-oj}]=0'
+                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj+1)}].moves=1 bo.board[{7-oi}][{7-(oj+2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj+1)}]=bo.board[{7-ni}][{7-7}] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj+2)}) bo.board[{7-ni}][{7-7}].move({7-ni},{7-5})' \
+                                     f' bo.board[{7-ni}][{7-7}]=0 bo.board[{7-oi}][{7-oj}]=0'
                         else:
-                            payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj+1}].moves=1 bo.board[{oi}][{oj+2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj+1}]=bo.board[{ni}][7] bo.board[{oi}][{oj}].move({oi},{oj+2}) bo.board[{ni}][7].move({ni},5)' \
+                            payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj+1}].moves=1 bo.board[{oi}][{oj+2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj+1}]=bo.board[{ni}][{7}] bo.board[{oi}][{oj}].move({oi},{oj+2}) bo.board[{ni}][{7}].move({ni},{5})' \
                                      f' bo.board[{ni}][7]=0 bo.board[{oi}][{oj}]=0'
 
                 else:
@@ -307,11 +307,11 @@ class Board:
                     self.board[oi][oj] = 0  # OLD KING REMOVED
                     if online:
                         if color_current == 'b':
-                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj - 2)}].moves=1 bo.board[{7-oi}][{7-(oj - 2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj - 1)}]=bo.board[{7-ni}][7] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj - 2)}) bo.board[{7-ni}][7-0].move({7-ni},{7-(oj - 1)}) ' \
-                                       f'bo.board[{7-ni}][7-0]=0 bo.board[{7-oi}][{7-oj}]=0'
+                            payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj - 2)}].moves=1 bo.board[{7-oi}][{7-(oj - 2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj - 1)}]=bo.board[{7-ni}][{7}] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj - 2)}) bo.board[{7-ni}][{7-0}].move({7-ni},{7-(oj - 1)}) ' \
+                                       f'bo.board[{7-ni}][{7-0}]=0 bo.board[{7-oi}][{7-oj}]=0'
                         else:
-                            payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj-2}].moves=1 bo.board[{oi}][{oj-2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj-1}]=bo.board[{ni}][0] bo.board[{oi}][{oj}].move({oi},{oj-2}) bo.board[{ni}][0].move({ni},{oj-1}) ' \
-                              f'bo.board[{ni}][0]=0 bo.board[{oi}][{oj}]=0'
+                            payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj-2}].moves=1 bo.board[{oi}][{oj-2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj-1}]=bo.board[{ni}][{0}] bo.board[{oi}][{oj}].move({oi},{oj-2}) bo.board[{ni}][{0}].move({ni},{oj-1}) ' \
+                              f'bo.board[{ni}][{0}]=0 bo.board[{oi}][{oj}]=0'
                 else:
                     piece_was_not_able_to_move = True
 
@@ -326,16 +326,13 @@ class Board:
                         self.update_old_piece = False
                         self.remove_old_piece = False
                         self.move_old_piece = False
+                elif self.board[oi][oj].color == 'b' and self.check_valid_move(oi, oj, ni, nj, color_current):
                     if ni == 7:
                         print("BLACK WANTS")
                         payload = 'change_piece()'
                         self.update_old_piece = False
                         self.remove_old_piece = False
                         self.move_old_piece = False
-
-
-
-
 
         else:
             # SPECIAL CASE 2 PROMOTION

@@ -1,9 +1,8 @@
 import sys
 from board import Board
-import pygame
 from Pieces import *
 from client import Network
-
+import time
 
 
 # LOADING PYGAME
@@ -15,6 +14,9 @@ font_ = pygame.font.SysFont('monospace', 70)
 # ADDING SOUNDS
 move_sound = pygame.mixer.Sound('./sounds/move-self.mp3')
 check_sound = pygame.mixer.Sound('./sounds/move-check.mp3')
+promote_sound = pygame.mixer.Sound('./sounds/promote.mp3')
+notify_sound = pygame.mixer.Sound('./sounds/notify.mp3')
+capture_sound = pygame.mixer.Sound('./sounds/capture.mp3')
 
 # 139, 110 - size of block
 
@@ -35,11 +37,6 @@ clock = pygame.time.Clock()
 check_list = []
 check_tup = ()
 
-# ADD SOUNDS
-check_sound = pygame.mixer.Sound('./sounds/move-check.mp3')
-promote_sound = pygame.mixer.Sound('./sounds/promote.mp3')
-notify_sound = pygame.mixer.Sound('./sounds/notify.mp3')
-capture_sound = pygame.mixer.Sound('./sounds/capture.mp3')
 
 class Button:
     def __init__(self, text, x, y, w, h):
@@ -116,11 +113,16 @@ def click(mpos):
     return x_co, y_co
 
 
-def loosing_screen(text):
+def loosing_screen(text, Player=False):
+    time.sleep(0.1)
+    if Player:
+        Player.client.send("!D".encode(Player.format))
     text = text + ' WON'
     text_ = font_.render(text, True, 'black')
     text_rect = text_.get_rect()
     back_rect = text_rect
+    if Player:
+        Player.client.send("!D".encode(Player.format))
     text_rect.center = 1100/2, 900/2
 
     while True:
@@ -138,7 +140,10 @@ def loosing_screen(text):
         pygame.display.update()
 
 
-def stalemate_screen(text):
+def stalemate_screen(text, Player=False):
+    time.sleep(0.1)
+    if Player:
+        Player.client.send("!D".encode(Player.format))
     text_ = font_.render(text, True, 'black')
     text_rect = text_.get_rect()
     back_rect = text_rect
@@ -159,6 +164,7 @@ def stalemate_screen(text):
 
 
 def starting_screen():
+    print("STARTING SCREEN")
     pygame.display.set_caption('STARTING SCREEN')
 
     online_button = Button("ONLINE", 150, 400, 270, 70)
@@ -193,6 +199,10 @@ def waiting_screen():
     # CREATING PLAYER OBJECT P1
     Player = Network()
     print(Player.first_message)
+
+    if Player.first_message == 'full':
+        starting_screen()
+
 
     if not Player.first_message:
         starting_screen()
@@ -237,26 +247,12 @@ def waiting_screen():
         clock.tick(60)
 
 
-def read_moves(moves):
-    moves_ = moves.split(" ")
-    return int(moves_[0]), int(moves_[1]), int(moves_[2]), int(moves_[3])
-
 def make_moves(tup):
     return str(tup[0]) + " " + str(tup[1]) + " " + str(tup[2]) + " " + str(tup[3])
 
 
-
-def read_board(board):
-    return_element = []
-    board_new = board.split(" ")
-    print(board_new)
-    for i in range(64):
-        return_element += board_new[i]
-    return return_element
-
-
-
 def online_game(Player, my_color):
+    print("CHESS ONLINE")
     pygame.display.set_caption('CHESS ONLINE')
 
     if my_color == 'w':
@@ -286,7 +282,6 @@ def online_game(Player, my_color):
         if int(pl_2_stat):
 
             current_player_color = Player.send('current_player')
-            # print(current_player_color)
             if current_player_color != my_color:
                 count = 0
             else:
@@ -295,14 +290,15 @@ def online_game(Player, my_color):
                     last_move = Player.send('last_move')
                     last_move = last_move.split(' ')
                     for i in last_move:
-                        print(last_move)
                         exec(i)
 
 
 
                     # AFTER THE LAST MOVE DONE BY OTHER PLAYER
                     # CHECK FOR CHECK MY COLOR
-                    if bo.check(my_color):
+                    garbage = Player.send('check')
+                    in_check = Player.send(my_color)
+                    if int(in_check):
                         check_sound.play()
                         position = 0, 0
                         for i in range(8):
@@ -315,7 +311,9 @@ def online_game(Player, my_color):
 
                     # AFTER ENEMY MOVE IF THEIR KING IS NOT IN CHECK
                     # TURN CHECK OFF
-                    if not bo.check(other_player_color):
+                    garbage = Player.send('check')
+                    in_check = Player.send(other_player_color)
+                    if not int(in_check):
                         position = 0, 0
                         for i in range(8):
                             for j in range(8):
@@ -330,7 +328,6 @@ def online_game(Player, my_color):
             end = Player.send('end')
             if end != '0':
                 final = Player.send('winner')
-                print(final)
                 final = final.split(' ')
                 for command in final:
                     exec(command)
@@ -395,33 +392,29 @@ def online_game(Player, my_color):
 
                                     move_sound.play()
                                     commands = Player.send('new_board')
-                                    print(commands, "COMM recv")
                                     if commands == 'change_piece()':
                                         new_piece = change_piece()
-                                        print(new_piece)
                                         if new_piece == 'Q':
                                             commands = Player.send(new_piece)
-                                            print("sent")
                                         if new_piece == 'B':
                                             commands = Player.send(new_piece)
-                                            print("sent")
                                         if new_piece == 'R':
                                             commands = Player.send(new_piece)
-                                            print("sent")
                                         if new_piece == 'K':
                                             commands = Player.send(new_piece)
-                                            print("sent")
+                                        promote_sound.play()
 
-                                    print(commands)
+
                                     commands = commands.split(' ')
                                     for command in commands:
-                                        print(command)
                                         exec(command)
                                     bo.deselect_all()
 
-                                    ## AFTER MY MOVE IF OTHER PLAYER HAS CHECK
+                                    ## AFTER MY MOVE IF OTHER PLAYER HAS A CHECK
                                     ## TURN CHECK STATUS ON
-                                    if bo.check(other_player_color):
+                                    garbage = Player.send('check')
+                                    in_check = Player.send(other_player_color)
+                                    if int(in_check):
                                         check_sound.play()
                                         position = 0, 0
                                         for i in range(8):
@@ -434,7 +427,9 @@ def online_game(Player, my_color):
 
                                     # AFTER MY MOVE IF MY KING IS NOT IN CHECK
                                     # TURN CHECK STATUS OFF
-                                    if not bo.check(my_color):
+                                    garbage = Player.send('check')
+                                    in_check = Player.send(my_color)
+                                    if not int(in_check):
                                         position = 0, 0
                                         for i in range(8):
                                             for j in range(8):
@@ -447,7 +442,6 @@ def online_game(Player, my_color):
                                         end = Player.send('end')
                                         if end != '0':
                                             final = Player.send('winner')
-                                            print(final)
                                             final = final.split(' ')
                                             for command in final:
                                                 exec(command)
