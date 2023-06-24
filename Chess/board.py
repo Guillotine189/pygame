@@ -315,53 +315,74 @@ class Board:
                 else:
                     piece_was_not_able_to_move = True
 
-        # SPECIAL CASE 2 PROMOTION
-        # TODO check for check when promotion
-        # TODO it does not check for check when the pawn is at new position i think
-        if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
-            if self.board[oi][oj].color == 'w':
-                if ni == 0:
-                    self.promoting = True
-                    # IF THE ORIGINAL POSITION HAD A WHITE PAWN
-                    # AND THE NEW POSITION IS ROW 0
-                    # PROMOTE THE PAWN AFTER CHECKING THAT THE KING IS NOT CHECKED
-                    new_piece = self.change_piece()
-                    if new_piece == 'Q':
-                        self.board[ni][nj] = Queen(ni, nj, 'w')
-                        self.board[oi][oj].has_changed = True
-                    if new_piece == 'B':
-                        self.board[ni][nj] = Bishop(ni, nj, 'w')
-                        self.board[oi][oj].has_changed = True
-                    if new_piece == 'R':
-                        self.board[ni][nj] = Rook(ni, nj, 'w')
-                        self.board[oi][oj].has_changed = True
-                    if new_piece == 'K':
-                        self.board[ni][nj] = Knight(ni, nj, 'w')
-                        self.board[oi][oj].has_changed = True
-                    self.update_old_piece = True
-                    self.remove_old_piece = True
-                    self.move_old_piece = False
 
-            else:
-                if ni == 7:
-                    self.promoting = True
-                    new_piece = self.change_piece()
-                    if new_piece == 'Q':
-                        self.board[ni][nj] = Queen(ni, nj, 'b')
-                        self.board[oi][oj].has_changed = True
-                    if new_piece == 'B':
-                        self.board[ni][nj] = Bishop(ni, nj, 'b')
-                        self.board[oi][oj].has_changed = True
-                    if new_piece == 'R':
-                        self.board[ni][nj] = Rook(ni, nj, 'b')
-                        self.board[oi][oj].has_changed = True
-                    if new_piece == 'K':
-                        self.board[ni][nj] = Knight(ni, nj, 'b')
-                        self.board[oi][oj].has_changed = True
-                    self.update_old_piece = True
-                    self.remove_old_piece = True
-                    self.move_old_piece = False
-                    promote_sound.play()
+
+        if online:
+            if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
+                if self.board[oi][oj].color == 'w' and self.check_valid_move(oi, oj, ni, nj, color_current):
+                    if ni == 0:
+                        print("WHITE WANTS")
+                        payload = 'change_piece()'
+                        self.update_old_piece = False
+                        self.remove_old_piece = False
+                        self.move_old_piece = False
+                    if ni == 7:
+                        print("BLACK WANTS")
+                        payload = 'change_piece()'
+                        self.update_old_piece = False
+                        self.remove_old_piece = False
+                        self.move_old_piece = False
+
+
+
+
+
+        else:
+            # SPECIAL CASE 2 PROMOTION
+            if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
+                if self.board[oi][oj].color == 'w' and self.check_valid_move(oi, oj, ni, nj, color_current):
+                    if ni == 0:
+                        self.promoting = True
+                        # IF THE ORIGINAL POSITION HAD A WHITE PAWN
+                        # AND THE NEW POSITION IS ROW 0
+                        # PROMOTE THE PAWN AFTER CHECKING THAT THE KING IS NOT CHECKED
+                        new_piece = self.change_piece()
+                        if new_piece == 'Q':
+                            self.board[ni][nj] = Queen(ni, nj, 'w')
+                            self.board[oi][oj].has_changed = True
+                        if new_piece == 'B':
+                            self.board[ni][nj] = Bishop(ni, nj, 'w')
+                            self.board[oi][oj].has_changed = True
+                        if new_piece == 'R':
+                            self.board[ni][nj] = Rook(ni, nj, 'w')
+                            self.board[oi][oj].has_changed = True
+                        if new_piece == 'K':
+                            self.board[ni][nj] = Knight(ni, nj, 'w')
+                            self.board[oi][oj].has_changed = True
+                        self.update_old_piece = True
+                        self.remove_old_piece = True
+                        self.move_old_piece = False
+
+                else:
+                    if ni == 7:
+                        self.promoting = True
+                        new_piece = self.change_piece()
+                        if new_piece == 'Q':
+                            self.board[ni][nj] = Queen(ni, nj, 'b')
+                            self.board[oi][oj].has_changed = True
+                        if new_piece == 'B':
+                            self.board[ni][nj] = Bishop(ni, nj, 'b')
+                            self.board[oi][oj].has_changed = True
+                        if new_piece == 'R':
+                            self.board[ni][nj] = Rook(ni, nj, 'b')
+                            self.board[oi][oj].has_changed = True
+                        if new_piece == 'K':
+                            self.board[ni][nj] = Knight(ni, nj, 'b')
+                            self.board[oi][oj].has_changed = True
+                        self.update_old_piece = True
+                        self.remove_old_piece = True
+                        self.move_old_piece = False
+                        promote_sound.play()
 
         # SPECIAL CASE 3 EN_PASSANT
         if isinstance(self.board[oi][oj], Pawn) and (self.board[oi][oj].en_passant_left_status or self.board[oi][oj].en_passant_right_status) and nj != oj:
@@ -673,6 +694,7 @@ class Board:
     # WHEN THE PAWN IS PROMOTED, THIS FUNCTION IS CALLED
     # THIS RETURNS THE PIECE PLAYER WANTS TO REPLACE PAWN WITH
     def change_piece(self):
+        print("SERVER")
         return_piece = 'Q'
 
         clock = pygame.time.Clock()
@@ -687,7 +709,7 @@ class Board:
         color = (155, 250, 0)
         
         while True:
-            clock.tick(60)
+            clock.tick(10)
             mpos = pygame.mouse.get_pos()
             pygame.draw.rect(self.screen, 'black', (1100/4, 900/4, 1100/2, 900/2 + 50), 0)
             pygame.draw.rect(self.screen, color, rect1, 0)

@@ -359,6 +359,21 @@ def online_game(Player, my_color):
                                     move_sound.play()
                                     commands = Player.send('new_board')
                                     commands = commands.split(' ')
+                                    print(commands, "COMM recv")
+                                    print(commands[0], "COMM{0}")
+                                    if commands[0] == 'change_piece()':
+                                        new_piece = change_piece()
+                                        print(new_piece)
+                                        if new_piece == 'Q':
+                                            commands = Player.send(new_piece)
+                                        if new_piece == 'B':
+                                            commands = Player.send(new_piece)
+                                        if new_piece == 'R':
+                                            commands = Player.send(new_piece)
+                                        if new_piece == 'K':
+                                            commands = Player.send(new_piece)
+
+
                                     for command in commands:
                                         print(command)
                                         exec(command)
@@ -386,6 +401,57 @@ def online_game(Player, my_color):
             # P2 NOT ONLONE
             Player.client.send('!D'.encode(Player.format))
             disconnect_screen()
+
+def change_piece():
+    print("SERVER")
+    return_piece = 'Q'
+
+    clock = pygame.time.Clock()
+    rect1 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 10, 1100 / 2 - 20, 900 / 8)
+    rect2 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 20 + 900 / 8, 1100 / 2 - 20, 900 / 8)
+    rect3 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 30 + 900 / 4, 1100 / 2 - 20, 900 / 8)
+    rect4 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 40 + 900 / 8 + 900 / 4, 1100 / 2 - 20, 900 / 8)
+    text1 = font_.render('QUEEN', True, 'black')
+    text2 = font_.render('BISHOP', True, 'black')
+    text3 = font_.render('ROOK', True, 'black')
+    text4 = font_.render('KNIGHT', True, 'black')
+    color = (155, 250, 0)
+
+    while True:
+        clock.tick(10)
+        mpos = pygame.mouse.get_pos()
+        pygame.draw.rect(screen, 'black', (1100 / 4, 900 / 4, 1100 / 2, 900 / 2 + 50), 0)
+        pygame.draw.rect(screen, color, rect1, 0)
+        pygame.draw.rect(screen, color, rect2, 0)
+        pygame.draw.rect(screen, color, rect3, 0)
+        pygame.draw.rect(screen, color, rect4, 0)
+
+        screen.blit(text1, (1100 / 4 + 150, 900 / 4 + 40))
+        screen.blit(text2, (1100 / 4 + 150, 900 / 4 + 50 + 900 / 8))
+        screen.blit(text3, (1100 / 4 + 150, 900 / 4 + 60 + 900 / 4))
+        screen.blit(text4, (1100 / 4 + 150, 900 / 4 + 70 + 900 / 8 + 900 / 4))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        if rect1.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+            return_piece = 'Q'
+            break
+        if rect2.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+            return_piece = "B"
+            break
+        if rect3.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+            return_piece = "R"
+            break
+        if rect4.collidepoint(mpos) and pygame.mouse.get_pressed()[0]:
+            return_piece = "K"
+            break
+
+        pygame.display.update()
+
+    return return_piece
 
 
 def disconnect_screen():

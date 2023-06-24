@@ -3,7 +3,7 @@ import threading
 from board import Board
 from Pieces import *
 
-HOST, PORT = '192.168.1.18', 9990
+HOST, PORT = '192.168.1.18', 9992
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,10 +35,12 @@ def read_moves(moves):
     return int(moves_[0]), int(moves_[1]), int(moves_[2]), int(moves_[3])
 
 last_move = '0'
+new_moves = '0'
+
 
 def receive(client, pl_no):
 
-    global status, player_no, current_player_color, other_player_color, move_played, has_played_move, last_move
+    global status, player_no, current_player_color, other_player_color, move_played, has_played_move, last_move, new_moves
 
     status[pl_no] = 1
 
@@ -123,9 +125,41 @@ def receive(client, pl_no):
 
             if message == 'new_board':
                 payload = temp_move
-                last_move = temp_move
-                # payload = f'{bo.board[0]}'
 
+                if payload == 'bo.board.change_piece()':
+                    client.send(payload.encode(FORMAT))
+                    new_piece = client.recv(8).decode(FORMAT)
+
+                    if current_player_color == 'w':
+                        if new_piece == 'Q':
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Queen({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
+                        if new_piece == 'B':
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Bishop({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
+                        if new_piece == 'R':
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Rook({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
+                        if new_piece == 'K':
+                            payload = f'bo.board[{new_moves[2]}][{new_moves[3]}]=Knight({new_moves[2]},{new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{new_moves[0]}][{new_moves[1]}]=0'
+
+                    else:
+                        if new_piece == 'Q':
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Queen({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
+                        if new_piece == 'B':
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Bishop({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
+                        if new_piece == 'R':
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Rook({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
+                        if new_piece == 'K':
+                            payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Knight({7-new_moves[2]},{7-new_moves[3]},{current_player_color})'
+                            payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0'
+
+
+                last_move = payload
                 print(payload)
                 client.send(payload.encode(FORMAT))
                 # CHANGE PLAYER
@@ -199,6 +233,8 @@ while True:
         has_played_move = 0
         move_played = 0, 0, 0, 0
         bo = Board(8, 8, 0, 'w')
+        last_move = '0'
+        new_moves = '0'
     thread = threading.Thread(target=receive, args=(client, player_no))
     thread.start()
     player_no += 1
