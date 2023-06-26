@@ -45,9 +45,7 @@ def check_element_in_arr(element, arr):
     return False
 
 
-
 class Board:
-
 
     def __init__(self, rows, columns, screen, color):
         self.rows = rows
@@ -70,6 +68,11 @@ class Board:
         self.isonline = False
         # ADDING PIECES TO THE BOARD
 
+        # IF 'W'  - TOP IS BLACK
+        #         - BOTTOM IS WHITE
+        # IF 'B'  - TOP IS WHITE
+        #         - BOTTOM IS BLACK
+
         if color == 'w':
             self.board[0][0] = Rook(0, 0, 'b')
             self.board[0][1] = Knight(0, 1, 'b')
@@ -88,12 +91,6 @@ class Board:
             self.board[1][5] = Pawn(1, 5, 'b')
             self.board[1][6] = Pawn(1, 6, 'b')
             self.board[1][7] = Pawn(1, 7, 'b')
-
-            # self.board[2][5] = Rook(2, 5, 'b')
-            # self.board[5][5] = Rook(5, 5, 'b')
-            # self.board[6][6] = Rook(6, 6, 'w')
-            # self.board[6][7] = King(6, 7, 'w')
-            # self.board[7][4] = Rook(7, 4, 'w')
 
             self.board[7][0] = Rook(7, 0, 'w')
             self.board[7][1] = Knight(7, 1, 'w')
@@ -131,7 +128,6 @@ class Board:
             self.board[1][6] = Pawn(1, 6, 'w')
             self.board[1][7] = Pawn(1, 7, 'w')
 
-
             self.board[7][0] = Rook(7, 0, 'b')
             self.board[7][1] = Knight(7, 1, 'b')
             self.board[7][2] = Bishop(7, 2, 'b')
@@ -149,56 +145,6 @@ class Board:
             self.board[6][5] = Pawn(6, 5, 'b')
             self.board[6][6] = Pawn(6, 6, 'b')
             self.board[6][7] = Pawn(6, 7, 'b')
-
-
-
-            # self.board[0][0] = Rook(0, 0, 'w')
-            # # self.board[0][1] = Knight(0, 1, 'w')
-            # # self.board[0][2] = Bishop(0, 2, 'w')
-            # # self.board[0][3] = Queen(0, 3, 'w')
-            # self.board[0][4] = King(0, 4, 'w')
-            # self.board[0][5] = Bishop(0, 5, 'w')
-            # self.board[0][6] = Knight(0, 6, 'w')
-            # self.board[0][7] = Rook(0, 7, 'w')
-            #
-            # self.board[1][0] = Pawn(1, 0, 'w')
-            # self.board[1][1] = Pawn(1, 1, 'w')
-            # self.board[1][2] = Pawn(1, 2, 'w')
-            # self.board[1][3] = Pawn(1, 3, 'w')
-            # self.board[1][4] = Pawn(1, 4, 'w')
-            # self.board[1][5] = Pawn(1, 5, 'w')
-            # self.board[1][6] = Pawn(1, 6, 'w')
-            # self.board[1][7] = Pawn(1, 7, 'w')
-            #
-            # # self.board[2][5] = Rook(2, 5, 'b')
-            # # self.board[5][5] = Rook(5, 5, 'b')
-            # # self.board[6][6] = Rook(6, 6, 'w')
-            # # self.board[6][7] = King(6, 7, 'w')
-            # # self.board[7][4] = Rook(7, 4, 'w')
-            #
-            # self.board[7][0] = Rook(7, 0, 'b')
-            # # self.board[7][1] = Knight(7, 1, 'b')
-            # # self.board[7][2] = Bishop(7, 2, 'b')
-            # # self.board[7][3] = Queen(7, 3, 'b')
-            # self.board[7][4] = King(7, 4, 'b')
-            # self.board[7][5] = Bishop(7, 5, 'b')
-            # self.board[7][6] = Knight(7, 6, 'b')
-            # self.board[7][7] = Rook(7, 7, 'b')
-            #
-            # self.board[6][0] = Pawn(6, 0, 'b')
-            # self.board[6][1] = Pawn(6, 1, 'b')
-            # self.board[6][2] = Pawn(6, 2, 'b')
-            # self.board[6][3] = Pawn(6, 3, 'b')
-            # self.board[6][4] = Pawn(6, 4, 'b')
-            # self.board[6][5] = Pawn(6, 5, 'b')
-            # self.board[6][6] = Pawn(6, 6, 'b')
-            # self.board[6][7] = Pawn(6, 7, 'b')
-
-
-
-
-
-
 
     # THIS DRAWS THE BOARD
     def draw(self, screen, online=False):
@@ -266,6 +212,7 @@ class Board:
         # INITIALLY SET THAT THE PIECE WILL MOVE
         piece_was_not_able_to_move = False
 
+        # PAYLOAD IS ONLY FOR ONLINE GAMES
         payload = ''
 
         # SPECIAL CASE 1 CASTLING
@@ -285,12 +232,14 @@ class Board:
                     self.board[ni][7] = 0  # OLD ROOK IS REMOVED
                     self.board[oi][oj] = 0  # OLD KING REMOVED
                     if online:
+
+                        # IF BLACK HAS MOVED, EN_PASSASNT FOR WHITE TO BE TURNED ON:
                         if color_current == 'b':
                             payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj+1)}].moves=1 bo.board[{7-oi}][{7-(oj+2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj+1)}]=bo.board[{7-ni}][{7-7}] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj+2)}) bo.board[{7-ni}][{7-7}].move({7-ni},{7-5})' \
-                                     f' bo.board[{7-ni}][{7-7}]=0 bo.board[{7-oi}][{7-oj}]=0'
+                                     f' bo.board[{7-ni}][{7-7}]=0 bo.board[{7-oi}][{7-oj}]=0 castle_sound.play()'
                         else:
                             payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj+1}].moves=1 bo.board[{oi}][{oj+2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj+1}]=bo.board[{ni}][{7}] bo.board[{oi}][{oj}].move({oi},{oj+2}) bo.board[{ni}][{7}].move({ni},{5})' \
-                                     f' bo.board[{ni}][7]=0 bo.board[{oi}][{oj}]=0'
+                                     f' bo.board[{ni}][7]=0 bo.board[{oi}][{oj}]=0 castle_sound.play()'
 
                 else:
                     piece_was_not_able_to_move = True
@@ -308,34 +257,33 @@ class Board:
                     if online:
                         if color_current == 'b':
                             payload = f'bo.board[{7-oi}][{7-oj}].moves=1 bo.board[{7-ni}][{7-(nj - 2)}].moves=1 bo.board[{7-oi}][{7-(oj - 2)}]=bo.board[{7-oi}][{7-oj}] bo.board[{7-oi}][{7-(oj - 1)}]=bo.board[{7-ni}][{7}] bo.board[{7-oi}][{7-oj}].move({7-oi},{7-(oj - 2)}) bo.board[{7-ni}][{7-0}].move({7-ni},{7-(oj - 1)}) ' \
-                                       f'bo.board[{7-ni}][{7-0}]=0 bo.board[{7-oi}][{7-oj}]=0'
+                                       f'bo.board[{7-ni}][{7-0}]=0 bo.board[{7-oi}][{7-oj}]=0 castle_sound.play()'
                         else:
                             payload = f'bo.board[{oi}][{oj}].moves=1 bo.board[{ni}][{nj-2}].moves=1 bo.board[{oi}][{oj-2}]=bo.board[{oi}][{oj}] bo.board[{oi}][{oj-1}]=bo.board[{ni}][{0}] bo.board[{oi}][{oj}].move({oi},{oj-2}) bo.board[{ni}][{0}].move({ni},{oj-1}) ' \
-                              f'bo.board[{ni}][{0}]=0 bo.board[{oi}][{oj}]=0'
+                              f'bo.board[{ni}][{0}]=0 bo.board[{oi}][{oj}]=0 castle_sound.play()'
                 else:
                     piece_was_not_able_to_move = True
 
-
-
+        # SPECIAL CASE FOR PROMOTION ONLINE GAME
         if online:
             if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
                 if self.board[oi][oj].color == 'w' and self.check_valid_move(oi, oj, ni, nj, color_current):
                     if ni == 0:
-                        print("WHITE WANTS")
+                        self.promoting = True
                         payload = 'change_piece()'
                         self.update_old_piece = False
                         self.remove_old_piece = False
                         self.move_old_piece = False
                 elif self.board[oi][oj].color == 'b' and self.check_valid_move(oi, oj, ni, nj, color_current):
                     if ni == 7:
-                        print("BLACK WANTS")
+                        self.promoting = True
                         payload = 'change_piece()'
                         self.update_old_piece = False
                         self.remove_old_piece = False
                         self.move_old_piece = False
 
         else:
-            # SPECIAL CASE 2 PROMOTION
+            # SPECIAL CASE 2 PROMOTION OFFLINE
             if type(self.board[oi][oj]) == type(self.check_pawn) and not self.check(color_current):
                 if self.board[oi][oj].color == 'w' and self.check_valid_move(oi, oj, ni, nj, color_current):
                     if ni == 0:
@@ -387,16 +335,16 @@ class Board:
                 self.board[ni+1][nj] = 0  # REMOVING THE PAWN THE NEW PAWN WILL TAKE
                 if online:
                     if color_current == 'b':
-                        payload += f'bo.board[{7-(ni + 1)}][{7-nj}]=0'
+                        payload += f'bo.board[{7-(ni + 1)}][{7-nj}]=0 capture_sound.play()'
                     else:
-                        payload += f'bo.board[{ni+1}][{nj}]=0'
+                        payload += f'bo.board[{ni+1}][{nj}]=0 capture_sound.play()'
             else:
                 self.board[ni-1][nj] = 0
                 if online:
                     if color_current == 'b':
-                        payload += f'bo.board[{7-(ni-1)}][{7-nj}]=0'
+                        payload += f'bo.board[{7-(ni-1)}][{7-nj}]=0 capture_sound.play()'
                     else:
-                        payload += f'bo.board[{ni-1}][{nj}]=0'
+                        payload += f'bo.board[{ni-1}][{nj}]=0 capture_sound.play()'
 
         # FOR EVERY OTHER CASE
         # CHECKING IF THE CURRENT MOVE WILL RESULT IN CHECK FOR CURRENT PLAYER
@@ -416,7 +364,7 @@ class Board:
                             if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(
                                     self.board[i][j], King):
                                 position = i, j
-                    # CHANGING CHECK STATUS TO FALSE BECAUSE WHEN CHECK() FUNC IN USED IT TURNS IT TRUE IF KING WAS CHECKED
+
                     self.board[position[0]][position[1]].check = False
 
                     piece_was_not_able_to_move = True
@@ -460,14 +408,15 @@ class Board:
 
             if online:
                 if color_current == 'b':
-                    payload += f' bo.board[{7-oi}][{7-oj}].moves=1  bo.board[{7-oi}][{7-oj}].move({7-ni},{7-nj})'
+                    payload += f' bo.board[{7-oi}][{7-oj}].moves=1  bo.board[{7-oi}][{7-oj}].move({7-ni},{7-nj}) move_sound.play()'
                 else:
-                    payload += f' bo.board[{oi}][{oj}].moves=1  bo.board[{oi}][{oj}].move({ni},{nj})'
+                    payload += f' bo.board[{oi}][{oj}].moves=1  bo.board[{oi}][{oj}].move({ni},{nj}) move_sound.play()'
 
         if self.move_old_piece:
             # CHECK IF A PIECE WAS CAPTURED
             if self.board[ni][nj] != 0 and self.board[ni][nj].color != self.board[oi][oj].color:
                 capture_sound.play()
+                payload += ' capture_sound.play() '
             self.board[ni][nj] = self.board[oi][oj]
 
             if online:
@@ -485,37 +434,33 @@ class Board:
                 else:
                     payload += f' bo.board[{oi}][{oj}]=0'
 
-
-
         self.remove_old_piece = True
         self.move_old_piece = True
         self.update_old_piece = True
-        if self.castling:
-            self.castling = False
-        if self.promoting:
-            self.promoting = False
+        self.castling = False
+        self.promoting = False
 
         # AFTER NOT MOVING THE PIECE CHECK KING STATUS
         # IF IT IS STILL IN CHECK TURN THE CHECK_STATUS TO TRUE
-        if self.check(color_current):
-            position = 0, 0
-            for i in range(self.rows):
-                for j in range(self.columns):
-                    if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
-                        position = i, j
-            self.board[position[0]][position[1]].check = True
+        if not online:
+            if self.check(color_current):
+                position = 0, 0
+                for i in range(self.rows):
+                    for j in range(self.columns):
+                        if self.board[i][j] != 0 and self.board[i][j].color == color_current and isinstance(self.board[i][j], King):
+                            position = i, j
+                self.board[position[0]][position[1]].check = True
 
         # CHECKING FOR OTHER COLOR
-        if color_current == 'w':
-            if self.check('b'):
-                check_sound.play()
-        else:
-            if self.check('w'):
-                check_sound.play()
+        if not online:
+            if color_current == 'w':
+                if self.check('b'):
+                    check_sound.play()
+            else:
+                if self.check('w'):
+                    check_sound.play()
 
-
-
-        return piece_was_not_able_to_move, online*(payload)
+        return piece_was_not_able_to_move, online*payload
 
     # THIS TAKES IN THE OLD AND NEW COORDINATES AND THE COLOR OF CURRENT PLAYER
     # IT CHECKS WEATHER AFTER THE PIECE HAS MOVED TO A NEW POSITION

@@ -1,7 +1,4 @@
 import sys
-
-import pygame
-
 from board import Board
 from Pieces import *
 from client import Network
@@ -21,6 +18,7 @@ check_sound = pygame.mixer.Sound('./sounds/move-check.mp3')
 promote_sound = pygame.mixer.Sound('./sounds/promote.mp3')
 notify_sound = pygame.mixer.Sound('./sounds/notify.mp3')
 capture_sound = pygame.mixer.Sound('./sounds/capture.mp3')
+castle_sound = pygame.mixer.Sound('./sounds/castle.mp3')
 
 # 139, 110 - size of block
 
@@ -90,9 +88,8 @@ def check_current_player_by_color(bo, i, j, current_player_color):
 # GENERIC FUNCTION TO THAT CHECKS IF AN ELEMENT IS IN AN ARRAY OR NOT
 
 def check_element_in_arr(element, arr):
-    # print(arr)
+
     for i in arr:
-        # print(i, element)
         if type(i) == type(check_tup):
             # THIS IS A TUPLE
             if element == i:
@@ -100,7 +97,6 @@ def check_element_in_arr(element, arr):
         elif type(i) == type(check_list) and len(i) > 0:
             # THE TUPLES ARE IN A LIST
             for j in i:
-                # print(j, element)
                 if element == j:
                     return True
         else:
@@ -108,6 +104,7 @@ def check_element_in_arr(element, arr):
             pass
 
     return False
+
 
 def EXIT():
     print("EXITING..")
@@ -122,7 +119,7 @@ def click(mpos):
     return x_co, y_co
 
 
-def loosing_screen(text, Player=False):
+def loosing_screen(bo, online, text, Player=False):
     time.sleep(0.1)
     if Player:
         Player.client.send("!D".encode(Player.format))
@@ -130,25 +127,40 @@ def loosing_screen(text, Player=False):
     text_ = font_.render(text, True, 'black')
     text_rect = text_.get_rect()
     back_rect = text_rect
-    if Player:
-        Player.client.send("!D".encode(Player.format))
     text_rect.center = 1100/2, 900/2
+    menu_button = Button('MAIN MENU', WIDTH/2 - 200, 520, 400, 70)
+    clicked = False
 
     while True:
-        pygame.draw.rect(screen, (150, 255, 0), back_rect, 0)
-        pygame.draw.rect(screen, (0, 0, 0), back_rect, 2)
-        screen.blit(text_, text_rect)
+        screen.blit(board_image, (0, 0))
+        bo.draw(screen, online)
+        clock.tick(10)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 EXIT()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     starting_screen()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if menu_button.check_click():
+                    starting_screen()
+
+        # TO DISPLAY THE BOARD IF MOUSE BUTTON IS CLICKED
+        if pygame.mouse.get_pressed()[0]:
+            clicked = True
+        else:
+            clicked = False
+
+        if not clicked:
+            pygame.draw.rect(screen, (150, 255, 0), back_rect, 0)
+            pygame.draw.rect(screen, (0, 0, 0), back_rect, 2)
+            menu_button.draw()
+            screen.blit(text_, text_rect)
 
         pygame.display.update()
 
 
-def stalemate_screen(text, Player=False):
+def stalemate_screen(bo, online, text, Player=False):
     time.sleep(0.1)
     if Player:
         Player.client.send("!D".encode(Player.format))
@@ -156,17 +168,35 @@ def stalemate_screen(text, Player=False):
     text_rect = text_.get_rect()
     back_rect = text_rect
     text_rect.center = 1100/2, 900/2
+    menu_button = Button('MAIN MENU', WIDTH/2 - 200, 520, 400, 70)
+
+    clicked = False
+
     while True:
-        pygame.draw.rect(screen, (100, 255, 0), back_rect, 0)
-        pygame.draw.rect(screen, (0, 0, 0), back_rect, 2)
-        screen.blit(text_, text_rect)
+        screen.blit(board_image, (0, 0))
+        bo.draw(screen, online)
+        clock.tick(10)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 EXIT()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     starting_screen()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if menu_button.check_click():
+                    starting_screen()
 
+        if pygame.mouse.get_pressed()[0]:
+            clicked = True
+        else:
+            clicked = False
+
+        if not clicked:
+            pygame.draw.rect(screen, (100, 255, 0), back_rect, 0)
+            pygame.draw.rect(screen, (0, 0, 0), back_rect, 2)
+            menu_button.draw()
+            screen.blit(text_, text_rect)
         pygame.display.update()
 
 
@@ -225,9 +255,9 @@ def waiting_screen():
     Player = Network()
     print(Player.first_message)
 
-    if Player.first_message == 'full':
+    # SERVER SENDS THIS WHEN 2 PLAYERS HAVE ALREADY CONNECTED
+    if Player.first_message == 'GAME IS ALREADY RUNNING':
         starting_screen()
-
 
     if not Player.first_message:
         starting_screen()
@@ -242,7 +272,6 @@ def waiting_screen():
 
         # ASK FOR P2 CONNECTION STATUS
         status = Player.send('con_stat')
-
 
         screen.fill('black')
         screen.blit(starting_screen_image, (0, 125))
@@ -293,7 +322,6 @@ def online_game(Player, my_color):
 
     count = 0
 
-
     while True:
         clock.tick(10)
 
@@ -315,8 +343,6 @@ def online_game(Player, my_color):
                     last_move = last_move.split(' ')
                     for i in last_move:
                         exec(i)
-
-
 
                     # AFTER THE LAST MOVE DONE BY OTHER PLAYER
                     # CHECK FOR CHECK MY COLOR
@@ -402,8 +428,7 @@ def online_game(Player, my_color):
                                     check_sound.play()
                                     bo.deselect_all()
                                 else:
-
-                                    ## TURN EN PASANT STATUS FOR ALL PIECE OFF
+                                    # TURN EN PASANT STATUS FOR ALL PIECE OFF CLIENT SIDE
                                     for ti in range(8):
                                         for tj in range(8):
                                             if bo.board[ti][tj] != 0 and isinstance(bo.board[ti][tj], Pawn) and \
@@ -412,8 +437,8 @@ def online_game(Player, my_color):
                                                     bo.board[ti][tj].en_passant_left_status = False
                                                     bo.board[ti][tj].en_passant_right_status = False
 
-
-                                    move_sound.play()
+                                    # SPECIAL CASE FOR PROMOTION
+                                    # SOME EXTRA COMMANDS
                                     commands = Player.send('new_board')
                                     if commands == 'change_piece()':
                                         new_piece = change_piece()
@@ -425,16 +450,15 @@ def online_game(Player, my_color):
                                             commands = Player.send(new_piece)
                                         if new_piece == 'K':
                                             commands = Player.send(new_piece)
-                                        promote_sound.play()
 
-
+                                    # ACTUALLY EXECUTION THE COMMANDS THE CHANGE PIECES ON BOARD
                                     commands = commands.split(' ')
                                     for command in commands:
                                         exec(command)
                                     bo.deselect_all()
 
-                                    ## AFTER MY MOVE IF OTHER PLAYER HAS A CHECK
-                                    ## TURN CHECK STATUS ON
+                                    # AFTER MY MOVE IF OTHER PLAYER HAS A CHECK
+                                    # TURN CHECK STATUS ON
                                     garbage = Player.send('check')
                                     in_check = Player.send(other_player_color)
                                     if int(in_check):
@@ -447,20 +471,20 @@ def online_game(Player, my_color):
                                                     break
 
                                         bo.board[position[0]][position[1]].check = True
+                                    else:
+                                        # AFTER MY MOVE IF MY KING IS NOT IN CHECK
+                                        # TURN CHECK STATUS OFF
+                                        garbage = Player.send('check')
+                                        in_check = Player.send(my_color)
+                                        if not int(in_check):
+                                            position = 0, 0
+                                            for i in range(8):
+                                                for j in range(8):
+                                                    if bo.board[i][j] != 0 and bo.board[i][j].color == my_color and isinstance(bo.board[i][j], King):
+                                                        position = i, j
+                                                        break
 
-                                    # AFTER MY MOVE IF MY KING IS NOT IN CHECK
-                                    # TURN CHECK STATUS OFF
-                                    garbage = Player.send('check')
-                                    in_check = Player.send(my_color)
-                                    if not int(in_check):
-                                        position = 0, 0
-                                        for i in range(8):
-                                            for j in range(8):
-                                                if bo.board[i][j] != 0 and bo.board[i][j].color == my_color and isinstance(bo.board[i][j], King):
-                                                    position = i, j
-                                                    break
-
-                                        bo.board[position[0]][position[1]].check = False
+                                            bo.board[position[0]][position[1]].check = False
 
                                         end = Player.send('end')
                                         if end != '0':
@@ -470,7 +494,7 @@ def online_game(Player, my_color):
                                                 exec(command)
 
                         else:
-                            #
+                            # IF THE SELECTED POSITION IS NOT IN POSSIBLE MOVES
                             check_sound.play()
                             bo.deselect_all()
                             move = 0
@@ -479,22 +503,18 @@ def online_game(Player, my_color):
                         # IF NOT MY CHANCE
                         move = 0
                         check_sound.play()
-                        bo.deselect_all()
-
-
             pygame.display.update()
 
-
         else:
-            # P2 NOT ONLONE
+            # P2 NOT ONLINE
             Player.client.send('!D'.encode(Player.format))
             disconnect_screen()
 
+
+# SAME FUNCTION IN BOARD.PY
 def change_piece():
     print("SERVER")
     return_piece = 'Q'
-
-    clock = pygame.time.Clock()
     rect1 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 10, 1100 / 2 - 20, 900 / 8)
     rect2 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 20 + 900 / 8, 1100 / 2 - 20, 900 / 8)
     rect3 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 30 + 900 / 4, 1100 / 2 - 20, 900 / 8)
@@ -565,8 +585,8 @@ def disconnect_screen():
         pygame.display.update()
 
 
-
 def offline_game():
+    online = False
     print("OFFLINE GAME")
     pygame.display.set_caption('OFFLINE CHESS')
 
@@ -629,6 +649,7 @@ def offline_game():
                         move = 0
                         # THIS FUNCTIONS TAKES THE OLD AND NEW POSITION
                         # CHECKS WEATHER IT CAN MOVE THE PIECE TO THE NEW POSITION OR NOT
+                        # THE SECOND THINGS IT RETURNS IS ONLY FOR ONLINE GAMES, BEC THIS IS OFFLINE IT RETURNS BLANK
                         piece_was_not_able_to_move, online_garbage = bo.move_piece(start_row, start_col, i, j, current_player_color)
                         # WEATHER THE PIECE WAS MOVED OR NOT DESELECT EVERYTHING
                         bo.deselect_all()
@@ -660,31 +681,16 @@ def offline_game():
                                     if bo.board[i][j+1] != 0 and isinstance(bo.board[i][j+1], Pawn) and bo.board[i][j+1].color != current_player_color:
                                         bo.board[i][j + 1].en_passant_left_status = True
 
-
                             # CHANGE THE CURRENT PLAYER COLOR
                             if current_player_color == 'w':
                                 current_player_color = 'b'
                             else:
                                 current_player_color = 'w'
 
-                            # AFTER THE PIECE HAS MOVED, CHECK IF THE PIECE WAS PAWN, ROOK OR KING
-                            # AND CHANGE THE VARIABLE THAT CHANGES THE VALID MOVES FOR THEM
-                            if isinstance(bo.board[i][j], Pawn):
-                                bo.board[i][j].moves = 1
-
-                            if isinstance(bo.board[i][j], King):
-                                bo.board[i][j].moves = 1
-
-                            if isinstance(bo.board[i][j], Rook):
-                                bo.board[i][j].moves = 1
+                            # AFTER THE PIECE HAS MOVED CHANGE ITS MOVES TO 1
+                            bo.board[i][j].moves = 1
 
                             # CHECK FOR TIE
-                            if total_moves >= 100:
-                                screen.blit(board_image, (0, 0))
-                                bo.draw(screen)
-                                pygame.display.update()
-                                stalemate_screen('DRAW')
-
 
                             count = 0
                             for i in range(8):
@@ -697,7 +703,7 @@ def offline_game():
                                 screen.blit(board_image, (0, 0))
                                 bo.draw(screen)
                                 pygame.display.update()
-                                stalemate_screen('DRAW')
+                                stalemate_screen(bo, online, 'STALEMATE')
                             if count == 61:
                                 for i in range(8):
                                     for j in range(8):
@@ -705,42 +711,37 @@ def offline_game():
                                             screen.blit(board_image, (0, 0))
                                             bo.draw(screen)
                                             pygame.display.update()
-                                            stalemate_screen('DRAW')
+                                            stalemate_screen(bo, online, "DRAW_INSUFFICIENT_MATERIAL")
 
                             # CHECK FOR CHECKMATE
                             a = bo.checkmate('w')
                             b = bo.checkmate('b')
 
                             if a:
-                                screen.blit(board_image, (0, 0))
-                                bo.draw(screen)
-                                pygame.display.update()
-                                loosing_screen('BLACK')
+                                loosing_screen(bo, online, 'BLACK')
                             if b:
-                                screen.blit(board_image, (0, 0))
-                                bo.draw(screen)
-                                pygame.display.update()
-                                loosing_screen('WHITE')
-
+                                loosing_screen(bo, online, 'WHITE')
 
                             # CHECK FOR STALEMATE
                             a = bo.stalemate('w')
                             b = bo.stalemate('b')
 
                             if a:
-                                screen.blit(board_image, (0, 0))
-                                bo.draw(screen)
-                                pygame.display.update()
-                                stalemate_screen('STALEMATE')
+                                stalemate_screen(bo, online, 'STALEMATE')
                             if b:
-                                screen.blit(board_image, (0, 0))
-                                bo.draw(screen)
-                                pygame.display.update()
-                                stalemate_screen('STALEMATE')
+                                stalemate_screen(bo, online, 'STALEMATE')
 
                             # CHECK FOR NORMAL CHECK
                             bo.check('w')
                             bo.check('b')
+
+                            # THIS IS TO BE CHECKED AFTER CHECKMATE AND STALEMATE
+                            # ANOTHER TIE
+                            if total_moves >= 100:
+                                screen.blit(board_image, (0, 0))
+                                bo.draw(screen)
+                                pygame.display.update()
+                                stalemate_screen(bo, True, "DRAW_100_MOVES_PLAYED")
 
                     # IF THE NEW POSITION SELECTED IF THE ORIGINAL POSITION
                     elif (i, j) == (start_row, start_col):
@@ -765,17 +766,16 @@ def offline_game():
         pygame.display.update()
         clock.tick(20)
 
+
+# THIS IS CALLED WHEN IN OFFLINE CHESS PLAYER PRESSES ESCAPE
 def pause():
     color = 'grey'
-    text2 = font_.render('ALL PROGRESS WILL BE LOST', True, 'black')
+    progress_button = Button('ALL PROGRESS WILL BE LOST', 20, 300, 1070, 70)
     go_back_button = Button('GO BACK TO START MENU', 80, 400, 900, 70)
     status = False
-    text2_rect = text2.get_rect(topleft=(30, 300))
     sure_button = Button('ARE YOU SURE', 250, 500, 530, 70)
     yes_button = Button('YES', 170, 600, 150, 70)
-    no_button = Button('NO', 750, 600, 130, 70)
-    surface2 = pygame.Surface((text2_rect.w, text2_rect.h), 0)
-    surface2.fill(color)
+    no_button = Button('NO', 750, 600, 110, 70)
     run = True
     while run:
 
@@ -797,8 +797,7 @@ def pause():
             sure_button.draw()
             yes_button.draw()
             no_button.draw()
-            screen.blit(surface2, text2_rect)
-            screen.blit(text2, text2_rect)
+            progress_button.draw()
         pygame.display.update()
 
 

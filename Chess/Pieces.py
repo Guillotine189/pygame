@@ -268,6 +268,7 @@ class Queen(pieces):
 class Bishop(pieces):
     image = 0
     moves = 0
+
     def possible_moves(self, board, online=False):
         moves = []
         i = self.row
@@ -456,7 +457,6 @@ class King(pieces):
             # KING HAS ZERO MOVES
             # CHECKING OF THE POSITION BETWEEN THE KING AND ROOK FOR CHECK IS DONE IN board.py
             if not self.check:
-                # FOR RIGHT ROOK
 
                 if online and self.color == 'b':
                     # RIGHT ROOK
@@ -480,6 +480,7 @@ class King(pieces):
                                     left_castle_move = (ni, 1)
 
                 else:
+                    # FOR RIGHT ROOK
                     if board[ni][7] != 0:
                         if isinstance(board[ni][7], Rook) and board[ni][7].color == color_current:
                             # THE NEW POSITION HAS ROOK OF SAME COLOR
@@ -690,56 +691,9 @@ class Pawn(pieces):
             border_w = i - 1
             border_b = i + 1
 
-        if self.color == 'b' and online:
-            if self.row > 0:
-                arr = []
-                for x in range(border_w, i):
-                    p = board[x][j]
-                    if p != 0:
-                        arr.append(x)
-
-                # FOR FORWARDS
-                if len(arr) == 0:
-                    for k in range(border_w, i):
-                        moves.append((k, j))
-
-                else:
-                    for k in range(arr[len(arr) - 1] + 1, i):
-                        moves.append((k, j))
-
-                # FOR SIDES
-                if j < 7:
-                    p = board[i - 1][j + 1]
-                    if p != 0:
-                        if p.color != self.color:
-                            moves.append((i - 1, j + 1))
-                if j > 0:
-                    p = board[i - 1][j - 1]
-                    if p != 0:
-                        if p.color != self.color:
-                            moves.append((i - 1, j - 1))
-
-                # EN_PASSANT MOVES
-                if self.en_passant_left_status:
-                    # FOR LEFT PAWN
-                    if self.column > 0:
-                        # OF DIFFERENT COLOR
-                        if board[i][j - 1] != 0:
-                            if board[i][j - 1].color != self.color:
-                                moves.append((i - 1, j - 1))
-
-                if self.en_passant_right_status:
-                    # FOR RIGHT PAWN
-                    if self.column < 7:
-                        # OF DIFFERENT COLOR
-                        if board[i][j + 1] != 0:
-                            if board[i][j + 1].color != self.color:
-                                moves.append((i - 1, j + 1))
-            return moves
-
-
-
-        if self.color == "w":
+        # WHEN OFFLINE FIRST CONDITION IS TRUE
+        # WHEN ONLINE COLOR IS BLACK SECOND CONDITION IS TRUE
+        if self.color == "w" or (self.color == 'b' and online):
             if self.row > 0:
                 arr = []
                 for x in range(border_w, i):
