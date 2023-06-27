@@ -59,6 +59,12 @@ class Board:
         self.check_king = King(0, 0, 'w')  # ONLY FOR COMPARISON
         self.screen = screen
 
+        self.piece_width = int(1100 / 8)
+        self.piece_height = int(900 / 8)
+        self.last_move_original_pos = 0, 0
+        self.last_move_new_pos = 0, 0
+
+
         # THE VARIABLE THAT AFTER CHECKING ALL THE CONDITION ACTUALLY UPDATE THE BOARD
         self.remove_old_piece = True
         self.move_old_piece = True
@@ -145,6 +151,18 @@ class Board:
             self.board[6][5] = Pawn(6, 5, 'b')
             self.board[6][6] = Pawn(6, 6, 'b')
             self.board[6][7] = Pawn(6, 7, 'b')
+
+
+    # THIS FUNCTIONS DRAWS THE LAST MOVE PLAYED BY THE PLAYER
+    def draw_last_move(self):
+        ox = self.last_move_original_pos[1]*self.piece_width
+        oy = self.last_move_original_pos[0]*self.piece_height
+        nx = self.last_move_new_pos[1]*self.piece_width
+        ny = self.last_move_new_pos[0]*self.piece_height
+
+        pygame.draw.rect(self.screen, (113, 246, 130), (ox + 1, oy, self.piece_width + 6, self.piece_height + 5), 0)
+        pygame.draw.rect(self.screen, (113, 246, 130), (nx+1, ny, self.piece_width+6, self.piece_height+5), 0)
+
 
     # THIS DRAWS THE BOARD
     def draw(self, screen, online=False):
@@ -636,7 +654,7 @@ class Board:
     # WHEN THE PAWN IS PROMOTED, THIS FUNCTION IS CALLED
     # THIS RETURNS THE PIECE PLAYER WANTS TO REPLACE PAWN WITH
     def change_piece(self):
-        print("SERVER")
+
         return_piece = 'Q'
 
         clock = pygame.time.Clock()

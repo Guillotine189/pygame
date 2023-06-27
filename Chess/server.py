@@ -1,5 +1,8 @@
 import socket
 import threading
+
+import pygame.draw
+
 from board import Board
 from Pieces import *
 
@@ -24,6 +27,9 @@ new_moves = '0'
 end = '0'
 end_payload = ''
 
+last_move_original_co = 0, 0
+last_move_new_co = 0, 0
+
 # GAME
 bo = Board(8, 8, 0, 'w')
 
@@ -39,7 +45,7 @@ def read_moves(moves):
 
 def receive(client, pl_no):
 
-    global status, player_no, current_player_color, other_player_color, move_played, has_played_move, last_move, new_moves, end_payload, end, total_moves
+    global status, player_no, current_player_color, other_player_color, move_played, has_played_move, last_move, new_moves, end_payload, end, total_moves, last_move_original_co, last_move_new_co
 
     status[pl_no] = 1
 
@@ -92,6 +98,9 @@ def receive(client, pl_no):
                 if piece_was_not_able_to_move:
                     client.send("1".encode(FORMAT))
                 else:
+
+                    last_move_original_co = moves[0], moves[1]
+                    last_move_new_co = moves[2], moves[3]
 
                     # TURNING OFF EN PASANT STATUS OF ENEMY FALSE ON GAME RUNNING ON SERVER
                     for ti in range(8):
@@ -186,6 +195,10 @@ def receive(client, pl_no):
                             payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Knight({7-new_moves[2]},{7-new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0 promote_sound.play()'
 
+                #  COMMANDS TO CHANGE THE POSITION OF THE LATEST MOVE PLAYED ON CLIENT SIDE
+                payload += f" bo.last_move_original_pos={last_move_original_co[0]},{last_move_original_co[1]}"
+                payload += f" bo.last_move_new_pos={last_move_new_co[0]},{last_move_new_co[1]}"
+
                 # LAST_MOVE STORES THE COMMAND THAT WERE SENT TO THE CURRENT PLAYERS
                 last_move = payload
                 # print(payload, "SENDING TO CURRENT PLAYER")
@@ -217,15 +230,12 @@ def receive(client, pl_no):
                     if c:
                         end_payload = 'stalemate_screen(bo,True,"STALEMATE",Player) '
                         end = '1'
-                        print(1)
                     elif d:
                         end_payload = 'stalemate_screen(bo,True,"STALEMATE",Player)'
                         end = '1'
-                        print(2)
                     if total_moves >= 100:
                         end = '1'
                         end_payload = 'stalemate_screen(bo,True,"DRAW_100_MOVES_PLAYED",Player)'
-                        print(3)
                     if not c and not d:
                         count = 0
                         for i in range(8):
@@ -237,14 +247,12 @@ def receive(client, pl_no):
                         if count == 62:
                             end = '1'
                             end_payload = 'stalemate_screen(bo,True,"STALEMATE",Player)'
-                            print(4)
                         elif count == 61:
                             for i in range(8):
                                 for j in range(8):
                                     if bo.board[i][j] != 0 and (isinstance(bo.board[i][j], Knight) or isinstance(bo.board[i][j], Bishop)):
                                         end = '1'
                                         end_payload = 'stalemate_screen(bo,True,"DRAW_INSUFFICIENT_MATERIAL",Player)'
-                                        print(5)
 
             # THIS IS SENT THE PLAYER WHOSE JUST GOT ITS TURN
             # THIS MODIFIES THE LAST COMMANDS AND SEND IT BACK
@@ -260,6 +268,7 @@ def receive(client, pl_no):
                     modified_last_move = modified_last_move.replace('k(', 'k(7-')
                     modified_last_move = modified_last_move.replace('p(', 'p(7-')
                     modified_last_move = modified_last_move.replace('t(', 't(7-')
+                    modified_last_move = modified_last_move.replace('_pos=', '_pos=7-')
                     # print(modified_last_move, "SENDING TO OTHER PLAYER")
                     client.send(modified_last_move.encode(FORMAT))
                     last_move = '0'

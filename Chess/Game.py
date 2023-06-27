@@ -133,6 +133,7 @@ def loosing_screen(bo, online, text, Player=False):
 
     while True:
         screen.blit(board_image, (0, 0))
+        bo.draw_last_move()
         bo.draw(screen, online)
         clock.tick(10)
         for event in pygame.event.get():
@@ -174,6 +175,7 @@ def stalemate_screen(bo, online, text, Player=False):
 
     while True:
         screen.blit(board_image, (0, 0))
+        bo.draw_last_move()
         bo.draw(screen, online)
         clock.tick(10)
 
@@ -305,6 +307,7 @@ def make_moves(tup):
 
 
 def online_game(Player, my_color):
+    last_move_status = False
     print("CHESS ONLINE")
     pygame.display.set_caption('CHESS ONLINE')
 
@@ -328,6 +331,8 @@ def online_game(Player, my_color):
         mpos = pygame.mouse.get_pos()
         screen.fill((0, 0, 0))
         screen.blit(board_image, (0, 0))
+        if last_move_status:
+            bo.draw_last_move()
         bo.draw(screen, 1)
 
         pl_2_stat = Player.send('con_stat')
@@ -338,6 +343,7 @@ def online_game(Player, my_color):
                 count = 0
             else:
                 if count == 0:
+                    last_move_status = True
                     count += 1
                     last_move = Player.send('last_move')
                     last_move = last_move.split(' ')
@@ -388,6 +394,7 @@ def online_game(Player, my_color):
                     EXIT()
                 if event.type == pygame.MOUSEBUTTONDOWN:
 
+                    last_move_status = False
                     #  MY TURN CONFIRMED
                     if current_player_color == my_color:
                         i, j = click(mpos)
@@ -428,6 +435,7 @@ def online_game(Player, my_color):
                                     check_sound.play()
                                     bo.deselect_all()
                                 else:
+                                    last_move_status = True
                                     # TURN EN PASANT STATUS FOR ALL PIECE OFF CLIENT SIDE
                                     for ti in range(8):
                                         for tj in range(8):
@@ -456,6 +464,7 @@ def online_game(Player, my_color):
                                     for command in commands:
                                         exec(command)
                                     bo.deselect_all()
+
 
                                     # AFTER MY MOVE IF OTHER PLAYER HAS A CHECK
                                     # TURN CHECK STATUS ON
@@ -513,7 +522,7 @@ def online_game(Player, my_color):
 
 # SAME FUNCTION IN BOARD.PY
 def change_piece():
-    print("SERVER")
+
     return_piece = 'Q'
     rect1 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 10, 1100 / 2 - 20, 900 / 8)
     rect2 = pygame.Rect(1100 / 4 + 10, 900 / 4 + 20 + 900 / 8, 1100 / 2 - 20, 900 / 8)
@@ -586,6 +595,8 @@ def disconnect_screen():
 
 
 def offline_game():
+    last_move_status = False
+
     online = False
     print("OFFLINE GAME")
     pygame.display.set_caption('OFFLINE CHESS')
@@ -607,6 +618,8 @@ def offline_game():
         mpos = pygame.mouse.get_pos()
         screen.fill("black")
         screen.blit(board_image, (0, 0))
+        if last_move_status:
+            bo.draw_last_move()
         bo.draw(screen)
 
         for event in pygame.event.get():
@@ -620,6 +633,7 @@ def offline_game():
                         pause_stat = False
             if event.type == pygame.MOUSEBUTTONDOWN:
 
+                last_move_status = False
                 # GET THE ROW AND COLUMN OF THE CLICKED POSITION
                 i, j = click(mpos)
 
@@ -658,6 +672,11 @@ def offline_game():
                             check_sound.play()
                             pass
                         else:
+
+                            bo.last_move_original_pos = start_row, start_col
+                            bo.last_move_new_pos = i, j
+                            last_move_status = True
+
                             move_sound.play()
                             total_moves += 1
 
