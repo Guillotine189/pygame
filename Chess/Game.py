@@ -1,4 +1,7 @@
 import sys
+
+import pygame.draw
+
 from board import Board
 from Pieces import *
 from client import Network
@@ -85,7 +88,7 @@ def check_current_player_by_color(bo, i, j, current_player_color):
             return False
 
 
-# GENERIC FUNCTION TO THAT CHECKS IF AN ELEMENT IS IN AN ARRAY OR NOT
+# GENERIC FUNCTION THAT CHECKS IF AN ELEMENT IS IN AN ARRAY OR NOT
 
 def check_element_in_arr(element, arr):
 
@@ -112,7 +115,7 @@ def EXIT():
     sys.exit()
 
 
-# THIS FUNCTION RETURN THE X AND Y COORDINATE FOR THE BOARD
+# THIS FUNCTION RETURNS THE X AND Y COORDINATE FOR THE BOARD
 def click(mpos):
     y_co = int(mpos[0]/(WIDTH/8))
     x_co = int(mpos[1]/(HEIGHT/8))
@@ -132,6 +135,7 @@ def loosing_screen(bo, online, text, Player=False):
     clicked = False
 
     while True:
+        clock.tick(20)
         screen.blit(board_image, (0, 0))
         bo.draw_last_move()
         bo.draw(screen, online)
@@ -174,6 +178,7 @@ def stalemate_screen(bo, online, text, Player=False):
     clicked = False
 
     while True:
+        clock.tick(20)
         screen.blit(board_image, (0, 0))
         bo.draw_last_move()
         bo.draw(screen, online)
@@ -223,6 +228,7 @@ def starting_screen():
     text2_rect.topleft = 80, 470
 
     while True:
+        clock.tick(20)
         screen.fill((0, 0, 0))
         screen.blit(starting_screen_image, (0, 125))
 
@@ -351,7 +357,7 @@ def online_game(Player, my_color):
                         exec(i)
 
                     # AFTER THE LAST MOVE DONE BY OTHER PLAYER
-                    # CHECK FOR CHECK MY COLOR
+                    # CHECK IF MY KING IS IN CHECK
                     garbage = Player.send('check')
                     in_check = Player.send(my_color)
                     if int(in_check):
@@ -426,7 +432,7 @@ def online_game(Player, my_color):
                                 payload = start_row, start_col, i, j
                                 payload = make_moves(payload)
                                 move = 0
-                                # NOW THE NEW POSITION COMES INSIDE THE POSSIBLE MOVES
+                                # NEW POSITION PRESENT IN POSSIBLE MOVES
                                 # SEND THIS TO SERVER TO FIND IF ITS VALID OR NOT
                                 garbage = Player.send('MOVED')
                                 piece_was_not_able_to_move = Player.send(payload)
@@ -459,12 +465,11 @@ def online_game(Player, my_color):
                                         if new_piece == 'K':
                                             commands = Player.send(new_piece)
 
-                                    # ACTUALLY EXECUTION THE COMMANDS THE CHANGE PIECES ON BOARD
+                                    # ACTUALLY EXECUTING THE COMMANDS THAT CHANGES THE PIECES ON BOARD
                                     commands = commands.split(' ')
                                     for command in commands:
                                         exec(command)
                                     bo.deselect_all()
-
 
                                     # AFTER MY MOVE IF OTHER PLAYER HAS A CHECK
                                     # TURN CHECK STATUS ON
@@ -515,9 +520,9 @@ def online_game(Player, my_color):
             pygame.display.update()
 
         else:
-            # P2 NOT ONLINE
+            # P2 NOT ONLINE ANYMORE
             Player.client.send('!D'.encode(Player.format))
-            disconnect_screen()
+            disconnect_screen(bo)
 
 
 # SAME FUNCTION IN BOARD.PY
@@ -570,16 +575,21 @@ def change_piece():
     return return_piece
 
 
-def disconnect_screen():
-    text = font_.render('OTHER PLAYER DISCONNECTED', True, (255, 255, 255)).convert_alpha()
+def disconnect_screen(bo):
+    text = font_.render('OTHER PLAYER DISCONNECTED', True, (0, 0, 0)).convert_alpha()
+    text_rec = text.get_rect()
+    surface = pygame.Surface((text_rec.w, text_rec.h), 0)
+    surface.fill((205, 250, 205))
 
-    # CREATING BUTTON
     menu_button = Button('MAIN MENU', 320, 420, 400, 70)
 
+    clicked = False
     while True:
+        clock.tick(20)
         screen.fill((0, 0, 0))
-        screen.blit(starting_screen_image, (0, 95))
-        screen.blit(text, (25, 250))
+        screen.blit(board_image, (0, 0))
+        bo.draw_last_move()
+        bo.draw(screen, 1)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -590,7 +600,14 @@ def disconnect_screen():
                 if event.key == pygame.K_ESCAPE:
                     starting_screen()
 
-        menu_button.draw()
+        if pygame.mouse.get_pressed()[0]:
+            clicked = True
+        else:
+            clicked = False
+        if not clicked:
+            screen.blit(surface, (25, 250))
+            screen.blit(text, (25, 250))
+            menu_button.draw()
         pygame.display.update()
 
 
@@ -652,10 +669,9 @@ def offline_game():
 
                 elif bo.check_any_selected() and move == 1:
 
-                    # GET ALL THE POSSIBLE MOVES FOR  THAT PIECE
+                    # GET ALL THE POSSIBLE MOVES FOR THAT PIECE
                     valid_moves = bo.return_valid(start_row, start_col)
 
-                    # TODO  check if this does anything (bo.board[i][j] == 0 or bo.board[i][j].color != bo.board[start_row][start_col].color)
                     # CHECK IF THE NEW POSITION SELECTED IS EMPTY(ZERO), OR HAS A DIFFERENT COLOR PIECE
                     # THEN CHECK WEATHER THAT NEW POSITION IS IN THE VALID MOVES LIST
 
@@ -663,7 +679,7 @@ def offline_game():
                         move = 0
                         # THIS FUNCTIONS TAKES THE OLD AND NEW POSITION
                         # CHECKS WEATHER IT CAN MOVE THE PIECE TO THE NEW POSITION OR NOT
-                        # THE SECOND THINGS IT RETURNS IS ONLY FOR ONLINE GAMES, BEC THIS IS OFFLINE IT RETURNS BLANK
+                        # THE SECOND THING IT RETURNS IS ONLY FOR ONLINE GAMES, BEC THIS IS OFFLINE IT RETURNS BLANK
                         piece_was_not_able_to_move, online_garbage = bo.move_piece(start_row, start_col, i, j, current_player_color)
                         # WEATHER THE PIECE WAS MOVED OR NOT DESELECT EVERYTHING
                         bo.deselect_all()
@@ -717,7 +733,7 @@ def offline_game():
                                     if bo.board[i][j] == 0:
                                         count += 1
 
-                            # IF ONLY THE 2 PIECES ARE LEFT, THEY ARE KINGS THEN
+                            # IF ONLY THE 2 PIECES ARE LEFT
                             if count == 62:
                                 screen.blit(board_image, (0, 0))
                                 bo.draw(screen)
@@ -797,7 +813,7 @@ def pause():
     no_button = Button('NO', 750, 600, 110, 70)
     run = True
     while run:
-
+        clock.tick(20)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 EXIT()

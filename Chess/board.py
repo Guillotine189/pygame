@@ -61,11 +61,10 @@ class Board:
 
         self.piece_width = int(1100 / 8)
         self.piece_height = int(900 / 8)
-        self.last_move_original_pos = 0, 0
-        self.last_move_new_pos = 0, 0
+        self.last_move_original_pos = -2, -2
+        self.last_move_new_pos = -2, -2
 
-
-        # THE VARIABLE THAT AFTER CHECKING ALL THE CONDITION ACTUALLY UPDATE THE BOARD
+        # THE VARIABLE THAT AFTER CHECKING ALL THE CONDITION ACTUALLY UPDATES THE BOARD
         self.remove_old_piece = True
         self.move_old_piece = True
         self.update_old_piece = True
@@ -224,7 +223,7 @@ class Board:
 
     # FUNCTION THAT CHECKS WEATHER A PIECE SHOULD MOVE OR NOT
     # AND THEN MOVE IT IF VALID
-    # THIS FUNCITION WILL ONLY BE CALLED WHEN THE NEW POSITION FALLS UNDER 'POSSIBLE MOVES'
+    # THIS FUNCTION WILL ONLY BE CALLED WHEN THE NEW POSITION FALLS UNDER 'POSSIBLE MOVES'
     def move_piece(self, oi, oj, ni, nj, color_current, online=False):
 
         # INITIALLY SET THAT THE PIECE WILL MOVE
@@ -544,7 +543,7 @@ class Board:
         danger_moves = []
 
         # FOR EVERY ENEMY PIECE ON THE BOARD
-        # APPEND ALL POSSIBLE MOVES THAT CAN BE DONE BY ENEMY PLAYER AT CURRENT STATE
+        # APPEND ALL POSSIBLE MOVES THAT CAN BE DONE BY ENEMY PLAYER IN CURRENT STATE
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.board[i][j] != 0:
@@ -570,7 +569,7 @@ class Board:
 
         return danger_moves
 
-    # THIS FUNCTIONS CHECK WEATHER THE KING OF COLOR THAT IS PASSED IS IN CHECK OR NOT
+    # THIS FUNCTIONS CHECK WEATHER THE KING OF COLOR THAT IS PASSED IN, IS IN CHECK OR NOT
     def check(self, for_color):
         # FIND KINGS POSITION
         position = 0, 0
@@ -603,8 +602,8 @@ class Board:
                             # FOR EVERY PIECE GET ALL POSSIBLE MOVES
                             all_possible_moves_for_a_piece = self.board[i][j].return_possible_moves(self.board)
                             for move in all_possible_moves_for_a_piece:
-                                # THE CASTLING ADD 0, 0 TO POSSIBLE MOVES FOR KING
-                                # WHEN THIS PART READ IT GIVES ERROR, SO THIS WAS IMP
+                                # THE CASTLING ADD 0, 0 TO POSSIBLE MOVES FOR KING WHEN NO CASTLING MOVES ARE AVAILABLE
+                                # WHEN THIS PART READS IT, IT GIVES ERROR, SO THIS WAS IMP
                                 if type(move) == type(1):
                                     pass
                                 else:
@@ -644,7 +643,7 @@ class Board:
                                 pass
                             else:
                                 if self.check_valid_move(i, j, move[0], move[1], for_color): # TRUE FOR VALID
-                                    # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETURN NOT STALEMATE IE 0
+                                    # IF THIS IS TRUE THAT MEANS A VALID MOVE WAS FOUND SO RETURN NOT STALEMATE
                                     return 0
                                 else:
                                     pass

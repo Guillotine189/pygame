@@ -1,8 +1,6 @@
 import socket
 import threading
 
-import pygame.draw
-
 from board import Board
 from Pieces import *
 
@@ -54,7 +52,7 @@ def receive(client, pl_no):
     else:
         my_color = 'b'
 
-    # THIS STORES THE COMMANDS RETURNED AFTER CHECKING THE MOVE
+    # THIS STORES THE COMMANDS AFTER CHECKING THE MOVE
     temp_move = ''
 
     while True:
@@ -79,7 +77,7 @@ def receive(client, pl_no):
                 moves = client.recv(1024).decode(FORMAT)
                 moves = read_moves(moves)
                 # print(moves, "ORIGINAL MOVES RECVEIVED")
-                # for white new_moves are same moves
+
                 new_moves = moves
                 # FOR WHITE moves are all good but for black you need to change it then
                 # check it then send back the commands accordingly
@@ -91,8 +89,8 @@ def receive(client, pl_no):
                     new_moves[2] = 7 - new_moves[2]  # row of new move
                     new_moves[3] = 7 - new_moves[3]
                     # print(new_moves,  " PASSING MOVES")
-                    # NOW analise the move on servers board
-                    # temp_move will contain the modified coordinate bor black or original for white
+                    # NOW analyze the move on servers board
+                    # temp_move will contain the commands
                 piece_was_not_able_to_move, temp_move = bo.move_piece(new_moves[0], new_moves[1], new_moves[2], new_moves[3], current_player_color, 1)
 
                 if piece_was_not_able_to_move:
@@ -141,7 +139,7 @@ def receive(client, pl_no):
 
                     client.send("0".encode(FORMAT))
 
-            # WHEN THIS MESSAGE IS RECEIVED, IT SENDS THE COMMAND TO THE CURRENT PLAYER
+            # WHEN THIS MESSAGE IS RECEIVED, IT SENDS THE COMMANDS TO THE CURRENT PLAYER
             if message == 'new_board':
                 payload = temp_move
 
@@ -195,7 +193,7 @@ def receive(client, pl_no):
                             payload = f'bo.board[{7-new_moves[2]}][{7-new_moves[3]}]=Knight({7-new_moves[2]},{7-new_moves[3]},"{current_player_color}")'
                             payload += f' bo.board[{7-new_moves[0]}][{7-new_moves[1]}]=0 promote_sound.play()'
 
-                #  COMMANDS TO CHANGE THE POSITION OF THE LATEST MOVE PLAYED ON CLIENT SIDE
+                #  COMMANDS THAT CHANGES LAST MOVE PLAYED ON CLIENT SIDE
                 payload += f" bo.last_move_original_pos={last_move_original_co[0]},{last_move_original_co[1]}"
                 payload += f" bo.last_move_new_pos={last_move_new_co[0]},{last_move_new_co[1]}"
 
@@ -243,7 +241,7 @@ def receive(client, pl_no):
                                 if bo.board[i][j] == 0:
                                     count += 1
 
-                        # IF ONLY THE 2 PIECES ARE LEFT, THEY ARE KINGS THEN
+                        # IF ONLY 2 PIECES ARE LEFT,(BOTH ARE KING)
                         if count == 62:
                             end = '1'
                             end_payload = 'stalemate_screen(bo,True,"STALEMATE",Player)'
@@ -254,7 +252,7 @@ def receive(client, pl_no):
                                         end = '1'
                                         end_payload = 'stalemate_screen(bo,True,"DRAW_INSUFFICIENT_MATERIAL",Player)'
 
-            # THIS IS SENT THE PLAYER WHOSE JUST GOT ITS TURN
+            # THIS IS SENT THE PLAYER WHO JUST GOT ITS TURN
             # THIS MODIFIES THE LAST COMMANDS AND SEND IT BACK
             if message == 'last_move':
                 if current_player_color == my_color:
@@ -280,9 +278,9 @@ def receive(client, pl_no):
                 client.send(end.encode(FORMAT))
 
             # IF THE GAME HAS ENDED THE CLIENT SENDS THIS COMMAND
-            # THIS SENDS BACK THE FINAL COMMANDS AND THE REASON FOR ENDING THE GAME(STALEMATE OR WON)
+            # THIS SENDS BACK THE FINAL COMMANDS AND THE REASON FOR ENDING THE GAME(STALEMATE OR WINNER)
             if message == 'winner':
-                # THESE COMMANDS ARE NECESSARY BECAUSE THE FINAL SCREEN TAKES TIME TO UPDATE ELSEWISE
+                # THESE COMMANDS ARE NECESSARY BECAUSE THE FINAL SCREEN TAKES TIME TO UPDATE ELSE WISE
                 final_payload = ''
                 final_payload += 'screen.fill((0,0,0))'
                 final_payload += ' screen.blit(board_image,(0,0))'
